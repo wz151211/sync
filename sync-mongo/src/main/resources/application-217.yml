@@ -1,0 +1,14 @@
+spring:
+  data:
+    mongodb:
+      local:
+        #uri: mongodb://localhost:27017/cpws
+        uri: mongodb://root:documentABC@47.95.218.217:27017/cpws?authSource=admin
+      remote:
+        #uri: mongodb://localhost:27017/cpws
+        uri: mongodb://root:documentABC@172.16.119.182:27017/cpws?authSource=admin
+  application:
+    name: sync
+server:
+  port: 8899
+

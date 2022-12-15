@@ -1,0 +1,14 @@
+spring:
+  data:
+    mongodb:
+      local:
+        uri: mongodb://localhost:27017/cpws
+      remote:
+        uri: mongodb://localhost:27017/cpws
+  application:
+    name: sync
+server:
+  port: 8899
+#logging:
+#  level:
+#    org.mongodb: debug
