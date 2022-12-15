@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: 77
+server:
+  port: 8891
