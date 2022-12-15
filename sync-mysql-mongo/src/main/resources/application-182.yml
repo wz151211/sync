@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://172.16.119.182:3306/judgements?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: document@ABC
+    druid:
+      initial-size: 40
+      min-idle: 1
+      max-active: 60
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: select 1
+      test-while-idle: true
+      test-on-borow: false
+      test-on-return: true
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+  data:
+    mongodb:
+      uri: mongodb://root:documentABC@172.16.119.182:27017/cpws?authSource=admin
+     # uri: mongodb://localhost:27017/cpws
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    map-underscore-to-camel-case: true
