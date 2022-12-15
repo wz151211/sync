@@ -1,0 +1,44 @@
+spring:
+  datasource:
+    dynamic:
+      primary: dm1
+      druid:
+        validation-query: SELECT 1
+        initial-size: 30
+        max-active: 40
+        min-idle: 5
+        max-wait: 60000
+        pool-prepared-statements: true
+        max-pool-prepared-statement-per-connection-size: 20
+        validation-query-timeout: 60000
+        test-on-borrow: false
+        test-on-return: false
+        test-while-idle: true
+        time-between-eviction-runs-millis: 60000
+        min-evictable-idle-time-millis: 100000
+        filters: stat
+        connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=1000
+      datasource:
+        dm1:
+          #?????
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://47.95.218.217:3306/judgements?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8
+          username: root
+          password: document@ABC
+        dm2:
+          #?????
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://172.16.119.182:3306/judgements?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8
+          username: root
+          password: document@ABC
+  application:
+    name: sync
+
+    # mybatis
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    map-underscore-to-camel-case: true
+
+date: 2022-11-23
+intervalDays: 1
