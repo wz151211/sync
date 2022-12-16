@@ -22,6 +22,8 @@
         <module>sync-mongo</module>
         <module>sync-mysql</module>
         <module>sync-mysql-to-mongo</module>
+        <module>sync-mysql-mongo</module>
+        <module>sync-parse</module>
     </modules>
 
 </project>
