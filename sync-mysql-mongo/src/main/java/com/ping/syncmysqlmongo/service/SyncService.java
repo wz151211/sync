@@ -41,7 +41,7 @@ public class SyncService {
 
     private List<Dict> docTypes = new ArrayList<>();
     private Map<String, String> docTypeMap = new HashMap<>();
-    private AtomicInteger pageNum = new AtomicInteger(20);
+    private AtomicInteger pageNum = new AtomicInteger(0);
 
     {
         set.add("刑事");
@@ -72,11 +72,12 @@ public class SyncService {
     }
 
     public void save() {
-        List<CpwsEntity> entities = cpwsMapper.selectList(Wrappers.<CpwsEntity>lambdaQuery().eq(CpwsEntity::getFlag, 0).last("limit " + (pageNum.get() * 5000) + ", 5000"));
-        pageNum.getAndIncrement();
-        if (pageNum.get() > 40) {
-            pageNum.set(20);
+
+        if (pageNum.get() > 20) {
+            pageNum.set(0);
         }
+        List<CpwsEntity> entities = cpwsMapper.selectList(Wrappers.<CpwsEntity>lambdaQuery().eq(CpwsEntity::getFlag, 0).last("limit " + (pageNum.get() * 5000) + ", 5000"));
+
         log.info("days={}", pageNum.get());
         if (entities == null || entities.size() == 0) {
             return;

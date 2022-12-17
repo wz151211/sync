@@ -13,8 +13,8 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document")
-public class DocumentEntity {
+@Document(value = "document1")
+public class Document1Entity {
     @Id
     private String id;
 

@@ -1,4 +1,4 @@
-package com.ping.syncparse.entity;
+package com.ping.syncparse.sync;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -13,8 +13,8 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document")
-public class DocumentEntity {
+@Document(value = "document_140")
+public class Document140Entity {
     @Id
     private String id;
 

@@ -42,11 +42,11 @@ public class ParsePartyService {
 
     public void parse() {
 
-        List<DocumentEntity> entities = documentMapper.findList(pageNum.get(), pageSize);
+        List<DocumentEntity> entities = documentMapper.findList(pageNum.get(), pageSize, null);
         pageNum.getAndIncrement();
         for (DocumentEntity entity : entities) {
-            if (StringUtils.hasLength(entity.getJsonContent())) {
-                JSONObject object = JSON.parseObject(entity.getJsonContent());
+            if (entity.getJsonContent() != null && entity.getJsonContent().size() > 0) {
+                JSONObject object = entity.getJsonContent();
                 JSONArray array = object.getJSONArray("s17");
                 if (array != null && array.size() > 0) {
                     if (StringUtils.hasLength(entity.getHtmlContent())) {

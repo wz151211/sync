@@ -46,11 +46,12 @@ public class SyncService {
 
     public void sync() {
         log.info("pageNum={}", pageNum.get());
-        int temp = pageNum.getAndIncrement();
-        List<RemotrDocumentEntity> entities = remoteDocumentMapper.selectList(Wrappers.<RemotrDocumentEntity>lambdaQuery().lt(RemotrDocumentEntity::getCreateTime, date).last("limit " + (temp * pageSize) + ", " + pageSize));
         if (pageNum.get() > 20) {
             pageNum.set(0);
+        } else {
+            pageNum.getAndIncrement();
         }
+        List<RemotrDocumentEntity> entities = remoteDocumentMapper.selectList(Wrappers.<RemotrDocumentEntity>lambdaQuery().lt(RemotrDocumentEntity::getCreateTime, date).last("limit " + (pageNum.get() * pageSize) + ", " + pageSize));
         entities.parallelStream().map(this::toEntity).forEach(c -> {
             log.info("id={},案件名称={}", c.getId(), c.getName());
             mongoMapper.insert(c);
