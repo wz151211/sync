@@ -18,8 +18,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -37,11 +39,14 @@ public class SyncService {
     @Autowired
     private CpwsMapper cpwsMapper;
 
+    @Value("${start}")
+    private Integer start = 0;
+
     private Set<String> set = new HashSet<>();
 
     private List<Dict> docTypes = new ArrayList<>();
     private Map<String, String> docTypeMap = new HashMap<>();
-    private AtomicInteger pageNum = new AtomicInteger(0);
+    private AtomicInteger pageNum = new AtomicInteger(-1);
 
     {
         set.add("刑事");
@@ -72,13 +77,16 @@ public class SyncService {
     }
 
     public void save() {
-
-        if (pageNum.get() > 20) {
-            pageNum.set(0);
+        if (pageNum.get() < 0) {
+            pageNum.set(start);
         }
-        List<CpwsEntity> entities = cpwsMapper.selectList(Wrappers.<CpwsEntity>lambdaQuery().eq(CpwsEntity::getFlag, 0).last("limit " + (pageNum.get() * 5000) + ", 5000"));
-
-        log.info("days={}", pageNum.get());
+        if (pageNum.get() > start + 20) {
+            pageNum.set(start);
+        } else {
+            pageNum.getAndIncrement();
+        }
+        log.info("pageNum={}", pageNum.get());
+        List<CpwsEntity> entities = cpwsMapper.selectList(Wrappers.<CpwsEntity>lambdaQuery().ne(CpwsEntity::getFlag, 600).last("limit " + (pageNum.get() * 5000) + ", 5000"));
         if (entities == null || entities.size() == 0) {
             return;
         }
@@ -92,9 +100,21 @@ public class SyncService {
                 try {
                     object = JSON.parseObject(e.getCourtInfo());
                 } catch (Exception ex) {
-                    log.info("entity={}", entity);
-                    cpwsMapper.update(null, Wrappers.<CpwsEntity>lambdaUpdate().set(CpwsEntity::getFlag, 4).eq(CpwsEntity::getId, e.getId()));
-                    throw new RuntimeException("解析JSON出错");
+                    String str = e.getCourtInfo();
+                    if (str.indexOf("#3!") > 0) {
+                        str = str.replace("#3!", "\":\"");
+                    } else if (str.indexOf(":#") > 0) {
+                        str = str.replace(":#", ":\"");
+                    }
+                    try {
+                        object = JSON.parseObject(str);
+                    } catch (Exception exc) {
+                        exc.printStackTrace();
+                        log.info("entity={}", entity);
+                        cpwsMapper.update(null, Wrappers.<CpwsEntity>lambdaUpdate().set(CpwsEntity::getFlag, 600).eq(CpwsEntity::getId, e.getId()));
+                        throw new RuntimeException("解析JSON出错");
+                    }
+
                 }
                 if (StringUtils.isNotEmpty(e.getCourtInfo())) {
                     if (e.getCourtInfo().contains("DocInfoVo")) {
@@ -216,17 +236,18 @@ public class SyncService {
                     mongoMapper.insert(entity);
                     cpwsMapper.deleteById(e.getId());
                 } else {
-                    cpwsMapper.update(null, Wrappers.<CpwsEntity>lambdaUpdate().set(CpwsEntity::getFlag, 4).eq(CpwsEntity::getId, e.getId()));
+                    cpwsMapper.update(null, Wrappers.<CpwsEntity>lambdaUpdate().set(CpwsEntity::getFlag, 600).eq(CpwsEntity::getId, e.getId()));
                 }
+            } catch (DuplicateKeyException ex) {
+                log.info("1已存在id={}", entity.getId());
+                cpwsMapper.deleteById(e.getId());
             } catch (Exception ex) {
-
                 if (ex.getMessage().contains("duplicate")) {
                     cpwsMapper.deleteById(e.getId());
                 } else {
                     log.error("entity={}", entity);
                     log.error("!", ex);
-                    cpwsMapper.update(null, Wrappers.<CpwsEntity>lambdaUpdate().set(CpwsEntity::getFlag, 4).eq(CpwsEntity::getId, e.getId()));
-
+                    cpwsMapper.update(null, Wrappers.<CpwsEntity>lambdaUpdate().set(CpwsEntity::getFlag, 600).eq(CpwsEntity::getId, e.getId()));
                 }
                 ex.printStackTrace();
             }

@@ -20,10 +20,12 @@ spring:
       max-pool-prepared-statement-per-connection-size: 20
   data:
     mongodb:
-     # uri: mongodb://root:documentABC@172.16.119.182:27017/cpws?authSource=admin
+      # uri: mongodb://root:documentABC@172.16.119.182:27017/cpws?authSource=admin
       uri: mongodb://localhost:27017/cpws
 
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
     map-underscore-to-camel-case: true
+
+start: 0

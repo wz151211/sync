@@ -28,13 +28,13 @@ public class Sync140Service {
     private Document140Mapper document140Mapper;
     private AtomicInteger pageNum1 = new AtomicInteger(0);
     private AtomicInteger pageNum2 = new AtomicInteger(0);
-    private final int pageSize = 10000;
+    private final int pageSize = 1000;
 
     public void sync1() {
         Criteria criteria = Criteria
                 .where("caseType").is("刑事案件");
         criteria.and("docType").is("判决书");
-        criteria.orOperator(Criteria.where("cause").is("盗窃"), Criteria.where("cause").is("抢劫"));
+        criteria.orOperator(Criteria.where("name").regex("盗窃"), Criteria.where("name").regex("抢劫"));
         log.info("pageNum={}", pageNum1.get());
         List<DocumentEntity> list = documentMapper.findList(pageNum1.get(), pageSize, criteria);
         pageNum1.getAndIncrement();
@@ -50,7 +50,7 @@ public class Sync140Service {
         Criteria criteria = Criteria
                 .where("caseType").is("刑事案件");
         criteria.and("docType").is("判决书");
-        criteria.orOperator(Criteria.where("cause").is("盗窃"), Criteria.where("cause").is("抢劫"));
+        criteria.orOperator(Criteria.where("name").regex("盗窃"), Criteria.where("name").regex("抢劫"));
         log.info("pageNum={}", pageNum2.get());
         List<Document1Entity> list = document1Mapper.findList(pageNum2.get(), pageSize, criteria);
         pageNum2.getAndIncrement();

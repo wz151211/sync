@@ -13,6 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -33,7 +34,7 @@ public class SyncService {
     private Set<String> set = new HashSet<>();
     private AtomicInteger pageNum = new AtomicInteger(0);
     private int pageSize = 1000;
-    private Date date = DateUtil.parse("2022-12-14", DateTimeFormatter.ISO_LOCAL_DATE).toJdkDate();
+    private Date date = DateUtil.parse("2022-12-22", DateTimeFormatter.ISO_LOCAL_DATE).toJdkDate();
 
     {
         set.add("刑事");
@@ -45,17 +46,24 @@ public class SyncService {
     }
 
     public void sync() {
-        log.info("pageNum={}", pageNum.get());
         if (pageNum.get() > 20) {
             pageNum.set(0);
         } else {
             pageNum.getAndIncrement();
         }
+        log.info("pageNum={}", pageNum.get());
         List<RemotrDocumentEntity> entities = remoteDocumentMapper.selectList(Wrappers.<RemotrDocumentEntity>lambdaQuery().lt(RemotrDocumentEntity::getCreateTime, date).last("limit " + (pageNum.get() * pageSize) + ", " + pageSize));
-        entities.parallelStream().map(this::toEntity).forEach(c -> {
+        entities.parallelStream().filter(c -> StringUtils.hasLength(c.getHtmlContent()) || StringUtils.hasLength(c.getJsonContent())).map(this::toEntity).forEach(c -> {
             log.info("id={},案件名称={}", c.getId(), c.getName());
-            mongoMapper.insert(c);
-            remoteDocumentMapper.update(null, Wrappers.<RemotrDocumentEntity>lambdaUpdate().set(RemotrDocumentEntity::getCreateTime, new Date()).eq(RemotrDocumentEntity::getId, c.getId()));
+            try {
+                mongoMapper.insert(c);
+                remoteDocumentMapper.update(null, Wrappers.<RemotrDocumentEntity>lambdaUpdate().set(RemotrDocumentEntity::getCreateTime, new Date()).eq(RemotrDocumentEntity::getId, c.getId()));
+            } catch (DuplicateKeyException e) {
+                log.info("2已存在id={}", c.getId());
+                remoteDocumentMapper.update(null, Wrappers.<RemotrDocumentEntity>lambdaUpdate().set(RemotrDocumentEntity::getCreateTime, new Date()).eq(RemotrDocumentEntity::getId, c.getId()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 
@@ -112,7 +120,7 @@ public class SyncService {
 
         }
 
-        if (entity.getDocType().length() >= 5) {
+        if (entity.getDocType() != null && entity.getDocType().length() >= 5) {
             if (StringUtils.hasText(documentEntity.getHtmlContent())) {
                 Document parse = Jsoup.parse(documentEntity.getHtmlContent());
                 Elements divs = parse.getElementsByTag("div");

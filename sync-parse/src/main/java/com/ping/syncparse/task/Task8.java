@@ -40,7 +40,7 @@ public class Task8 {
     }
 
 
-    @Scheduled(initialDelay = 4 * 1000L, fixedRate = 1000 * 60 * 3L)
+  //  @Scheduled(initialDelay = 4 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2() {
         boolean tryLock = false;
         try {

@@ -20,8 +20,8 @@ spring:
       max-pool-prepared-statement-per-connection-size: 20
   data:
     mongodb:
-      uri: mongodb://root:documentABC@172.16.119.182:27017/cpws?authSource=admin
-     # uri: mongodb://localhost:27017/cpws
+     # uri: mongodb://root:documentABC@172.16.119.182:27017/cpws?authSource=admin
+      uri: mongodb://localhost:27017/cpws
 
 mybatis-plus:
   configuration:

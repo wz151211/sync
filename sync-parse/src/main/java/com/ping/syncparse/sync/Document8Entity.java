@@ -29,11 +29,11 @@ public class Document8Entity {
 
     private String caseType;
 
-    private JSONArray cause;
+    private String cause;
 
-    private JSONArray party;
+    private String party;
 
-    private JSONArray keyword;
+    private String keyword;
 
     private String trialProceedings;
 
@@ -44,4 +44,8 @@ public class Document8Entity {
     private JSONObject jsonContent;
 
     private Date createTime;
+
+    private String courtConsidered;
+
+    private String judgmentResult;
 }
