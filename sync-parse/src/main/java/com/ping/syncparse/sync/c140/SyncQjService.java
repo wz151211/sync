@@ -44,7 +44,7 @@ public class SyncQjService {
     private Criteria criteria = Criteria
             .where("caseType").is("刑事案件")
             .and("docType").is("判决书")
-            .orOperator(Criteria.where("name").regex("盗窃"), Criteria.where("name").regex("抢劫"));
+            .and("name").regex("抢劫");
 
     public void sync1() {
         pageNum1.getAndIncrement();

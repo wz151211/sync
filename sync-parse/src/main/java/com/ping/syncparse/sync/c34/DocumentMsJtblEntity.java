@@ -12,8 +12,8 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_xs_lh")
-public class DocumentXsLhEntity {
+@Document(value = "document_ms_jtbl")
+public class DocumentMsJtblEntity {
 
     @Id
     private String id;

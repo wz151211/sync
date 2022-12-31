@@ -1,4 +1,4 @@
-package com.ping.syncparse.sync.c8;
+package com.ping.syncparse.sync.c2;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
@@ -12,8 +12,8 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_8")
-public class Document8Entity {
+@Document(value = "document_wg")
+public class DocumentWgEntity {
 
     @Id
     private String id;

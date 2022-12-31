@@ -1,16 +1,16 @@
-package com.ping.syncparse.sync.c140;
+package com.ping.syncparse.sync.c34;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class Document140Mapper {
+public class DocumentMsMapper {
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public void insert(Document140Entity entity){
+    public void insert(DocumentMsJtblEntity entity){
         mongoTemplate.insert(entity);
     }
 }

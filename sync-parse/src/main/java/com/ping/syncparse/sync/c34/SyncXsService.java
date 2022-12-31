@@ -1,4 +1,4 @@
-package com.ping.syncparse.sync.c140;
+package com.ping.syncparse.sync.c34;
 
 import com.ping.syncparse.entity.*;
 import com.ping.syncparse.mapper.*;
@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Slf4j
-public class Sync140Service {
+public class SyncXsService {
     @Autowired
     private Document1Mapper document1Mapper;
     @Autowired
@@ -29,7 +29,7 @@ public class Sync140Service {
     @Autowired
     private Document7Mapper document7Mapper;
     @Autowired
-    private Document140Mapper document140Mapper;
+    private DocumentXsMapper documentXsMapper;
 
     private AtomicInteger pageNum1 = new AtomicInteger(-1);
     private AtomicInteger pageNum2 = new AtomicInteger(-1);
@@ -44,7 +44,7 @@ public class Sync140Service {
     private Criteria criteria = Criteria
             .where("caseType").is("刑事案件")
             .and("docType").is("判决书")
-            .orOperator(Criteria.where("name").regex("盗窃"), Criteria.where("name").regex("抢劫"));
+            .orOperator(Criteria.where("htmlContent").regex("离婚"));
 
     public void sync1() {
         pageNum1.getAndIncrement();
@@ -52,9 +52,9 @@ public class Sync140Service {
         List<Document1Entity> list = document1Mapper.findList(pageNum1.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document1Entity entity : list) {
-            Document140Entity document140Entity = new Document140Entity();
-            BeanUtils.copyProperties(entity, document140Entity);
-            document140Mapper.insert(document140Entity);
+            DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
+            BeanUtils.copyProperties(entity, xsEntity);
+            documentXsMapper.insert(xsEntity);
         }
     }
 
@@ -64,9 +64,9 @@ public class Sync140Service {
         List<Document2Entity> list = document2Mapper.findList(pageNum2.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document2Entity entity : list) {
-            Document140Entity document140Entity = new Document140Entity();
-            BeanUtils.copyProperties(entity, document140Entity);
-            document140Mapper.insert(document140Entity);
+            DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
+            BeanUtils.copyProperties(entity, xsEntity);
+            documentXsMapper.insert(xsEntity);
         }
     }
 
@@ -76,9 +76,9 @@ public class Sync140Service {
         List<Document3Entity> list = document3Mapper.findList(pageNum3.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document3Entity entity : list) {
-            Document140Entity document140Entity = new Document140Entity();
-            BeanUtils.copyProperties(entity, document140Entity);
-            document140Mapper.insert(document140Entity);
+            DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
+            BeanUtils.copyProperties(entity, xsEntity);
+            documentXsMapper.insert(xsEntity);
         }
     }
 
@@ -88,9 +88,9 @@ public class Sync140Service {
         List<Document4Entity> list = document4Mapper.findList(pageNum4.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document4Entity entity : list) {
-            Document140Entity document140Entity = new Document140Entity();
-            BeanUtils.copyProperties(entity, document140Entity);
-            document140Mapper.insert(document140Entity);
+            DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
+            BeanUtils.copyProperties(entity, xsEntity);
+            documentXsMapper.insert(xsEntity);
         }
     }
 
@@ -100,9 +100,9 @@ public class Sync140Service {
         List<Document5Entity> list = document5Mapper.findList(pageNum5.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document5Entity entity : list) {
-            Document140Entity document140Entity = new Document140Entity();
-            BeanUtils.copyProperties(entity, document140Entity);
-            document140Mapper.insert(document140Entity);
+            DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
+            BeanUtils.copyProperties(entity, xsEntity);
+            documentXsMapper.insert(xsEntity);
         }
     }
 
@@ -112,9 +112,9 @@ public class Sync140Service {
         List<Document6Entity> list = document6Mapper.findList(pageNum6.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document6Entity entity : list) {
-            Document140Entity document140Entity = new Document140Entity();
-            BeanUtils.copyProperties(entity, document140Entity);
-            document140Mapper.insert(document140Entity);
+            DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
+            BeanUtils.copyProperties(entity, xsEntity);
+            documentXsMapper.insert(xsEntity);
         }
     }
 
@@ -124,9 +124,9 @@ public class Sync140Service {
         List<Document7Entity> list = document7Mapper.findList(pageNum7.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document7Entity entity : list) {
-            Document140Entity document140Entity = new Document140Entity();
-            BeanUtils.copyProperties(entity, document140Entity);
-            document140Mapper.insert(document140Entity);
+            DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
+            BeanUtils.copyProperties(entity, xsEntity);
+            documentXsMapper.insert(xsEntity);
         }
     }
 }

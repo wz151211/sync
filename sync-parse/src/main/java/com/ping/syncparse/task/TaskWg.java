@@ -1,6 +1,6 @@
 package com.ping.syncparse.task;
 
-import com.ping.syncparse.sync.c140.Sync140Service;
+import com.ping.syncparse.sync.c2.SyncWgService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -11,10 +11,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-@Component
-@Async
+/*@Component
+@Async*/
 @Slf4j
-public class TaskXs {
+public class TaskWg {
 
 
     private final Lock lock1 = new ReentrantLock();
@@ -26,14 +26,14 @@ public class TaskXs {
     private final Lock lock7 = new ReentrantLock();
 
     @Autowired
-    private Sync140Service sync140Service;
+    private SyncWgService syncWgService;
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save1() {
         boolean tryLock = false;
         try {
             tryLock = lock1.tryLock(2, TimeUnit.SECONDS);
-            sync140Service.sync1();
+            syncWgService.sync1();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -49,7 +49,7 @@ public class TaskXs {
         boolean tryLock = false;
         try {
             tryLock = lock2.tryLock(2, TimeUnit.SECONDS);
-            sync140Service.sync2();
+            syncWgService.sync2();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -64,7 +64,7 @@ public class TaskXs {
         boolean tryLock = false;
         try {
             tryLock = lock3.tryLock(2, TimeUnit.SECONDS);
-            sync140Service.sync3();
+            syncWgService.sync3();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -79,7 +79,7 @@ public class TaskXs {
         boolean tryLock = false;
         try {
             tryLock = lock4.tryLock(2, TimeUnit.SECONDS);
-            sync140Service.sync4();
+            syncWgService.sync4();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -94,7 +94,7 @@ public class TaskXs {
         boolean tryLock = false;
         try {
             tryLock = lock5.tryLock(2, TimeUnit.SECONDS);
-            sync140Service.sync5();
+            syncWgService.sync5();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -110,7 +110,7 @@ public class TaskXs {
         boolean tryLock = false;
         try {
             tryLock = lock6.tryLock(2, TimeUnit.SECONDS);
-            sync140Service.sync6();
+            syncWgService.sync6();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -126,7 +126,7 @@ public class TaskXs {
         boolean tryLock = false;
         try {
             tryLock = lock7.tryLock(2, TimeUnit.SECONDS);
-            sync140Service.sync7();
+            syncWgService.sync7();
         } catch (Exception e) {
             log.error("", e);
         } finally {

@@ -1,10 +1,12 @@
-package com.ping.syncparse.sync;
+package com.ping.syncparse.sync.c8;
 
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.entity.*;
 import com.ping.syncparse.mapper.*;
+import com.ping.syncparse.sync.c8.Document8Entity;
+import com.ping.syncparse.sync.c8.Document8Mapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -33,26 +35,25 @@ public class Sync8Service {
     private Document6Mapper document6Mapper;
     @Autowired
     private Document7Mapper document7Mapper;
-
     @Autowired
     private Document8Mapper document8Mapper;
 
-    private AtomicInteger pageNum1 = new AtomicInteger(0);
-    private AtomicInteger pageNum2 = new AtomicInteger(0);
-    private AtomicInteger pageNum3 = new AtomicInteger(0);
-    private AtomicInteger pageNum4 = new AtomicInteger(0);
-    private AtomicInteger pageNum5 = new AtomicInteger(0);
-    private AtomicInteger pageNum6 = new AtomicInteger(0);
-    private AtomicInteger pageNum7 = new AtomicInteger(0);
+    private AtomicInteger pageNum1 = new AtomicInteger(-1);
+    private AtomicInteger pageNum2 = new AtomicInteger(-1);
+    private AtomicInteger pageNum3 = new AtomicInteger(-1);
+    private AtomicInteger pageNum4 = new AtomicInteger(-1);
+    private AtomicInteger pageNum5 = new AtomicInteger(-1);
+    private AtomicInteger pageNum6 = new AtomicInteger(-1);
+    private AtomicInteger pageNum7 = new AtomicInteger(-1);
 
     private final int pageSize = 100;
     private Criteria criteria = Criteria
             .where("caseType").is("行政案件").and("htmlContent").regex("行政协议");
 
     public void sync1() {
+        pageNum1.getAndIncrement();
         log.info("pageNum={}", pageNum1.get());
         List<Document1Entity> list = document1Mapper.findList(pageNum1.get(), pageSize, criteria);
-        pageNum1.getAndIncrement();
         log.info("size={}", list.size());
         for (Document1Entity entity : list) {
             Document8Entity document8Entity = new Document8Entity();
@@ -68,9 +69,9 @@ public class Sync8Service {
 
 
     public void sync2() {
-        log.info("pageNum={}", pageNum1.get());
-        List<Document2Entity> list = document2Mapper.findList(pageNum1.get(), pageSize, criteria);
-        pageNum1.getAndIncrement();
+        pageNum2.getAndIncrement();
+        log.info("pageNum={}", pageNum2.get());
+        List<Document2Entity> list = document2Mapper.findList(pageNum2.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document2Entity entity : list) {
             Document8Entity document8Entity = new Document8Entity();
@@ -84,9 +85,9 @@ public class Sync8Service {
     }
 
     public void sync3() {
-        log.info("pageNum={}", pageNum1.get());
-        List<Document3Entity> list = document3Mapper.findList(pageNum1.get(), pageSize, criteria);
-        pageNum1.getAndIncrement();
+        pageNum3.getAndIncrement();
+        log.info("pageNum={}", pageNum3.get());
+        List<Document3Entity> list = document3Mapper.findList(pageNum3.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document3Entity entity : list) {
             Document8Entity document8Entity = new Document8Entity();
@@ -100,9 +101,9 @@ public class Sync8Service {
     }
 
     public void sync4() {
-        log.info("pageNum={}", pageNum1.get());
-        List<Document4Entity> list = document4Mapper.findList(pageNum1.get(), pageSize, criteria);
-        pageNum1.getAndIncrement();
+        pageNum4.getAndIncrement();
+        log.info("pageNum={}", pageNum4.get());
+        List<Document4Entity> list = document4Mapper.findList(pageNum4.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document4Entity entity : list) {
             Document8Entity document8Entity = new Document8Entity();
@@ -116,9 +117,9 @@ public class Sync8Service {
     }
 
     public void sync5() {
-        log.info("pageNum={}", pageNum1.get());
-        List<Document5Entity> list = document5Mapper.findList(pageNum1.get(), pageSize, criteria);
-        pageNum1.getAndIncrement();
+        pageNum5.getAndIncrement();
+        log.info("pageNum={}", pageNum5.get());
+        List<Document5Entity> list = document5Mapper.findList(pageNum5.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document5Entity entity : list) {
             Document8Entity document8Entity = new Document8Entity();
@@ -132,9 +133,9 @@ public class Sync8Service {
     }
 
     public void sync6() {
-        log.info("pageNum={}", pageNum1.get());
-        List<Document6Entity> list = document6Mapper.findList(pageNum1.get(), pageSize, criteria);
-        pageNum1.getAndIncrement();
+        pageNum6.getAndIncrement();
+        log.info("pageNum={}", pageNum6.get());
+        List<Document6Entity> list = document6Mapper.findList(pageNum6.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document6Entity entity : list) {
             Document8Entity document8Entity = new Document8Entity();
@@ -148,9 +149,9 @@ public class Sync8Service {
     }
 
     public void sync7() {
-        log.info("pageNum={}", pageNum1.get());
-        List<Document7Entity> list = document7Mapper.findList(pageNum1.get(), pageSize, criteria);
-        pageNum1.getAndIncrement();
+        pageNum7.getAndIncrement();
+        log.info("pageNum={}", pageNum7.get());
+        List<Document7Entity> list = document7Mapper.findList(pageNum7.get(), pageSize, criteria);
         log.info("size={}", list.size());
         for (Document7Entity entity : list) {
             Document8Entity document8Entity = new Document8Entity();

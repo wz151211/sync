@@ -86,7 +86,7 @@ public class SyncService {
             pageNum.getAndIncrement();
         }
         log.info("pageNum={}", pageNum.get());
-        List<CpwsEntity> entities = cpwsMapper.selectList(Wrappers.<CpwsEntity>lambdaQuery().ne(CpwsEntity::getFlag, 600).last("limit " + (pageNum.get() * 5000) + ", 5000"));
+        List<CpwsEntity> entities = cpwsMapper.selectList(Wrappers.<CpwsEntity>lambdaQuery().eq(CpwsEntity::getFlag, 600).last("limit " + (pageNum.get() * 5000) + ", 5000"));
         if (entities == null || entities.size() == 0) {
             return;
         }
@@ -105,6 +105,10 @@ public class SyncService {
                         str = str.replace("#3!", "\":\"");
                     } else if (str.indexOf(":#") > 0) {
                         str = str.replace(":#", ":\"");
+                    } else if (str.indexOf("=!") > 0) {
+                        str = str.replace("=!", ":\"");
+                    } else if (str.indexOf(":!") > 0) {
+                        str = str.replace(":!", ":\"");
                     }
                     try {
                         object = JSON.parseObject(str);

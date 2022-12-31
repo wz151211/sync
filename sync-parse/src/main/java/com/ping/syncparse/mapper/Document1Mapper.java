@@ -4,12 +4,14 @@ package com.ping.syncparse.mapper;
 import com.ping.syncparse.entity.Document1Entity;
 import com.ping.syncparse.entity.DocumentEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,25 +20,28 @@ import java.util.List;
  */
 @Repository
 public class Document1Mapper {
-
+    @Value("${order}")
+    private String order;
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    public void insert(Document1Entity entity) {
+        mongoTemplate.insert(entity);
+    }
 
     public List<Document1Entity> findList(int pageNum, int pageSize, Criteria criteria) {
         Query query = new Query();
         if (criteria != null) {
             query.addCriteria(criteria);
         }
-        query.limit(pageSize).skip((long) pageNum * pageSize);
+        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+        if ("desc".equals(order)) {
+            pageRequest.withSort(Sort.by(Sort.Order.desc("id")));
+        } else if ("asc".equals(order)) {
+            pageRequest.withSort(Sort.by(Sort.Order.asc("id")));
+        }
+        query.with(pageRequest);
         return mongoTemplate.find(query, Document1Entity.class);
     }
 
-    public List<Document1Entity> findList(Criteria criteria) {
-        Query query = new Query();
-        if (criteria == null) {
-            return new ArrayList<>();
-        }
-        query.addCriteria(criteria);
-        return mongoTemplate.find(query, Document1Entity.class);
-    }
 }

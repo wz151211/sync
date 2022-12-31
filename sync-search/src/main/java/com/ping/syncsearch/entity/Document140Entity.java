@@ -1,4 +1,4 @@
-package com.ping.syncparse.sync;
+package com.ping.syncsearch.entity;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;

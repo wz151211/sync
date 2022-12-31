@@ -1,6 +1,7 @@
-package com.ping.syncmysqlmongo.task;
+package com.ping.syncparse.task;
 
-import com.ping.syncmysqlmongo.service.SyncService;
+
+import com.ping.syncparse.sync.SyncService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -14,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component
 @Async
 @Slf4j
-public class SaveTask {
+public class SyncTask {
 
 
     private final Lock lock1 = new ReentrantLock();
@@ -42,11 +43,11 @@ public class SaveTask {
     private SyncService syncService;
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save1() {
+    public void sync1() {
         boolean tryLock = false;
         try {
             tryLock = lock1.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -57,11 +58,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 4 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save2() {
+    public void sync2() {
         boolean tryLock = false;
         try {
             tryLock = lock2.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -72,11 +73,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 6 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save3() {
+    public void sync3() {
         boolean tryLock = false;
         try {
             tryLock = lock3.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -87,11 +88,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 8 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save4() {
+    public void sync4() {
         boolean tryLock = false;
         try {
             tryLock = lock4.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -102,11 +103,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 10 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save5() {
+    public void sync5() {
         boolean tryLock = false;
         try {
             tryLock = lock5.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -117,11 +118,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 12 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save6() {
+    public void sync6() {
         boolean tryLock = false;
         try {
             tryLock = lock6.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -132,11 +133,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 14 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save7() {
+    public void sync7() {
         boolean tryLock = false;
         try {
             tryLock = lock7.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -147,11 +148,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 16 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save8() {
+    public void sync8() {
         boolean tryLock = false;
         try {
             tryLock = lock8.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -162,11 +163,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 18 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save9() {
+    public void sync9() {
         boolean tryLock = false;
         try {
             tryLock = lock9.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -177,11 +178,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 20 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save10() {
+    public void sync10() {
         boolean tryLock = false;
         try {
             tryLock = lock10.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -192,11 +193,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 24 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save11() {
+    public void sync11() {
         boolean tryLock = false;
         try {
             tryLock = lock11.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -207,11 +208,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 28 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save12() {
+    public void sync12() {
         boolean tryLock = false;
         try {
             tryLock = lock12.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -222,11 +223,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 32 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save13() {
+    public void sync13() {
         boolean tryLock = false;
         try {
             tryLock = lock13.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -237,11 +238,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 36 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save14() {
+    public void sync14() {
         boolean tryLock = false;
         try {
             tryLock = lock14.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -252,11 +253,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 40 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save15() {
+    public void sync15() {
         boolean tryLock = false;
         try {
             tryLock = lock15.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -267,11 +268,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 44 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save16() {
+    public void sync16() {
         boolean tryLock = false;
         try {
             tryLock = lock16.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -282,11 +283,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 48 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save17() {
+    public void sync17() {
         boolean tryLock = false;
         try {
             tryLock = lock17.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -297,11 +298,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 52 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save18() {
+    public void sync18() {
         boolean tryLock = false;
         try {
             tryLock = lock18.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -312,11 +313,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 56 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save19() {
+    public void sync19() {
         boolean tryLock = false;
         try {
             tryLock = lock19.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -327,11 +328,11 @@ public class SaveTask {
     }
 
     @Scheduled(initialDelay = 60 * 1000L, fixedRate = 1000 * 60 * 3L)
-    public void save20() {
+    public void sync20() {
         boolean tryLock = false;
         try {
             tryLock = lock20.tryLock(2, TimeUnit.SECONDS);
-            syncService.save();
+            syncService.sync();
         } catch (Exception e) {
             log.error("", e);
         } finally {

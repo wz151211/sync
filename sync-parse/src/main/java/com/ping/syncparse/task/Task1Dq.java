@@ -1,5 +1,6 @@
 package com.ping.syncparse.task;
 
+import com.ping.syncparse.sync.c140.SyncDqService;
 import com.ping.syncparse.sync.c140.SyncQjService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +12,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-@Component
-@Async
+/*@Component
+@Async*/
 @Slf4j
-public class Task1Qj {
+public class Task1Dq {
 
 
     private final Lock lock1 = new ReentrantLock();
@@ -26,14 +27,14 @@ public class Task1Qj {
     private final Lock lock7 = new ReentrantLock();
 
     @Autowired
-    private SyncQjService syncQjService;
+    private SyncDqService syncDqService;
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save1() {
         boolean tryLock = false;
         try {
             tryLock = lock1.tryLock(2, TimeUnit.SECONDS);
-            syncQjService.sync1();
+            syncDqService.sync1();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -49,7 +50,7 @@ public class Task1Qj {
         boolean tryLock = false;
         try {
             tryLock = lock2.tryLock(2, TimeUnit.SECONDS);
-            syncQjService.sync2();
+            syncDqService.sync2();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -64,7 +65,7 @@ public class Task1Qj {
         boolean tryLock = false;
         try {
             tryLock = lock3.tryLock(2, TimeUnit.SECONDS);
-            syncQjService.sync3();
+            syncDqService.sync3();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -79,7 +80,7 @@ public class Task1Qj {
         boolean tryLock = false;
         try {
             tryLock = lock4.tryLock(2, TimeUnit.SECONDS);
-            syncQjService.sync4();
+            syncDqService.sync4();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -94,7 +95,7 @@ public class Task1Qj {
         boolean tryLock = false;
         try {
             tryLock = lock5.tryLock(2, TimeUnit.SECONDS);
-            syncQjService.sync5();
+            syncDqService.sync5();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -110,7 +111,7 @@ public class Task1Qj {
         boolean tryLock = false;
         try {
             tryLock = lock6.tryLock(2, TimeUnit.SECONDS);
-            syncQjService.sync6();
+            syncDqService.sync6();
         } catch (Exception e) {
             log.error("", e);
         } finally {
@@ -126,7 +127,7 @@ public class Task1Qj {
         boolean tryLock = false;
         try {
             tryLock = lock7.tryLock(2, TimeUnit.SECONDS);
-            syncQjService.sync7();
+            syncDqService.sync7();
         } catch (Exception e) {
             log.error("", e);
         } finally {

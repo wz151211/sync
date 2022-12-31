@@ -1,5 +1,6 @@
-package com.ping.syncparse.sync;
+package com.ping.syncsearch.mapper;
 
+import com.ping.syncsearch.entity.Document140Entity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;

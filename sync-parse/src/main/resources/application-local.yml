@@ -2,6 +2,5 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/cpws
-logging:
-  level:
-    org.mongodb: debug
+order: desc
+pageNum: 0

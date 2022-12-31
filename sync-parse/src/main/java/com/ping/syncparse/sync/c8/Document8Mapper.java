@@ -1,5 +1,6 @@
-package com.ping.syncparse.sync;
+package com.ping.syncparse.sync.c8;
 
+import com.ping.syncparse.sync.c8.Document8Entity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;

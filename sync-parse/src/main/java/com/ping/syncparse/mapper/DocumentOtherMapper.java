@@ -1,7 +1,7 @@
 package com.ping.syncparse.mapper;
 
 
-import com.ping.syncparse.entity.Document7Entity;
+import com.ping.syncparse.entity.DocumentOtherEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,12 +11,12 @@ import org.springframework.stereotype.Repository;
  * @Date: 2022/8/21 22:42
  */
 @Repository
-public class Document7Mapper {
+public class DocumentOtherMapper {
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public void insert(Document7Entity entity) {
+    public void insert(DocumentOtherEntity entity) {
         mongoTemplate.insert(entity);
     }
 

@@ -13,6 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -30,9 +31,11 @@ public class SyncService {
     @Autowired
     private RemoteDocumentMapper remoteDocumentMapper;
 
+    @Value("${start}")
+    private Integer start = 0;
 
     private Set<String> set = new HashSet<>();
-    private AtomicInteger pageNum = new AtomicInteger(0);
+    private AtomicInteger pageNum = new AtomicInteger(-1);
     private int pageSize = 1000;
     private Date date = DateUtil.parse("2022-12-22", DateTimeFormatter.ISO_LOCAL_DATE).toJdkDate();
 
@@ -46,23 +49,31 @@ public class SyncService {
     }
 
     public void sync() {
-        if (pageNum.get() > 20) {
-            pageNum.set(0);
+        if (pageNum.get() < 0) {
+            pageNum.set(start);
+        }
+        if (pageNum.get() > start + 20) {
+            pageNum.set(start);
         } else {
             pageNum.getAndIncrement();
         }
         log.info("pageNum={}", pageNum.get());
         List<RemotrDocumentEntity> entities = remoteDocumentMapper.selectList(Wrappers.<RemotrDocumentEntity>lambdaQuery().lt(RemotrDocumentEntity::getCreateTime, date).last("limit " + (pageNum.get() * pageSize) + ", " + pageSize));
-        entities.parallelStream().filter(c -> StringUtils.hasLength(c.getHtmlContent()) || StringUtils.hasLength(c.getJsonContent())).map(this::toEntity).forEach(c -> {
+        entities.parallelStream().map(this::toEntity).forEach(c -> {
             log.info("id={},案件名称={}", c.getId(), c.getName());
-            try {
-                mongoMapper.insert(c);
-                remoteDocumentMapper.update(null, Wrappers.<RemotrDocumentEntity>lambdaUpdate().set(RemotrDocumentEntity::getCreateTime, new Date()).eq(RemotrDocumentEntity::getId, c.getId()));
-            } catch (DuplicateKeyException e) {
-                log.info("2已存在id={}", c.getId());
-                remoteDocumentMapper.update(null, Wrappers.<RemotrDocumentEntity>lambdaUpdate().set(RemotrDocumentEntity::getCreateTime, new Date()).eq(RemotrDocumentEntity::getId, c.getId()));
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (StringUtils.hasLength(c.getHtmlContent()) || (c.getJsonContent() != null && c.getJsonContent().size() > 0)) {
+                try {
+                    mongoMapper.insert(c);
+                    remoteDocumentMapper.update(null, Wrappers.<RemotrDocumentEntity>lambdaUpdate().set(RemotrDocumentEntity::getCreateTime, new Date()).eq(RemotrDocumentEntity::getId, c.getId()));
+                } catch (DuplicateKeyException e) {
+                    log.info("2已存在id={}", c.getId());
+                    remoteDocumentMapper.update(null, Wrappers.<RemotrDocumentEntity>lambdaUpdate().set(RemotrDocumentEntity::getCreateTime, new Date()).eq(RemotrDocumentEntity::getId, c.getId()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                log.info("删除案件信息为={}", c);
+                remoteDocumentMapper.deleteById(c.getId());
             }
         });
     }

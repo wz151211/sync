@@ -1,4 +1,4 @@
-package com.ping.syncparse.task;
+package com.ping.syncsearch.task;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;

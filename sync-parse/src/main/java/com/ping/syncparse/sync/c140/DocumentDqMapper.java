@@ -5,12 +5,12 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class DocumentQjMapper {
+public class DocumentDqMapper {
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public void insert(DocumentQjEntity entity){
+    public void insert(DocumentDqEntity entity){
         mongoTemplate.insert(entity);
     }
 }

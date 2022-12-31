@@ -1,4 +1,4 @@
-package com.ping.syncparse.sync;
+package com.ping.syncparse.sync.c8;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;

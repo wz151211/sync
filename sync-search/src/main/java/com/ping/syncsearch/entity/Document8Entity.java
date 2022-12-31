@@ -1,6 +1,5 @@
-package com.ping.syncparse.sync;
+package com.ping.syncsearch.entity;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
