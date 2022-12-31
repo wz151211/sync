@@ -82,21 +82,6 @@ public class Sync8Service {
 
 
     public void sync2() {
-        Criteria criteria = Criteria
-                .where("caseType").is("行政案件");
-        criteria.and("htmlContent").regex("行政协议");
-        log.info("pageNum={}", pageNum2.get());
-        List<Document1Entity> list = document1Mapper.findList(pageNum2.get(), pageSize, criteria);
-        pageNum2.getAndIncrement();
-        log.info("size={}", list.size());
-        for (Document1Entity entity : list) {
-            Document8Entity document8Entity = new Document8Entity();
-            BeanUtils.copyProperties(entity, document8Entity);
-            try {
-                document8Mapper.insert(document8Entity);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+
     }
 }

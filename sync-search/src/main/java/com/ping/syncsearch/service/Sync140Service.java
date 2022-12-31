@@ -47,18 +47,6 @@ public class Sync140Service {
     }
 
     public void sync2() {
-        Criteria criteria = Criteria
-                .where("caseType").is("刑事案件");
-        criteria.and("docType").is("判决书");
-        criteria.orOperator(Criteria.where("name").regex("盗窃"), Criteria.where("name").regex("抢劫"));
-        log.info("pageNum={}", pageNum2.get());
-        List<Document1Entity> list = document1Mapper.findList(pageNum2.get(), pageSize, criteria);
-        pageNum2.getAndIncrement();
-        log.info("size={}", list.size());
-        for (Document1Entity entity : list) {
-            Document140Entity document140Entity = new Document140Entity();
-            BeanUtils.copyProperties(entity, document140Entity);
-            document140Mapper.insert(document140Entity);
-        }
+
     }
 }

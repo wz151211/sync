@@ -24,7 +24,7 @@ public class Task140 {
     @Autowired
     private Sync140Service sync140Service;
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
+  //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save1() {
         boolean tryLock = false;
         try {
