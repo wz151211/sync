@@ -39,60 +39,12 @@ public class SyncXsService {
     private AtomicInteger pageNum6 = new AtomicInteger(-1);
     private AtomicInteger pageNum7 = new AtomicInteger(-1);
 
-    private final int pageSize = 100;
+    private final int pageSize = 1000;
 
     private Criteria criteria = Criteria
             .where("caseType").is("刑事案件")
             .and("docType").is("判决书")
-            .orOperator(Criteria.where("htmlContent").regex("离婚"));
-
-    public void sync1() {
-        pageNum1.getAndIncrement();
-        log.info("pageNum1={}", pageNum1.get());
-        List<Document1Entity> list = document1Mapper.findList(pageNum1.get(), pageSize, criteria);
-        log.info("size={}", list.size());
-        for (Document1Entity entity : list) {
-            DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
-            BeanUtils.copyProperties(entity, xsEntity);
-            documentXsMapper.insert(xsEntity);
-        }
-    }
-
-    public void sync2() {
-        pageNum2.getAndIncrement();
-        log.info("pageNum2={}", pageNum2.get());
-        List<Document2Entity> list = document2Mapper.findList(pageNum2.get(), pageSize, criteria);
-        log.info("size={}", list.size());
-        for (Document2Entity entity : list) {
-            DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
-            BeanUtils.copyProperties(entity, xsEntity);
-            documentXsMapper.insert(xsEntity);
-        }
-    }
-
-    public void sync3() {
-        pageNum3.getAndIncrement();
-        log.info("pageNum3={}", pageNum3.get());
-        List<Document3Entity> list = document3Mapper.findList(pageNum3.get(), pageSize, criteria);
-        log.info("size={}", list.size());
-        for (Document3Entity entity : list) {
-            DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
-            BeanUtils.copyProperties(entity, xsEntity);
-            documentXsMapper.insert(xsEntity);
-        }
-    }
-
-    public void sync4() {
-        pageNum4.getAndIncrement();
-        log.info("pageNum4={}", pageNum4.get());
-        List<Document4Entity> list = document4Mapper.findList(pageNum4.get(), pageSize, criteria);
-        log.info("size={}", list.size());
-        for (Document4Entity entity : list) {
-            DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
-            BeanUtils.copyProperties(entity, xsEntity);
-            documentXsMapper.insert(xsEntity);
-        }
-    }
+            .and("htmlContent").regex("离婚");
 
     public void sync5() {
         pageNum5.getAndIncrement();
@@ -102,7 +54,11 @@ public class SyncXsService {
         for (Document5Entity entity : list) {
             DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
             BeanUtils.copyProperties(entity, xsEntity);
-            documentXsMapper.insert(xsEntity);
+            try {
+                documentXsMapper.insert(xsEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -114,7 +70,11 @@ public class SyncXsService {
         for (Document6Entity entity : list) {
             DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
             BeanUtils.copyProperties(entity, xsEntity);
-            documentXsMapper.insert(xsEntity);
+            try {
+                documentXsMapper.insert(xsEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -126,7 +86,11 @@ public class SyncXsService {
         for (Document7Entity entity : list) {
             DocumentXsLhEntity xsEntity = new DocumentXsLhEntity();
             BeanUtils.copyProperties(entity, xsEntity);
-            documentXsMapper.insert(xsEntity);
+            try {
+                documentXsMapper.insert(xsEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

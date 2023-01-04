@@ -39,7 +39,7 @@ public class SyncDqService {
     private AtomicInteger pageNum6 = new AtomicInteger(-1);
     private AtomicInteger pageNum7 = new AtomicInteger(-1);
 
-    private final int pageSize = 100;
+    private final int pageSize = 10000;
 
     private Criteria criteria = Criteria
             .where("caseType").is("刑事案件")
@@ -54,7 +54,11 @@ public class SyncDqService {
         for (Document1Entity entity : list) {
             DocumentDqEntity qjEntity = new DocumentDqEntity();
             BeanUtils.copyProperties(entity, qjEntity);
-            documentDqMapper.insert(qjEntity);
+            try {
+                documentDqMapper.insert(qjEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -66,7 +70,11 @@ public class SyncDqService {
         for (Document2Entity entity : list) {
             DocumentDqEntity qjEntity = new DocumentDqEntity();
             BeanUtils.copyProperties(entity, qjEntity);
-            documentDqMapper.insert(qjEntity);
+            try {
+                documentDqMapper.insert(qjEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -78,7 +86,11 @@ public class SyncDqService {
         for (Document3Entity entity : list) {
             DocumentDqEntity qjEntity = new DocumentDqEntity();
             BeanUtils.copyProperties(entity, qjEntity);
-            documentDqMapper.insert(qjEntity);
+            try {
+                documentDqMapper.insert(qjEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -90,7 +102,11 @@ public class SyncDqService {
         for (Document4Entity entity : list) {
             DocumentDqEntity qjEntity = new DocumentDqEntity();
             BeanUtils.copyProperties(entity, qjEntity);
-            documentDqMapper.insert(qjEntity);
+            try {
+                documentDqMapper.insert(qjEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -102,7 +118,11 @@ public class SyncDqService {
         for (Document5Entity entity : list) {
             DocumentDqEntity qjEntity = new DocumentDqEntity();
             BeanUtils.copyProperties(entity, qjEntity);
-            documentDqMapper.insert(qjEntity);
+            try {
+                documentDqMapper.insert(qjEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -114,7 +134,11 @@ public class SyncDqService {
         for (Document6Entity entity : list) {
             DocumentDqEntity qjEntity = new DocumentDqEntity();
             BeanUtils.copyProperties(entity, qjEntity);
-            documentDqMapper.insert(qjEntity);
+            try {
+                documentDqMapper.insert(qjEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -126,7 +150,11 @@ public class SyncDqService {
         for (Document7Entity entity : list) {
             DocumentDqEntity qjEntity = new DocumentDqEntity();
             BeanUtils.copyProperties(entity, qjEntity);
-            documentDqMapper.insert(qjEntity);
+            try {
+                documentDqMapper.insert(qjEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

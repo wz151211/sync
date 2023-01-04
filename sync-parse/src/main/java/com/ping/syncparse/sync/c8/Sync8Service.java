@@ -46,7 +46,7 @@ public class Sync8Service {
     private AtomicInteger pageNum6 = new AtomicInteger(-1);
     private AtomicInteger pageNum7 = new AtomicInteger(-1);
 
-    private final int pageSize = 100;
+    private final int pageSize = 10000;
     private Criteria criteria = Criteria
             .where("caseType").is("行政案件").and("htmlContent").regex("行政协议");
 

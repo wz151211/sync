@@ -13,17 +13,18 @@ public class PartyEntity {
 
     private String sex;
 
+    private String age;
+
     private String birthday;
 
     private String nation;
 
     private String address;
 
-    private String idCard;
-
-    private String post;
-
     private String eduLevel;
 
+    private String type;
+
     private String content;
+
 }

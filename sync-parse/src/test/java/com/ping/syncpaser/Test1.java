@@ -34,6 +34,15 @@ public class Test1 {
         System.out.println(before);
         System.out.println(DateUtil.offsetHour(parse, 16));
     }
+    @Test
+    public void test3(){
+        String str ="abcdfga";
+        int i = str.indexOf("a");
+        int i1 = str.lastIndexOf("a");
+        System.out.println(i);
+        System.out.println(i1);
+
+    }
 
 
 }

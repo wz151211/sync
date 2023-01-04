@@ -1,12 +1,10 @@
-package com.ping.syncparse.mapper;
+package com.ping.syncmysqlmongo.mongo.mapper;
 
 
-import com.ping.syncparse.entity.Document1Entity;
-import com.ping.syncparse.entity.DocumentEntity;
+import com.ping.syncmysqlmongo.mongo.entity.Document1Entity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -20,8 +18,6 @@ import java.util.List;
  */
 @Repository
 public class Document1Mapper {
-    @Value("${order}")
-    private String order;
     @Autowired
     private MongoTemplate mongoTemplate;
 

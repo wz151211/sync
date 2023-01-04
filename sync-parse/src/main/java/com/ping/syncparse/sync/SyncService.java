@@ -56,11 +56,13 @@ public class SyncService {
         if (pageNum.get() < page) {
             pageNum.set(page);
         }
-        log.info("pageNum={}", pageNum);
         pageNum.getAndIncrement();
+		        log.info("pageNum={}", pageNum);
+
         List<DocumentEntity> list = documentMapper.findList(pageNum.get(), pageSize, null);
-        pageNum.getAndIncrement();
-        list.parallelStream().forEach(c -> {
+		for(DocumentEntity c : list){
+                        
+
             if (c.getRefereeDate() != null) {
                 if (DateUtil.parse("2014-12-31 23:59:59").isAfter(c.getRefereeDate())) {
                     Document1Entity entity = new Document1Entity();
@@ -225,7 +227,7 @@ public class SyncService {
                 }
 
             }
-        });
+        }
     }
 
     private void toEntity(DocumentEntity from, BaseEntity to) {

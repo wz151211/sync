@@ -39,7 +39,7 @@ public class SyncWgService {
     private AtomicInteger pageNum6 = new AtomicInteger(-1);
     private AtomicInteger pageNum7 = new AtomicInteger(-1);
 
-    private final int pageSize = 100;
+    private final int pageSize = 1000;
 
     private Criteria criteria = Criteria.where("htmlContent").regex("文化大革命")
             .orOperator(Criteria.where("htmlContent").regex("文革"));
@@ -52,7 +52,11 @@ public class SyncWgService {
         for (Document1Entity entity : list) {
             DocumentWgEntity msEntity = new DocumentWgEntity();
             BeanUtils.copyProperties(entity, msEntity);
-            documentWgMapper.insert(msEntity);
+            try {
+                documentWgMapper.insert(msEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -64,7 +68,11 @@ public class SyncWgService {
         for (Document2Entity entity : list) {
             DocumentWgEntity msEntity = new DocumentWgEntity();
             BeanUtils.copyProperties(entity, msEntity);
-            documentWgMapper.insert(msEntity);
+            try {
+                documentWgMapper.insert(msEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -76,7 +84,11 @@ public class SyncWgService {
         for (Document3Entity entity : list) {
             DocumentWgEntity msEntity = new DocumentWgEntity();
             BeanUtils.copyProperties(entity, msEntity);
-            documentWgMapper.insert(msEntity);
+            try {
+                documentWgMapper.insert(msEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -88,7 +100,11 @@ public class SyncWgService {
         for (Document4Entity entity : list) {
             DocumentWgEntity msEntity = new DocumentWgEntity();
             BeanUtils.copyProperties(entity, msEntity);
-            documentWgMapper.insert(msEntity);
+            try {
+                documentWgMapper.insert(msEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -100,7 +116,11 @@ public class SyncWgService {
         for (Document5Entity entity : list) {
             DocumentWgEntity msEntity = new DocumentWgEntity();
             BeanUtils.copyProperties(entity, msEntity);
-            documentWgMapper.insert(msEntity);
+            try {
+                documentWgMapper.insert(msEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -112,7 +132,11 @@ public class SyncWgService {
         for (Document6Entity entity : list) {
             DocumentWgEntity msEntity = new DocumentWgEntity();
             BeanUtils.copyProperties(entity, msEntity);
-            documentWgMapper.insert(msEntity);
+            try {
+                documentWgMapper.insert(msEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -124,7 +148,11 @@ public class SyncWgService {
         for (Document7Entity entity : list) {
             DocumentWgEntity msEntity = new DocumentWgEntity();
             BeanUtils.copyProperties(entity, msEntity);
-            documentWgMapper.insert(msEntity);
+            try {
+                documentWgMapper.insert(msEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }
