@@ -35,11 +35,6 @@ public class Document7Mapper {
             query.addCriteria(criteria);
         }
         PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
-        if ("desc".equals(order)) {
-            pageRequest.withSort(Sort.by(Sort.Order.desc("id")));
-        } else if ("asc".equals(order)) {
-            pageRequest.withSort(Sort.by(Sort.Order.asc("id")));
-        }
         query.with(pageRequest);
         return mongoTemplate.find(query, Document7Entity.class);
     }

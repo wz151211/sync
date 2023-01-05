@@ -1,5 +1,6 @@
 package com.ping.syncparse.task;
 
+import com.ping.syncparse.service.ExportMsService;
 import com.ping.syncparse.service.ParsePartyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ public class Task {
 
     @Autowired
     private ParsePartyService parsePartyService;
+    @Autowired
+    private ExportMsService exportMsService;
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save1() {
@@ -38,6 +41,20 @@ public class Task {
         }
     }
 
+   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
+    public void save2() {
+        boolean tryLock = false;
+        try {
+            tryLock = lock1.tryLock(2, TimeUnit.SECONDS);
+            exportMsService.export();
+        } catch (Exception e) {
+            log.error("", e);
+        } finally {
+            if (tryLock) {
+                lock1.unlock();
+            }
+        }
+    }
 
 
 }

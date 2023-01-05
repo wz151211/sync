@@ -83,10 +83,9 @@ public class ParsePartyService {
 
     public void parse() {
         //  Criteria criteria = Criteria.where("caseType").is("民事案件").and("docType").is("判决书").and("htmlContent").regex("家庭暴力");
-        //  List<DocumentMsJtblEntity> entities = documentMapper.findList(1, pageSize, null);
-        List<DocumentXsLhEntity> entities = documentXsMapper.findList(1, pageSize, null);
+      //  List<DocumentMsJtblEntity> entities = documentMapper.findList(1, pageSize, null);
+          List<DocumentXsLhEntity> entities = documentXsMapper.findList(1, pageSize, null);
         pageNum.getAndIncrement();
-
         for (DocumentXsLhEntity entity : entities) {
             CaseVo vo = new CaseVo();
             vo.setId(entity.getId());
@@ -226,15 +225,16 @@ public class ParsePartyService {
                         }
 
                         String s27 = object.getString("s27");
-                        vo.setJudgmenResult(s27);
                         // String replace = s27.replace("；", "。");
                         if (StringUtils.hasLength(s27)) {
                             String[] split = s27.split("。");
                             for (String s : split) {
                                 if (s.contains("不准予") || s.contains("驳回") || s.contains("不准") || s.contains("不予准许") || s.contains("不予支持") || s.contains("婚姻无效")) {
+                                    vo.setJudgmenResultContent(s);
                                     vo.setJudgmenResult("否");
                                     break;
                                 } else if (s.contains("准予") || s.contains("同意") || s.contains("准许") || (s.contains("准") && s.contains("离婚"))) {
+                                    vo.setJudgmenResultContent(s);
                                     vo.setJudgmenResult("是");
                                     break;
                                 }
@@ -311,7 +311,7 @@ public class ParsePartyService {
 
             } else {
 
-                Document parse = Jsoup.parse(entity.getHtmlContent());
+         /*       Document parse = Jsoup.parse(entity.getHtmlContent());
                 Elements elements = parse.select(".PDF_pox");
                 if (elements == null || elements.size() == 0) {
                     elements = parse.select("div");
@@ -326,7 +326,7 @@ public class ParsePartyService {
                         break;
                     }
 
-                }
+                }*/
             }
 
             System.out.println(JSON.toJSONString(vo));

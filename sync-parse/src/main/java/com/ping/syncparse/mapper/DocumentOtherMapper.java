@@ -1,10 +1,17 @@
 package com.ping.syncparse.mapper;
 
 
+import com.ping.syncparse.entity.Document7Entity;
 import com.ping.syncparse.entity.DocumentOtherEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @Author: W.Z
@@ -18,6 +25,16 @@ public class DocumentOtherMapper {
 
     public void insert(DocumentOtherEntity entity) {
         mongoTemplate.insert(entity);
+    }
+
+    public List<DocumentOtherEntity> findList(int pageNum, int pageSize, Criteria criteria) {
+        Query query = new Query();
+        if (criteria != null) {
+            query.addCriteria(criteria);
+        }
+        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+        query.with(pageRequest);
+        return mongoTemplate.find(query, DocumentOtherEntity.class);
     }
 
 }

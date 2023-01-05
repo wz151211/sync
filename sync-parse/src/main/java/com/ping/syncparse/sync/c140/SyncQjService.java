@@ -39,7 +39,7 @@ public class SyncQjService {
     private AtomicInteger pageNum6 = new AtomicInteger(-1);
     private AtomicInteger pageNum7 = new AtomicInteger(-1);
 
-    private final int pageSize = 10000;
+    private final int pageSize = 1000;
 
     private Criteria criteria = Criteria
             .where("caseType").is("刑事案件")

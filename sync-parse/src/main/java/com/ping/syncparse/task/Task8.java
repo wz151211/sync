@@ -6,8 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-/*
-@Component
+/*@Component
 @Async*/
 @Slf4j
 public class Task8 {
@@ -75,6 +74,15 @@ public class Task8 {
     public void save7() {
         try {
             searchService.sync7();
+        } catch (Exception e) {
+            log.error("", e);
+        }
+    }
+
+    @Scheduled(initialDelay = 16 * 1000L, fixedRate = 1000 * 60 * 3L)
+    public void save8() {
+        try {
+            searchService.sync8();
         } catch (Exception e) {
             log.error("", e);
         }

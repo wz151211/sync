@@ -48,7 +48,7 @@ public class SyncWgService {
         pageNum1.getAndIncrement();
         log.info("pageNum1={}", pageNum1.get());
         List<Document1Entity> list = document1Mapper.findList(pageNum1.get(), pageSize, criteria);
-        log.info("size={}", list.size());
+        log.info("size1={}", list.size());
         for (Document1Entity entity : list) {
             DocumentWgEntity msEntity = new DocumentWgEntity();
             BeanUtils.copyProperties(entity, msEntity);
@@ -64,7 +64,7 @@ public class SyncWgService {
         pageNum2.getAndIncrement();
         log.info("pageNum2={}", pageNum2.get());
         List<Document2Entity> list = document2Mapper.findList(pageNum2.get(), pageSize, criteria);
-        log.info("size={}", list.size());
+        log.info("size2={}", list.size());
         for (Document2Entity entity : list) {
             DocumentWgEntity msEntity = new DocumentWgEntity();
             BeanUtils.copyProperties(entity, msEntity);
