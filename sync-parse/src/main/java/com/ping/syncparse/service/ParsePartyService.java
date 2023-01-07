@@ -5,9 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.common.Dict;
-import com.ping.syncparse.entity.DocumentEntity;
 import com.ping.syncparse.entity.PartyEntity;
-import com.ping.syncparse.mapper.DocumentMapper;
 import com.ping.syncparse.sync.c34.DocumentMsJtblEntity;
 import com.ping.syncparse.sync.c34.DocumentMsMapper;
 import com.ping.syncparse.sync.c34.DocumentXsLhEntity;
@@ -30,10 +28,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 /**
  * @Author: W.Z
@@ -53,6 +49,9 @@ public class ParsePartyService {
     private AtomicInteger pageNum = new AtomicInteger(0);
 
     private List<Dict> causeList = new ArrayList<>();
+    private List<Dict> areaList = new ArrayList<>();
+    Map<String, Dict> areaMap = new HashMap<>();
+    Map<String, Dict> areaCodeMap = new HashMap<>();
 
     private String[] temp = {"汉族", "满族", "回族", "藏族", "苗族", "彝族", "壮族", "侗族", "瑶族", "白族", "傣族", "黎族", "佤族", "畲族", "水族", "土族", "蒙古族", "布依族", "土家族", "哈尼族", "傈僳族", "高山族", "拉祜族", "东乡族", "纳西族", "景颇族", "哈萨克族", "维吾尔族", "达斡尔族", "柯尔克孜族", "羌族", "怒族", "京族", "德昂族", "保安族", "裕固族", "仫佬族", "布朗族", "撒拉族", "毛南族", "仡佬族", "锡伯族", "阿昌族", "普米族", "朝鲜族", "赫哲族", "门巴族", "珞巴族", "独龙族", "基诺族", "塔吉克族", "俄罗斯族", "鄂温克族", "塔塔尔族", "鄂伦春族", "乌孜别克族"};
 
@@ -73,8 +72,21 @@ public class ParsePartyService {
                     String text = IOUtils.toString(resource.getURI(), StandardCharsets.UTF_8);
                     causeList.addAll(JSON.parseArray(text, Dict.class));
                 }
+
+                if ("area.txt".contains(resource.getFilename())) {
+                    String text = IOUtils.toString(resource.getURI(), StandardCharsets.UTF_8);
+                    areaList.addAll(JSON.parseArray(text, Dict.class));
+                }
             }
             causeSet = causeList.stream().map(Dict::getName).collect(toSet());
+            areaMap = areaList.parallelStream().peek(c -> {
+                String name = c.getName();
+                int start = name.indexOf("(");
+                c.setName(name.substring(0, start));
+            }).collect(toMap(Dict::getName, c -> c, (k1, k2) -> k2));
+            areaCodeMap = areaList.parallelStream().collect(toMap(Dict::getCode, c -> c, (k1, k2) -> k2));
+
+
         } catch (
                 IOException e) {
             e.printStackTrace();
@@ -82,9 +94,9 @@ public class ParsePartyService {
     }
 
     public void parse() {
-        //  Criteria criteria = Criteria.where("caseType").is("民事案件").and("docType").is("判决书").and("htmlContent").regex("家庭暴力");
-      //  List<DocumentMsJtblEntity> entities = documentMapper.findList(1, pageSize, null);
-          List<DocumentXsLhEntity> entities = documentXsMapper.findList(1, pageSize, null);
+        Criteria criteria = Criteria.where("name").regex("判决书");
+        //  List<DocumentMsJtblEntity> entities = documentMapper.findList(1, pageSize, null);
+        List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, criteria);
         pageNum.getAndIncrement();
         for (DocumentXsLhEntity entity : entities) {
             CaseVo vo = new CaseVo();
@@ -100,16 +112,65 @@ public class ParsePartyService {
                     vo.setProvince(entity.getCourtName().substring(0, entity.getCourtName().indexOf("省") + 1));
 
                 } else if (entity.getCourtName().contains("市")) {
+                    String s = entity.getCourtName().substring(0, entity.getCourtName().indexOf("市") + 1);
+                    Dict dict = areaMap.get(s);
+                    if (dict != null) {
+                        if (dict.getPId().equals("-1")) {
+                            vo.setProvince(dict.getName());
+                        } else {
+                            Dict dict1 = areaCodeMap.get(dict.getCode());
+                            if (dict1.getPId().equals("-1")) {
+                                vo.setProvince(dict1.getName());
+                            }
+                        }
+                    } else {
+                        vo.setProvince(s);
+                    }
 
-                    vo.setProvince(entity.getCourtName().substring(0, entity.getCourtName().indexOf("市") + 1));
 
                 } else if (entity.getCourtName().contains("区")) {
-
-                    vo.setProvince(entity.getCourtName().substring(0, entity.getCourtName().indexOf("区") + 1));
+                    String s = entity.getCourtName().substring(0, entity.getCourtName().indexOf("区") + 1);
+                    Dict dict = areaMap.get(s);
+                    if (dict != null) {
+                        if (dict.getPId().equals("-1")) {
+                            vo.setProvince(dict.getName());
+                        } else {
+                            Dict dict1 = areaCodeMap.get(dict.getCode());
+                            if (dict1.getPId().equals("-1")) {
+                                vo.setProvince(dict1.getName());
+                            } else {
+                                Dict dict2 = areaCodeMap.get(dict1.getCode());
+                                if (dict2.getPId().equals("-1")) {
+                                    vo.setProvince(dict2.getName());
+                                }
+                            }
+                        }
+                    } else {
+                        vo.setProvince(s);
+                    }
 
                 } else if (entity.getCourtName().contains("县")) {
 
-                    vo.setProvince(entity.getCourtName().substring(0, entity.getCourtName().indexOf("县") + 1));
+                    String s = entity.getCourtName().substring(0, entity.getCourtName().indexOf("县") + 1);
+
+                    Dict dict = areaMap.get(s);
+                    if (dict != null) {
+                        if (dict.getPId().equals("-1")) {
+                            vo.setProvince(dict.getName());
+                        } else {
+                            Dict dict1 = areaCodeMap.get(dict.getCode());
+                            if (dict1.getPId().equals("-1")) {
+                                vo.setProvince(dict1.getName());
+                            } else {
+                                Dict dict2 = areaCodeMap.get(dict1.getCode());
+                                if (dict2.getPId().equals("-1")) {
+                                    vo.setProvince(dict2.getName());
+                                }
+                            }
+                        }
+                    } else {
+                        vo.setProvince(s);
+                    }
 
                 }
             }
@@ -350,9 +411,16 @@ public class ParsePartyService {
             if (s.contains(name)) {
                 party.setName(name);
             }
-            if (s.contains("男") || s.contains("女")) {
+            if (s.contains("男")) {
                 if (!StringUtils.hasLength(party.getSex())) {
-                    party.setSex(s);
+                    party.setSex("男");
+                }
+
+            }
+
+            if (s.contains("女")) {
+                if (!StringUtils.hasLength(party.getSex())) {
+                    party.setSex("女");
                 }
 
             }

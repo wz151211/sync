@@ -11,5 +11,7 @@ public class Dict {
 
     private String code;
 
+    private String pId;
+
     private String name;
 }
