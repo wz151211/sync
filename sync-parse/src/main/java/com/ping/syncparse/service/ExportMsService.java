@@ -29,13 +29,13 @@ public class ExportMsService {
     @Autowired
     private CaseMsMapper caseMapper;
     private int pageSize = 1000;
-    private AtomicInteger pageNum = new AtomicInteger(-1);
+    private AtomicInteger pageNum = new AtomicInteger(133);
 
     public void export() {
         pageNum.getAndIncrement();
         Criteria criteria = Criteria.where("name").regex("判决书");
 
-        List<CaseMsVo> vos = caseMapper.findList(pageNum.get(), pageSize, criteria);
+        List<CaseMsVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
         Workbook wb = new XSSFWorkbook();
         String[] head = {"案件信息", "序号", "id", "案件名称", "案号", "法院名称", "裁判日期", "案由", "审判程序"
                 , "省份", "当事人", "结婚日期", "结婚日期内容", "是否有孩子", "是否有孩子内容", "是否再婚", "是否再婚内容", "是否同意离婚", "是否同意离婚内容", "HTML内容", "JSON内容"};

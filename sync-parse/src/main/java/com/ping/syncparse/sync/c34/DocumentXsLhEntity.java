@@ -1,5 +1,6 @@
 package com.ping.syncparse.sync.c34;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -12,7 +13,7 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_xs_lh")
+@Document(value = "document_xs_lh_new")
 public class DocumentXsLhEntity {
 
     @Id
@@ -28,11 +29,11 @@ public class DocumentXsLhEntity {
 
     private String caseType;
 
-    private String cause;
+    private JSONArray cause;
 
-    private String party;
+    private JSONArray party;
 
-    private String keyword;
+    private JSONArray keyword;
 
     private String trialProceedings;
 

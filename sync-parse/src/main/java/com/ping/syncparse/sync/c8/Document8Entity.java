@@ -12,7 +12,7 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_8")
+@Document(value = "document_8_new_new")
 public class Document8Entity {
 
     @Id

@@ -1,13 +1,9 @@
 package com.ping.syncmysqltomongo.mongo;
 
-import cn.hutool.json.JSONObject;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -42,12 +38,12 @@ public class DocumentEntity {
     private String caseType;
 
 
-    private String[] cause;
+    private JSONArray cause;
 
 
-    private String[] party;
+    private JSONArray party;
 
-    private String[] keyword;
+    private JSONArray keyword;
 
 
     private String trialProceedings;

@@ -79,11 +79,11 @@ public class ParsePartyService {
                 }
             }
             causeSet = causeList.stream().map(Dict::getName).collect(toSet());
-            areaMap = areaList.parallelStream().peek(c -> {
+            areaMap = areaList.stream().peek(c -> {
                 String name = c.getName();
                 int start = name.indexOf("(");
-                c.setName(name.substring(0, start));
-            }).collect(toMap(Dict::getName, c -> c, (k1, k2) -> k2));
+                c.setName(name.substring(0, start).trim());
+            }).collect(toMap(Dict::getName, c -> c, (k1, k2) -> k1));
             areaCodeMap = areaList.parallelStream().collect(toMap(Dict::getCode, c -> c, (k1, k2) -> k2));
 
 
@@ -96,7 +96,7 @@ public class ParsePartyService {
     public void parse() {
         Criteria criteria = Criteria.where("name").regex("判决书");
         //  List<DocumentMsJtblEntity> entities = documentMapper.findList(1, pageSize, null);
-        List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, criteria);
+        List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, null);
         pageNum.getAndIncrement();
         for (DocumentXsLhEntity entity : entities) {
             CaseVo vo = new CaseVo();
@@ -110,71 +110,117 @@ public class ParsePartyService {
                 if (entity.getCourtName().contains("省")) {
 
                     vo.setProvince(entity.getCourtName().substring(0, entity.getCourtName().indexOf("省") + 1));
-
-                } else if (entity.getCourtName().contains("市")) {
-                    String s = entity.getCourtName().substring(0, entity.getCourtName().indexOf("市") + 1);
-                    Dict dict = areaMap.get(s);
-                    if (dict != null) {
-                        if (dict.getPId().equals("-1")) {
-                            vo.setProvince(dict.getName());
-                        } else {
-                            Dict dict1 = areaCodeMap.get(dict.getCode());
-                            if (dict1.getPId().equals("-1")) {
-                                vo.setProvince(dict1.getName());
-                            }
-                        }
-                    } else {
-                        vo.setProvince(s);
+                    if (!StringUtils.hasLength(vo.getProvince())) {
+                        vo.setProvince(convert(vo.getCaseNo()));
                     }
-
-
+                    if (!StringUtils.hasLength(vo.getProvince())) {
+                        vo.setProvince(convert(vo.getCaseNo()));
+                    }
                 } else if (entity.getCourtName().contains("区")) {
                     String s = entity.getCourtName().substring(0, entity.getCourtName().indexOf("区") + 1);
-                    Dict dict = areaMap.get(s);
+                    Dict dict = areaMap.get(s.trim());
                     if (dict != null) {
                         if (dict.getPId().equals("-1")) {
                             vo.setProvince(dict.getName());
                         } else {
-                            Dict dict1 = areaCodeMap.get(dict.getCode());
-                            if (dict1.getPId().equals("-1")) {
+                            Dict dict1 = areaCodeMap.get(dict.getPId());
+                            if (dict1 != null && dict1.getPId().equals("-1")) {
                                 vo.setProvince(dict1.getName());
                             } else {
-                                Dict dict2 = areaCodeMap.get(dict1.getCode());
-                                if (dict2.getPId().equals("-1")) {
-                                    vo.setProvince(dict2.getName());
+                                if (dict1 != null) {
+                                    Dict dict2 = areaCodeMap.get(dict1.getPId());
+                                    if (dict2 != null && dict2.getPId().equals("-1")) {
+                                        vo.setProvince(dict2.getName());
+                                    }
                                 }
+
                             }
                         }
-                    } else {
-                        vo.setProvince(s);
                     }
-
+                    if (!StringUtils.hasLength(vo.getProvince())) {
+                        vo.setProvince(convert(vo.getCaseNo()));
+                    }
                 } else if (entity.getCourtName().contains("县")) {
 
                     String s = entity.getCourtName().substring(0, entity.getCourtName().indexOf("县") + 1);
 
-                    Dict dict = areaMap.get(s);
+                    Dict dict = areaMap.get(s.trim());
                     if (dict != null) {
                         if (dict.getPId().equals("-1")) {
                             vo.setProvince(dict.getName());
                         } else {
-                            Dict dict1 = areaCodeMap.get(dict.getCode());
-                            if (dict1.getPId().equals("-1")) {
+                            Dict dict1 = areaCodeMap.get(dict.getPId());
+                            if (dict1 != null && dict1.getPId().equals("-1")) {
                                 vo.setProvince(dict1.getName());
                             } else {
-                                Dict dict2 = areaCodeMap.get(dict1.getCode());
-                                if (dict2.getPId().equals("-1")) {
-                                    vo.setProvince(dict2.getName());
+                                if (dict1 != null) {
+                                    Dict dict2 = areaCodeMap.get(dict1.getPId());
+                                    if (dict2 != null && dict2.getPId().equals("-1")) {
+                                        vo.setProvince(dict2.getName());
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                    if (!StringUtils.hasLength(vo.getProvince())) {
+                        vo.setProvince(convert(vo.getCaseNo()));
+                    }
+
+                } else if (entity.getCourtName().contains("旗")) {
+                    String s = entity.getCourtName().substring(0, entity.getCourtName().indexOf("旗") + 1);
+
+                    Dict dict = areaMap.get(s.trim());
+                    if (dict != null) {
+                        if (dict.getPId().equals("-1")) {
+                            vo.setProvince(dict.getName());
+                        } else {
+                            Dict dict1 = areaCodeMap.get(dict.getPId());
+                            if (dict1 != null && dict1.getPId().equals("-1")) {
+                                vo.setProvince(dict1.getName());
+                            } else {
+                                if (dict1 != null) {
+                                    Dict dict2 = areaCodeMap.get(dict1.getPId());
+                                    if (dict2 != null && dict2.getPId().equals("-1")) {
+                                        vo.setProvince(dict2.getName());
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                    if (!StringUtils.hasLength(vo.getProvince())) {
+                        vo.setProvince(convert(vo.getCaseNo()));
+                    }
+                } else if (entity.getCourtName().contains("市")) {
+                    String s = entity.getCourtName().substring(0, entity.getCourtName().indexOf("市") + 1);
+                    Dict dict = areaMap.get(s.trim());
+                    if (dict != null) {
+                        if (dict.getPId().equals("-1")) {
+                            vo.setProvince(dict.getName());
+                        } else {
+                            Dict dict1 = areaCodeMap.get(dict.getPId());
+                            if (dict1 != null && dict1.getPId().equals("-1")) {
+                                vo.setProvince(dict1.getName());
+                            } else {
+                                if (dict1 != null) {
+                                    Dict dict2 = areaCodeMap.get(dict1.getPId());
+                                    if (dict2 != null && dict2.getPId().equals("-1")) {
+                                        vo.setProvince(dict2.getName());
+                                    }
                                 }
                             }
                         }
-                    } else {
-                        vo.setProvince(s);
+                    }
+                    if (!StringUtils.hasLength(vo.getProvince())) {
+                        vo.setProvince(convert(vo.getCaseNo()));
                     }
 
                 }
             }
-
+            if (!StringUtils.hasLength(vo.getProvince())) {
+                vo.setProvince(convert(vo.getCaseNo()));
+            }
             if (entity.getJsonContent() != null && entity.getJsonContent().size() > 0) {
                 PartyEntity party = null;
                 JSONObject object = entity.getJsonContent();
@@ -286,9 +332,9 @@ public class ParsePartyService {
                         }
 
                         String s27 = object.getString("s27");
-                        // String replace = s27.replace("；", "。");
-                        if (StringUtils.hasLength(s27)) {
-                            String[] split = s27.split("。");
+                        String replace = s27.replace("；", "。");
+                        if (StringUtils.hasLength(replace)) {
+                            String[] split = replace.split("。");
                             for (String s : split) {
                                 if (s.contains("不准予") || s.contains("驳回") || s.contains("不准") || s.contains("不予准许") || s.contains("不予支持") || s.contains("婚姻无效")) {
                                     vo.setJudgmenResultContent(s);
@@ -390,7 +436,7 @@ public class ParsePartyService {
                 }*/
             }
 
-            System.out.println(JSON.toJSONString(vo));
+            System.out.println(vo.getName());
 
             try {
                 caseMapper.insert(vo);
@@ -454,5 +500,56 @@ public class ParsePartyService {
             }
         }
         return party;
+    }
+
+    private String convert(String name) {
+        for (String s : province.keySet()) {
+            if (StringUtils.hasLength(name) && name.contains(s)) {
+                return province.get(s);
+            }
+        }
+        return null;
+    }
+
+    private Map<String, String> province = new HashMap<>();
+
+    {
+        province.put("京", "北京市");
+        province.put("津", "天津市");
+        province.put("冀", "河北省");
+        province.put("晋", "山西省");
+        province.put("内", "内蒙古自治区");
+        province.put("内蒙古", "内蒙古自治区");
+        province.put("辽", "辽宁省");
+        province.put("吉", "吉林省");
+        province.put("黑", "黑龙江省");
+        province.put("沪", "上海市");
+        province.put("苏", "江苏省");
+        province.put("浙", "浙江省");
+        province.put("皖", "安徽省");
+        province.put("闽", "福建省");
+        province.put("赣", "江西省");
+        province.put("鲁", "山东省");
+        province.put("豫", "河南省");
+        province.put("鄂", "湖北省");
+        province.put("湘", "湖南省");
+        province.put("粤", "广东省");
+        province.put("桂", "广西壮族自治区");
+        province.put("琼", "海南省");
+        province.put("川", "四川省");
+        province.put("蜀", "四川省");
+        province.put("贵", "贵州省");
+        province.put("黔", "贵州省");
+        province.put("滇", "云南省");
+        province.put("云", "云南省");
+        province.put("渝", "重庆市");
+        province.put("藏", "西藏自治区");
+        province.put("秦", "陕西省");
+        province.put("陕", "陕西省");
+        province.put("甘", "甘肃省");
+        province.put("陇", "甘肃省");
+        province.put("青", "青海省");
+        province.put("宁", "宁夏回族自治区");
+        province.put("新", "新疆维吾尔自治区");
     }
 }

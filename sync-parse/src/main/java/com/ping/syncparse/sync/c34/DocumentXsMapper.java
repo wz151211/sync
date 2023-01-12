@@ -24,8 +24,8 @@ public class DocumentXsMapper {
         if (criteria != null) {
             query.addCriteria(criteria);
         }
-        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
-        query.with(pageRequest);
+/*        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+        query.with(pageRequest);*/
         return mongoTemplate.find(query, DocumentXsLhEntity.class);
     }
 }

@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://192.168.0.105:27017/cpms
+      uri: mongodb://localhost:27017/cpws
 order: desc
 pageNum: 1
 logging:

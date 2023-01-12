@@ -13,7 +13,7 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_dq")
+@Document(value = "document_dq_new")
 public class DocumentDqEntity {
     @Id
     private String id;

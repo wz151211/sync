@@ -1,4 +1,4 @@
-package com.ping.syncparse.sync.c34;
+package com.ping.syncmysqltomongo.mongo.entity;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -13,9 +13,8 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_ms_jtbl_new")
-public class DocumentMsJtblEntity {
-
+@Document(value = "document")
+public class DocumentEntity {
     @Id
     private String id;
 
@@ -44,8 +43,4 @@ public class DocumentMsJtblEntity {
     private JSONObject jsonContent;
 
     private Date createTime;
-
-    private String courtConsidered;
-
-    private String judgmentResult;
 }
