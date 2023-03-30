@@ -13,34 +13,7 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_dq_new")
-public class DocumentDqEntity {
-    @Id
-    private String id;
+@Document(value = "document_dq_3")
+public class DocumentDqEntity extends BaseEntity {
 
-    private String name;
-
-    private String caseNo;
-
-    private String courtName;
-
-    private Date refereeDate;
-
-    private String caseType;
-
-    private JSONArray cause;
-
-    private JSONArray party;
-
-    private JSONArray keyword;
-
-    private String trialProceedings;
-
-    private String docType;
-
-    private String htmlContent;
-
-    private JSONObject jsonContent;
-
-    private Date createTime;
 }

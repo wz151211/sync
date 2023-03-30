@@ -35,6 +35,10 @@ public class CaseMsVo {
 
     private String province;
 
+    private String city;
+
+    private String county;
+
     private List<PartyEntity> party = new ArrayList<>();
 
     private String marriagDate;
@@ -57,6 +61,10 @@ public class CaseMsVo {
     private String htmlContent;
 
     private JSONObject jsonContent;
+
+    private String familyViolence;
+
+    private String familyViolenceContent;
 
 
 }

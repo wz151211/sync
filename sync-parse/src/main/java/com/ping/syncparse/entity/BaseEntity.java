@@ -36,4 +36,6 @@ public class BaseEntity {
     private JSONObject jsonContent;
 
     private Date createTime;
+
+    private String uid;
 }

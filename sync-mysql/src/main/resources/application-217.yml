@@ -28,7 +28,7 @@ spring:
         dm2:
           #?????
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://172.16.119.182:3306/judgements?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8
+          url: jdbc:mysql://47.95.218.217:3306/judgements?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8
           username: root
           password: document@ABC
   application:

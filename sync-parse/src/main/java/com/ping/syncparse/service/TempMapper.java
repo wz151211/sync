@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 @Repository
 public class TempMapper {
     @Autowired
@@ -26,4 +27,13 @@ public class TempMapper {
         query.with(pageRequest);
         return mongoTemplate.find(query, TempVO.class);
     }
+
+    public Long getCount(Criteria criteria) {
+        Query query = new Query();
+        if (criteria != null) {
+            query.addCriteria(criteria);
+        }
+        return mongoTemplate.count(query, TempVO.class);
+    }
+
 }

@@ -388,6 +388,6 @@ public class SyncService {
         to.setDocType(from.getDocType());
         to.setHtmlContent(from.getHtmlContent());
         to.setJsonContent(from.getJsonContent());
-        to.setCreateTime(new Date());
+       // to.setCreateTime(new Date());
     }
 }

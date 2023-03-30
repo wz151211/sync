@@ -13,7 +13,7 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_xs_lh_new")
+@Document(value = "document_ffjc")
 public class DocumentXsLhEntity {
 
     @Id
@@ -48,4 +48,10 @@ public class DocumentXsLhEntity {
     private String courtConsidered;
 
     private String judgmentResult;
+
+    private String province;
+
+    private String city;
+
+    private String county;
 }

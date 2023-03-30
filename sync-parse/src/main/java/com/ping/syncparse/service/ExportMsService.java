@@ -10,6 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,7 +39,7 @@ public class ExportMsService {
         List<CaseMsVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
         Workbook wb = new XSSFWorkbook();
         String[] head = {"案件信息", "序号", "id", "案件名称", "案号", "法院名称", "裁判日期", "案由", "审判程序"
-                , "省份", "当事人", "结婚日期", "结婚日期内容", "是否有孩子", "是否有孩子内容", "是否再婚", "是否再婚内容", "是否同意离婚", "是否同意离婚内容", "HTML内容", "JSON内容"};
+                , "省份", "市", "区县", "当事人", "结婚日期", "结婚日期内容", "是否有孩子", "是否有孩子内容", "是否再婚", "是否再婚内容", "是否同意离婚", "是否同意离婚内容", "是否存在家庭暴力", "家庭暴力内容", "HTML内容", "JSON内容"};
         Sheet sheet = wb.createSheet("案件信息");
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
@@ -79,18 +80,50 @@ public class ExportMsService {
             for (CaseMsVo vo : vos) {
                 List<PartyEntity> party = vo.getParty();
                 if (party != null) {
+                    System.out.println(vo.getCaseNo());
+                    System.out.println(party);
+                    Map<String, List<PartyEntity>> listMap = party.stream().filter(c -> StringUtils.hasLength(c.getType())).collect(Collectors.groupingBy(PartyEntity::getType));
                     Map<Integer, Object> partyMap = new HashMap<>();
                     partyMap.put(1, vo.getCaseNo());
                     partyList.add(partyMap);
                     int start = 0;
-                    for (int i = 0; i < party.size(); i++) {
-                        if (i >= 10) {
-                            break;
+                    int count = 0;
+                    List<PartyEntity> entities = listMap.get("原告");
+                    if (entities != null && entities.size() > 0) {
+                        for (int i = 0; i < 3; i++) {
+                            PartyEntity entity = null;
+                            if (i < entities.size()) {
+                                entity = entities.get(i);
+                            } else {
+                                entity = new PartyEntity();
+                            }
+                            toParty(start, partyMap, entity);
+                            start += 9;
+                            count++;
                         }
-                        PartyEntity entity = party.get(i);
-                        toParty(start, partyMap, entity);
-                        start += 9;
+                    } else {
+                        for (int i = 0; i < 3; i++) {
+                            PartyEntity entity = null;
+                            entity = new PartyEntity();
+                            toParty(start, partyMap, entity);
+                            start += 9;
+                            count++;
+                        }
                     }
+
+                    List<PartyEntity> bList = listMap.get("被告");
+                    if (bList != null) {
+                        for (int i = 0; i < bList.size(); i++) {
+                            if (count >= 10) {
+                                break;
+                            }
+                            PartyEntity entity = bList.get(i);
+                            toParty(start, partyMap, entity);
+                            start += 9;
+                            count++;
+                        }
+                    }
+
                 } else {
                     partyList.add(new HashMap<>());
                 }
@@ -99,6 +132,7 @@ public class ExportMsService {
             ExcelUtils.export(wb, partySheet, partyList, partyHead.toArray());
 
             wb.write(out);
+            System.out.println("导出完成");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -150,24 +184,28 @@ public class ExportMsService {
         map.put(6, vo.getCause());
         map.put(7, vo.getTrialProceedings());
         map.put(8, vo.getProvince());
+        map.put(9, vo.getCity());
+        map.put(10, vo.getCounty());
         if (vo.getParty() != null) {
-            map.put(9, JSON.toJSONString(vo.getParty()));
+            map.put(11, JSON.toJSONString(vo.getParty()));
         } else {
-            map.put(9, "");
+            map.put(11, "");
         }
-        map.put(10, vo.getMarriagDate());
-        map.put(11, vo.getMarriagContent());
-        map.put(12, vo.getHaveChildren());
-        map.put(13, vo.getChildrenContent());
-        map.put(14, vo.getRemarry());
-        map.put(15, vo.getRemarryContent());
-        map.put(16, vo.getJudgmenResult());
-        map.put(17, vo.getJudgmenResultContent());
-        map.put(18, vo.getHtmlContent());
+        map.put(12, vo.getMarriagDate());
+        map.put(13, vo.getMarriagContent());
+        map.put(14, vo.getHaveChildren());
+        map.put(15, vo.getChildrenContent());
+        map.put(16, vo.getRemarry());
+        map.put(17, vo.getRemarryContent());
+        map.put(18, vo.getJudgmenResult());
+        map.put(19, vo.getJudgmenResultContent());
+        map.put(20, vo.getFamilyViolence());
+        map.put(21, vo.getFamilyViolenceContent());
+        map.put(22, vo.getHtmlContent());
         if (vo.getJsonContent() != null) {
-            map.put(19, vo.getJsonContent().toJSONString());
+            map.put(23, vo.getJsonContent().toJSONString());
         } else {
-            map.put(19, "");
+            map.put(23, "");
         }
 
 

@@ -1,6 +1,5 @@
 package com.ping.syncparse.sync.c34;
 
-import com.ping.syncparse.entity.Document1Entity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;

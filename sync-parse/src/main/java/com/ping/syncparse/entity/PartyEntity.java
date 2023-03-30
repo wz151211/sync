@@ -23,7 +23,11 @@ public class PartyEntity {
 
     private String eduLevel;
 
+    private String profession;
+
     private String type;
+
+    private String hasCriminalRecord;
 
     private String content;
 

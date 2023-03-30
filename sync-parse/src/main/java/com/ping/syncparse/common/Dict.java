@@ -14,4 +14,6 @@ public class Dict {
     private String pId;
 
     private String name;
+
+    private Integer level;
 }

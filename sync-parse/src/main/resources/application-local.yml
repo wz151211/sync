@@ -1,9 +1,9 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/cpws
+      uri: mongodb://localhost:27017/ws
 order: desc
 pageNum: 1
 logging:
   level:
-    org.mongodb : debug
+    org.mongodb: debug

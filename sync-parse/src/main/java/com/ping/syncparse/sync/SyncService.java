@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -22,19 +21,25 @@ public class SyncService {
     @Autowired
     private DocumentMapper documentMapper;
     @Autowired
-    private Document1Mapper document1Mapper;
+    private Document2014Mapper document2014Mapper;
     @Autowired
-    private Document2Mapper document2Mapper;
+    private Document2015Mapper document2015Mapper;
     @Autowired
-    private Document3Mapper document3Mapper;
+    private Document2016Mapper document2016Mapper;
     @Autowired
-    private Document4Mapper document4Mapper;
+    private Document2017Mapper document2017Mapper;
     @Autowired
-    private Document5Mapper document5Mapper;
+    private Document2018Mapper document2018Mapper;
     @Autowired
-    private Document6Mapper document6Mapper;
+    private Document2019Mapper document2019Mapper;
     @Autowired
-    private Document7Mapper document7Mapper;
+    private Document2020Mapper document2020Mapper;
+    @Autowired
+    private Document2021Mapper document2021Mapper;
+    @Autowired
+    private Document2022Mapper document2022Mapper;
+    @Autowired
+    private Document2023Mapper document2023Mapper;
     @Autowired
     private DocumentOtherMapper documentOtherMapper;
 
@@ -57,30 +62,40 @@ public class SyncService {
             pageNum.set(page);
         }
         pageNum.getAndIncrement();
-		        log.info("pageNum={}", pageNum);
+        log.info("pageNum={}", pageNum);
 
         List<DocumentEntity> list = documentMapper.findList(pageNum.get(), pageSize, null);
-		for(DocumentEntity c : list){
-                        
+        for (DocumentEntity c : list) {
 
-            if (c.getRefereeDate() != null) {
+
+            if (c.getRefereeDate() != null && c.getJsonContent() != null) {
                 if (DateUtil.parse("2014-12-31 23:59:59").isAfter(c.getRefereeDate())) {
-                    Document1Entity entity = new Document1Entity();
+                    Document2014Entity entity = new Document2014Entity();
                     toEntity(c, entity);
                     try {
-                        document1Mapper.insert(entity);
+                        document2014Mapper.insert(entity);
                     } catch (DuplicateKeyException ex) {
                         log.info("已存在id={}", entity.getId());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
-                if (DateUtil.parse("2015-01-01 00:00:00").isBefore(c.getRefereeDate())
-                        && DateUtil.parse("2016-12-31 23:59:59").isAfter(c.getRefereeDate())) {
-                    Document2Entity entity = new Document2Entity();
+                } else if (DateUtil.parse("2015-01-01 00:00:00").isBefore(c.getRefereeDate())
+                        && DateUtil.parse("2015-12-31 23:59:59").isAfter(c.getRefereeDate())) {
+                    Document2015Entity entity = new Document2015Entity();
                     toEntity(c, entity);
                     try {
-                        document2Mapper.insert(entity);
+                        document2015Mapper.insert(entity);
+                    } catch (DuplicateKeyException ex) {
+                        log.info("已存在id={}", entity.getId());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else if (DateUtil.parse("2016-01-01 00:00:00").isBefore(c.getRefereeDate())
+                        && DateUtil.parse("2016-12-31 23:59:59").isAfter(c.getRefereeDate())) {
+                    Document2016Entity entity = new Document2016Entity();
+                    toEntity(c, entity);
+                    try {
+                        document2016Mapper.insert(entity);
                     } catch (DuplicateKeyException ex) {
                         log.info("已存在id={}", entity.getId());
                     } catch (Exception e) {
@@ -88,10 +103,10 @@ public class SyncService {
                     }
                 } else if (DateUtil.parse("2017-01-01 00:00:00").isBefore(c.getRefereeDate())
                         && DateUtil.parse("2017-12-31 23:59:59").isAfter(c.getRefereeDate())) {
-                    Document3Entity entity = new Document3Entity();
+                    Document2017Entity entity = new Document2017Entity();
                     toEntity(c, entity);
                     try {
-                        document3Mapper.insert(entity);
+                        document2017Mapper.insert(entity);
                     } catch (DuplicateKeyException ex) {
                         log.info("已存在id={}", entity.getId());
                     } catch (Exception e) {
@@ -99,10 +114,10 @@ public class SyncService {
                     }
                 } else if (DateUtil.parse("2018-01-01 00:00:00").isBefore(c.getRefereeDate())
                         && DateUtil.parse("2018-12-31 23:59:59").isAfter(c.getRefereeDate())) {
-                    Document4Entity entity = new Document4Entity();
+                    Document2018Entity entity = new Document2018Entity();
                     toEntity(c, entity);
                     try {
-                        document4Mapper.insert(entity);
+                        document2018Mapper.insert(entity);
                     } catch (DuplicateKeyException ex) {
                         log.info("已存在id={}", entity.getId());
                     } catch (Exception e) {
@@ -110,10 +125,10 @@ public class SyncService {
                     }
                 } else if (DateUtil.parse("2019-01-01 00:00:00").isBefore(c.getRefereeDate())
                         && DateUtil.parse("2019-12-31 23:59:59").isAfter(c.getRefereeDate())) {
-                    Document5Entity entity = new Document5Entity();
+                    Document2019Entity entity = new Document2019Entity();
                     toEntity(c, entity);
                     try {
-                        document5Mapper.insert(entity);
+                        document2019Mapper.insert(entity);
                     } catch (DuplicateKeyException ex) {
                         log.info("已存在id={}", entity.getId());
                     } catch (Exception e) {
@@ -121,99 +136,48 @@ public class SyncService {
                     }
                 } else if (DateUtil.parse("2020-01-01 00:00:00").isBefore(c.getRefereeDate())
                         && DateUtil.parse("2020-12-31 23:59:59").isAfter(c.getRefereeDate())) {
-                    Document6Entity entity = new Document6Entity();
+                    Document2020Entity entity = new Document2020Entity();
                     toEntity(c, entity);
                     try {
-                        document6Mapper.insert(entity);
+                        document2020Mapper.insert(entity);
                     } catch (DuplicateKeyException ex) {
                         log.info("已存在id={}", entity.getId());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else if (DateUtil.parse("2021-01-01 00:00:00").isBefore(c.getRefereeDate())
+                        && DateUtil.parse("2021-12-31 23:59:59").isAfter(c.getRefereeDate())) {
+                    Document2021Entity entity = new Document2021Entity();
+                    toEntity(c, entity);
+                    try {
+                        document2021Mapper.insert(entity);
+                    } catch (DuplicateKeyException ex) {
+                        log.info("已存在id={}", entity.getId());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else if (DateUtil.parse("2022-01-01 00:00:00").isBefore(c.getRefereeDate())
                         && DateUtil.parse("2022-12-31 23:59:59").isAfter(c.getRefereeDate())) {
-                    Document7Entity entity = new Document7Entity();
+                    Document2022Entity entity = new Document2022Entity();
                     toEntity(c, entity);
                     try {
-                        document7Mapper.insert(entity);
+                        document2022Mapper.insert(entity);
                     } catch (DuplicateKeyException ex) {
                         log.info("已存在id={}", entity.getId());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
-            } else if (StringUtils.hasText(c.getCaseNo())) {
-                if (c.getCaseNo().contains("2015") || c.getCaseNo().contains("2016")) {
-                    Document2Entity entity = new Document2Entity();
+                } else if (DateUtil.parse("2023-01-01 00:00:00").isBefore(c.getRefereeDate())
+                        && DateUtil.parse("2023-12-31 23:59:59").isAfter(c.getRefereeDate())) {
+                    Document2023Entity entity = new Document2023Entity();
                     toEntity(c, entity);
                     try {
-                        document2Mapper.insert(entity);
+                        document2023Mapper.insert(entity);
                     } catch (DuplicateKeyException ex) {
                         log.info("已存在id={}", entity.getId());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else if (c.getCaseNo().contains("2017")) {
-                    Document3Entity entity = new Document3Entity();
-                    toEntity(c, entity);
-                    try {
-                        document3Mapper.insert(entity);
-                    } catch (DuplicateKeyException ex) {
-                        log.info("已存在id={}", entity.getId());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (c.getCaseNo().contains("2018")) {
-                    Document4Entity entity = new Document4Entity();
-                    toEntity(c, entity);
-                    try {
-                        document4Mapper.insert(entity);
-                    } catch (DuplicateKeyException ex) {
-                        log.info("已存在id={}", entity.getId());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (c.getCaseNo().contains("2019")) {
-                    Document5Entity entity = new Document5Entity();
-                    toEntity(c, entity);
-                    try {
-                        document5Mapper.insert(entity);
-                    } catch (DuplicateKeyException ex) {
-                        log.info("已存在id={}", entity.getId());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (c.getCaseNo().contains("2020")) {
-                    Document6Entity entity = new Document6Entity();
-                    toEntity(c, entity);
-                    try {
-                        document6Mapper.insert(entity);
-                    } catch (DuplicateKeyException ex) {
-                        log.info("已存在id={}", entity.getId());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (c.getCaseNo().contains("2021") || c.getCaseNo().contains("2022")) {
-                    Document7Entity entity = new Document7Entity();
-                    toEntity(c, entity);
-                    try {
-                        document7Mapper.insert(entity);
-                    } catch (DuplicateKeyException ex) {
-                        log.info("已存在id={}", entity.getId());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    Document1Entity entity = new Document1Entity();
-                    toEntity(c, entity);
-                    try {
-                        document1Mapper.insert(entity);
-                    } catch (DuplicateKeyException ex) {
-                        log.info("已存在id={}", entity.getId());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
                 }
             } else {
                 DocumentOtherEntity entity = new DocumentOtherEntity();

@@ -64,4 +64,7 @@ public class RemotrDocumentEntity {
 
     @TableField("create_time")
     private Date createTime;
+
+    @TableField("uid")
+    private String uid;
 }

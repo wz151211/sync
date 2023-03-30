@@ -35,6 +35,4 @@ public class BaseEntity {
     private String htmlContent;
 
     private JSONObject jsonContent;
-
-    private Date createTime;
 }

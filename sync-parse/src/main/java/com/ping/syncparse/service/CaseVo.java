@@ -15,7 +15,7 @@ import java.util.List;
  * @Date: 2022/12/31 15:21
  */
 @Data
-@Document(value = "documentm_xs_result")
+@Document(value = "documentm_ffjc_result")
 public class CaseVo {
 
     @Id
@@ -31,9 +31,17 @@ public class CaseVo {
 
     private String cause;
 
+    private String caseType;
+
+    private String docType;
+
     private String trialProceedings;
 
     private String province;
+
+    private String city;
+
+    private String county;
 
     private List<PartyEntity> party = new ArrayList<>();
 
@@ -58,5 +66,8 @@ public class CaseVo {
 
     private JSONObject jsonContent;
 
+    private String familyViolence;
+
+    private String familyViolenceContent;
 
 }

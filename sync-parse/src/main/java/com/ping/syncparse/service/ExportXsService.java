@@ -10,6 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,7 +38,7 @@ public class ExportXsService {
         List<CaseXsVo> vos = caseMapper.findList(pageNum.get(), pageSize, criteria);
         Workbook wb = new XSSFWorkbook();
         String[] head = {"案件信息", "序号", "id", "案件名称", "案号", "法院名称", "裁判日期", "案由", "审判程序"
-                , "省份", "HTML内容", "JSON内容"};
+                , "省份", "市", "区县", "HTML内容", "JSON内容"};
         Sheet sheet = wb.createSheet("案件信息");
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
@@ -99,18 +100,50 @@ public class ExportXsService {
             for (CaseXsVo vo : vos) {
                 List<PartyEntity> party = vo.getParty();
                 if (party != null) {
+                    Map<String, List<PartyEntity>> listMap = party.stream().filter(c -> StringUtils.hasLength(c.getType())).collect(Collectors.groupingBy(PartyEntity::getType));
                     Map<Integer, Object> partyMap = new HashMap<>();
                     partyMap.put(1, vo.getCaseNo());
                     partyList.add(partyMap);
                     int start = 0;
-                    for (int i = 0; i < party.size(); i++) {
-                        if (i >= 10) {
-                            break;
+                    int count = 0;
+                    List<PartyEntity> entities = listMap.get("原告");
+                    if (entities != null && entities.size() > 0) {
+                        for (int i = 0; i < 3; i++) {
+                            PartyEntity entity = null;
+                            if (i < entities.size()) {
+                                entity = entities.get(i);
+                            } else {
+                                entity = new PartyEntity();
+                            }
+                            toParty(start, partyMap, entity);
+                            start += 9;
+                            count++;
                         }
-                        PartyEntity entity = party.get(i);
-                        toParty(start, partyMap, entity);
-                        start += 9;
+                    } else {
+                        for (int i = 0; i < 3; i++) {
+                            PartyEntity entity = null;
+
+                            entity = new PartyEntity();
+
+                            toParty(start, partyMap, entity);
+                            start += 9;
+                            count++;
+                        }
                     }
+
+                    List<PartyEntity> bList = listMap.get("被告");
+                    if (bList != null && bList.size() > 0) {
+                        for (int i = 0; i < bList.size(); i++) {
+                            if (count >= 10) {
+                                break;
+                            }
+                            PartyEntity entity = bList.get(i);
+                            toParty(start, partyMap, entity);
+                            start += 9;
+                            count++;
+                        }
+                    }
+
                 } else {
                     partyList.add(new HashMap<>());
                 }
@@ -138,6 +171,7 @@ public class ExportXsService {
             Sheet crimeSheet = wb.createSheet("判决结果");
             ExcelUtils.export(wb, crimeSheet, crimeList, crimeHead.toArray());
             wb.write(out);
+            System.out.println("导出完成");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -189,11 +223,13 @@ public class ExportXsService {
         map.put(6, vo.getCause());
         map.put(7, vo.getTrialProceedings());
         map.put(8, vo.getProvince());
-        map.put(9, vo.getHtmlContent());
+        map.put(9, vo.getCity());
+        map.put(10, vo.getCounty());
+        map.put(11, vo.getHtmlContent());
         if (vo.getJsonContent() != null) {
-            map.put(10, vo.getJsonContent().toJSONString());
+            map.put(12, vo.getJsonContent().toJSONString());
         } else {
-            map.put(10, "");
+            map.put(12, "");
         }
 
 
