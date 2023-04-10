@@ -11,11 +11,11 @@ import org.springframework.stereotype.Component;
 /*@Component
 @Async*/
 @Slf4j
-public class Task7 {
+public class Task11 {
     @Autowired
     private QueryService queryService;
 
-    Criteria criteria = Criteria.where("s8").is("刑事案件");
+    Criteria criteria = Criteria.where("fyTree").is("江苏省").and("s6").is("01").and("s9").is("0201").and("qwContent").regex("传销");
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
     public void save2014() {

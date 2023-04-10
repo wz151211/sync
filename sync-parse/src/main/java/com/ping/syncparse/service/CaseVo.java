@@ -9,13 +9,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author: W.Z
  * @Date: 2022/12/31 15:21
  */
 @Data
-@Document(value = "documentm_ffjc_result")
+@Document(value = "documentm_cx_result")
 public class CaseVo {
 
     @Id
@@ -69,5 +70,7 @@ public class CaseVo {
     private String familyViolence;
 
     private String familyViolenceContent;
+
+    private Set<String> moneySet;
 
 }

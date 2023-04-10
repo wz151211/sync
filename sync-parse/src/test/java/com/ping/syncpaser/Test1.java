@@ -8,6 +8,9 @@ import cn.hutool.crypto.digest.MD5;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.ping.syncparse.service.InternetFraudEntity;
+import org.ansj.domain.Result;
+import org.ansj.domain.Term;
+import org.ansj.splitWord.analysis.ToAnalysis;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -397,5 +400,11 @@ public class Test1 {
         pkgOut.save(new File(docxPath));
     }
 
-
+@Test
+    public void  test02(){
+    Result parse = ToAnalysis.parse("户籍地在安徽省安庆市怀宁县");
+    for (Term term : parse.getTerms()) {
+        System.out.println(term.getRealName());
+    }
+}
 }

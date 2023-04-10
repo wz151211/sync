@@ -33,7 +33,7 @@ public class ToMysqlService {
         pageNum.getAndIncrement();
         for (MongoTempEntity entity : entities) {
             TempDocumentEntity tempDocument = new TempDocumentEntity();
-            BeanUtils.copyProperties(entity, tempDocument);
+          //  BeanUtils.copyProperties(entity, tempDocument);
             convert(entity, tempDocument);
             try {
                 tempDocumentMapper.insert(tempDocument);
@@ -66,6 +66,8 @@ public class ToMysqlService {
         if (from.getKeyword() != null && from.getKeyword().size() > 0) {
             to.setKeyword(from.getKeyword().stream().map(Object::toString).collect(joining(",")));
         }
+        to.setTrialProceedings(from.getTrialProceedings());
+        to.setDocType(from.getDocType());
         to.setHtmlContent(from.getHtmlContent());
     }
 }

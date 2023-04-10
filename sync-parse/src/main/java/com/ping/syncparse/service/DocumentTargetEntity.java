@@ -1,5 +1,6 @@
-package com.ping.syncsearch.entity;
+package com.ping.syncparse.service;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,6 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @Data
 @Document(value = "document_case1")
-public class DocumentOtherEntity extends BaseEntity {
+public class DocumentTargetEntity extends JSONObject {
 
 }

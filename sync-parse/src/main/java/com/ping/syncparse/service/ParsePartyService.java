@@ -12,6 +12,11 @@ import com.ping.syncparse.sync.c34.DocumentMsMapper;
 import com.ping.syncparse.sync.c34.DocumentXsLhEntity;
 import com.ping.syncparse.sync.c34.DocumentXsMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.ansj.domain.Nature;
+import org.ansj.domain.Result;
+import org.ansj.domain.Term;
+import org.ansj.domain.TermNatures;
+import org.ansj.splitWord.analysis.ToAnalysis;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -141,6 +146,8 @@ public class ParsePartyService {
             vo.setCity(entity.getCity());
             vo.setCounty(entity.getCounty());
             vo.setCause(entity.getCause().stream().map(Object::toString).collect(joining(",")));
+            JSONObject jsonObject = entity.getJsonContent();
+            String s25 = jsonObject.getString("s25");
             try {
                 vo.setRefereeDate(entity.getRefereeDate());
                 // vo.setRefereeDate(DateUtil.offsetHour(vo.getRefereeDate(), 8));
@@ -284,6 +291,8 @@ public class ParsePartyService {
                         }
                     }
                 }
+
+                vo.setMoneySet(parseMoney(party, s25));
 
                 if ("刑事案件".equals(entity.getCaseType())) {
                     String s27 = object.getString("s27");
@@ -429,17 +438,18 @@ public class ParsePartyService {
             }
 
             if (!StringUtils.hasText(party.getAddress())) {
+                if (!StringUtils.hasText(party.getAddress())) {
+                    if (s.contains("户籍") || s.contains("籍贯") ) {
+                        party.setAddress(s);
+                    }
+                }
+
                 if (s.contains("住")) {
                     party.setAddress(s);
                 }
                 if (!StringUtils.hasText(party.getAddress())) {
-                    if (s.contains("户籍") || s.contains("籍贯")) {
-                        party.setAddress(s);
-                    }
-                }
-                if (!StringUtils.hasText(party.getAddress())) {
                     if ((s.contains("省") || s.contains("市") || s.contains("县") || s.contains("区")) & s.contains("人")) {
-                        if (!s.contains("出生") && !s.contains("检察院")) {
+                        if (!s.contains("出生") && !s.contains("检察院") && !s.contains("法院") && !s.contains("公安局")) {
                             party.setAddress(s);
                         }
 
@@ -520,6 +530,38 @@ public class ParsePartyService {
             }
         }
         return party;
+    }
+
+    private Set<String> parseMoney(PartyEntity party, String text) {
+        if (!StringUtils.hasLength(text)) {
+            return new HashSet<>();
+        }
+        Set<String> set = new HashSet<>();
+        String content = text.replace("。", "，");
+        content = content.replace("；", "，");
+        content = content.replace(",", "，");
+        for (String temp : content.split("，")) {
+            Result parse = ToAnalysis.parse(temp);
+            for (Term term : parse.getTerms()) {
+                if (term.termNatures().numAttr.isNum()) {
+                    if (term.getNatureStr().equals("mq") && term.getRealName().contains("元") && temp.contains("骗")) {
+                        log.info("文本内容为:{}", temp);
+                        log.info("金额内容为:{}", term.getRealName());
+                        set.add(temp);
+                    }
+                }
+
+            }
+        }
+        return set;
+    }
+
+    private List<String> moneyList = new ArrayList<>();
+
+    {
+        moneyList.add("亿元");
+        moneyList.add("万元");
+        moneyList.add("元");
     }
 
     {

@@ -17,6 +17,7 @@ public class InternetFraudMapper {
     public void insert(InternetFraudEntity entity) {
         mongoTemplate.insert(entity);
     }
+
     public List<InternetFraudEntity> findList(int pageNum, int pageSize, Criteria criteria) {
         Query query = new Query();
         if (criteria != null) {
@@ -25,6 +26,16 @@ public class InternetFraudMapper {
     /*    PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
         query.with(pageRequest);*/
         return mongoTemplate.find(query, InternetFraudEntity.class);
+    }
+
+    public List<DocumentTargetEntity> findtargetList(int pageNum, int pageSize, Criteria criteria) {
+        Query query = new Query();
+        if (criteria != null) {
+            query.addCriteria(criteria);
+        }
+    /*    PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+        query.with(pageRequest);*/
+        return mongoTemplate.find(query, DocumentTargetEntity.class);
     }
 
 }

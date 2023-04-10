@@ -35,7 +35,7 @@ public class ExportService {
         pageNum.getAndIncrement();
         List<CaseXsVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
         Workbook wb = new XSSFWorkbook();
-        String[] head = {"案件信息", "序号", "id", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型","HTML内容", "JSON内容"};
+        String[] head = {"案件信息", "序号", "id", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县", "涉案金额", "HTML内容", "JSON内容"};
         Sheet sheet = wb.createSheet("案件信息");
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
@@ -223,11 +223,29 @@ public class ExportService {
         map.put(7, vo.getCaseType());
         map.put(8, vo.getTrialProceedings());
         map.put(9, vo.getDocType());
-        map.put(10, vo.getHtmlContent());
-        if (vo.getJsonContent() != null) {
-            map.put(11, vo.getJsonContent().toJSONString());
+        map.put(10, vo.getProvince());
+        map.put(11, vo.getCity());
+        map.put(12, vo.getCounty());
+        StringBuilder sb = new StringBuilder();
+        if (vo.getMoneySet() != null && vo.getMoneySet().size() > 0) {
+            for (int i = 0; i < vo.getMoneySet().size(); i++) {
+                String s = vo.getMoneySet().get(i);
+                sb.append(i + 1).append("、").append(s).append("。\r\n");
+            }
+        }
+        if (sb.length() > 0) {
+            map.put(13, sb.substring(0, sb.length() - 1));
+
         } else {
-            map.put(11, "");
+            map.put(13, "");
+
+
+        }
+        map.put(14, vo.getHtmlContent());
+        if (vo.getJsonContent() != null) {
+            map.put(15, vo.getJsonContent().toJSONString());
+        } else {
+            map.put(15, "");
         }
 
 

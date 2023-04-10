@@ -74,12 +74,16 @@ public class BeanUtils {
         JSONArray keywords = from.getJSONArray("s45");
         JSONArray areas = from.getJSONArray("fyTree");
         String htmlContent = from.getString("qwContent");
-        from.remove("qwContent");
-        from.remove("ayTree");
-        from.remove("fyTree");
-        from.remove("wsKey");
-        from.remove("_id");
-        from.remove("qwText");
+        try {
+            from.remove("qwContent");
+            from.remove("ayTree");
+            from.remove("fyTree");
+            from.remove("wsKey");
+            from.remove("_id");
+            from.remove("qwText");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         entity.setId(id);
         entity.setName(name);
         entity.setCaseNo(caseNo);

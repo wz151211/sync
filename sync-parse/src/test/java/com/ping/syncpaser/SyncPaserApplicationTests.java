@@ -72,23 +72,30 @@ class SyncPaserApplicationTests {
 
     @Test
     public void testpc() throws Exception {
-        List<InternetFraudEntity> entities = tempMapper.findList(0, 0, null);
-        for (InternetFraudEntity entity : entities) {
-            String htmlContent = entity.getHtmlContent();
-            String temp = "猥亵儿童罪";
-            entity.setName(entity.getName().replace(".", ""));
-            entity.setName(entity.getName().replace("*", ""));
-            String docPath = "D:\\刑事案由\\" + temp + "\\" + entity.getName() + ".docx";
-            File file = new File(docPath);
-            if (file.exists()) {
-                docPath = "D:\\刑事案由\\" + temp + "\\" + entity.getName() + "-" + RandomUtil.randomString(5) + ".docx";
+        List<DocumentTargetEntity> entities = tempMapper.findtargetList(0, 0, null);
+        for (DocumentTargetEntity entity : entities) {
+            String htmlContent = entity.getString("qwContent");
+            String temp = "指导性案例";
+            String name = entity.getString("s1").replace(".", "");
+            name = name.replace("*", "");
+            name = name.replace(":", "");
+            File file = new File("D:\\刑事案由\\" + temp);
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+            String docPath = file.getPath() + "\\" + name + ".docx ";
+            File f = new File(docPath);
+            if (f.exists()) {
+                docPath = file.getPath() + "\\" + name + "-" + RandomUtil.randomString(5) + ".docx";
             }
             htmlAsAltChunk2Docx(htmlContent, docPath);
         }
     }
 
     public void htmlAsAltChunk2Docx(String html, String docxPath) throws Exception {
-
+        if (!docxPath.contains("docx")) {
+            System.out.println(docxPath);
+        }
         WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
         MainDocumentPart mdp = wordMLPackage.getMainDocumentPart();
         //   wordMLPackage.setFontMapper(IFontHandler.getFontMapper());

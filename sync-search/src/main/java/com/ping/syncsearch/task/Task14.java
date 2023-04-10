@@ -1,6 +1,6 @@
 package com.ping.syncsearch.task;
 
-import com.ping.syncsearch.service.QueryService;
+import com.ping.syncsearch.service.QueryTargetService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -8,14 +8,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/*@Component
-@Async*/
+@Component
+@Async
 @Slf4j
-public class Task7 {
+public class Task14 {
     @Autowired
-    private QueryService queryService;
+    private QueryTargetService queryService;
 
-    Criteria criteria = Criteria.where("s8").is("刑事案件");
+    Criteria criteria = Criteria.where("s8").is("行政案件").and("qwContent").regex("指导性案例");
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
     public void save2014() {
