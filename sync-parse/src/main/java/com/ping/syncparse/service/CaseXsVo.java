@@ -1,5 +1,6 @@
 package com.ping.syncparse.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.entity.PartyEntity;
 import lombok.Data;
@@ -16,7 +17,7 @@ import java.util.Set;
  * @Date: 2022/12/31 15:21
  */
 @Data
-@Document(value = "documentm_cx_result")
+@Document(value = "document_wangluo_result")
 public class CaseXsVo {
 
     @Id
@@ -52,8 +53,6 @@ public class CaseXsVo {
 
     private String remarry;
 
-    private String judgmenResult;
-
     private List<CrimeVO> crimes = new ArrayList<>();
 
     private String partyContent;
@@ -69,5 +68,11 @@ public class CaseXsVo {
 
     private List<String> moneySet = new ArrayList<>();
 
+    private String courtConsidered;
 
+    private String judgmentResult;
+
+    private String litigationRecords;
+    private String legalBasis;
+    private String fact;
 }

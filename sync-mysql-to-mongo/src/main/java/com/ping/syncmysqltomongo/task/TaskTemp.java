@@ -17,10 +17,10 @@ public class TaskTemp {
     @Autowired
     private ToMysqlService toMysqlService;
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10)
     public void save1() {
         try {
-          toMysqlService.sync();
+            toMysqlService.sync();
         } catch (Exception e) {
             log.error("", e);
         }

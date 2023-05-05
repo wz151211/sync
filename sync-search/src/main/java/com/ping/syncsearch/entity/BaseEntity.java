@@ -34,6 +34,13 @@ public class BaseEntity {
 
     private String htmlContent;
 
+
+    private String judgmentResult;
+
+    private String courtConsidered;
+    private String litigationRecords;
+    private JSONArray legalBasis;
+    private String fact;
     private JSONObject jsonContent;
 
     private String province;

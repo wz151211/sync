@@ -13,6 +13,14 @@ import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.ToAnalysis;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.AltChunkType;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
@@ -402,9 +410,61 @@ public class Test1 {
 
 @Test
     public void  test02(){
-    Result parse = ToAnalysis.parse("户籍地在安徽省安庆市怀宁县");
+    Result parse = ToAnalysis.parse("用于金某接收贪污款项共计人民币380余万元");
     for (Term term : parse.getTerms()) {
         System.out.println(term.getRealName());
+        for (int i = 0; i < 5; i++) {
+            if(i==2){
+                System.out.println("--------------------------");
+                break;
+            }
+        }
     }
+}
+
+@Test
+    public void test03() throws Exception {
+        org.apache.poi.util.IOUtils.setByteArrayMaxOverride(100000000 * 1000);
+    ZipSecureFile.setMinInflateRatio(0.000001);
+    String path = "E:\\导出\\刑事案件11.xlsx";
+    FileInputStream inputStream = new FileInputStream(path);
+    SXSSFWorkbook sxssfWorkbook = null;
+    Sheet sheet = null;
+    Sheet partySheet = null;
+    Sheet partySheet2 = null;
+    XSSFWorkbook wb = null;
+
+    wb = new XSSFWorkbook(inputStream);
+    sxssfWorkbook = new SXSSFWorkbook(wb);
+    sheet =sxssfWorkbook.getSheetAt(0);
+    Row row0 = sheet.getRow(0);
+    Row row = sheet.getRow(10);
+
+
+    try (OPCPackage opcPackage = OPCPackage.open(new File(path))) {
+        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+        XSSFSheet sheetAt = workbook.getSheetAt(0);
+        int lastRowNum = sheetAt.getLastRowNum();
+
+        sxssfWorkbook = new SXSSFWorkbook(workbook,10000);
+        Sheet sheet1 = sxssfWorkbook.getSheetAt(0);
+        int lastRowNum1 = sxssfWorkbook.getXSSFWorkbook().getSheetAt(0).getLastRowNum();
+        int rowNum = sheet1.getLastRowNum() + 1;
+        String sheetName = sheet1.getSheetName();
+
+
+    }
+}
+
+@Test
+public void test04(){
+        String str = "原告襄阳金照普惠网络科技有限公司向本院提出诉讼请求：1、判令被告给付原告分润手续费156783.03元及利息（以156783.03元为基数，按全国银行间同业拆借中心公布的贷款市场报价利率为标准，自起诉之日起计算至清偿之日止）；2、诉讼费由被告承担。事实和理由：2018年9月25日，原、被告经协商一致签订《中汇支付移动支付业务推广合作协议》《中汇电子支付移动支付业务即时付补充协议》和《关于的补充协议》，约定原告在全国开展和推广被告移动支付业务，被告按照原告所拓展商户使用机具的交易量向原告支付交易手续费分润，被告于每个月前10个工作日内通过中汇支付统一平台向原告提供分润明细，原告在收到对账单后开具正式发票并送至被告请款，被告在收到发票后15日内将相应款项支付至原告指定账户。自2018年10月开始，原告将相应发票寄至被告处后，被告推脱拒不付款。截至2019年6月，被告共拖欠原告手续费分润156783.03元，为此诉至法院";
+
+    int index = str.indexOf("诉讼请求：");
+    int index1 = str.indexOf("。");
+
+    String substring = str.substring(index+5, index1);
+    System.out.println(substring);
+
 }
 }

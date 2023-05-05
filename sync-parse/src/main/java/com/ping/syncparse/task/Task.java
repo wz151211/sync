@@ -1,9 +1,6 @@
 package com.ping.syncparse.task;
 
-import com.ping.syncparse.service.ExportMsService;
-import com.ping.syncparse.service.ExportXsService;
-import com.ping.syncparse.service.ParsePartyService;
-import com.ping.syncparse.service.TempService;
+import com.ping.syncparse.service.*;
 import com.ping.syncparse.sync.c140.Sync140Service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-//@Component
-//@Async
+@Component
+@Async
 @Slf4j
 public class Task {
 
@@ -26,6 +23,16 @@ public class Task {
 
     @Autowired
     private ParsePartyService parsePartyService;
+
+    @Autowired
+    private ExportTempService exportTempService;
+
+    @Autowired
+    private ExportEasyService exportEasyService;
+
+    @Autowired
+    private ExportService exportService;
+
     @Autowired
     private ExportMsService exportMsService;
     @Autowired
@@ -34,7 +41,7 @@ public class Task {
     @Autowired
     private TempService tempService;
 
-   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void saveTemp() {
         boolean tryLock = false;
         try {
@@ -49,7 +56,7 @@ public class Task {
         }
     }
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void count() {
         boolean tryLock = false;
         try {
@@ -64,7 +71,7 @@ public class Task {
         }
     }
 
-    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 300L)
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60L)
     public void save1() {
         boolean tryLock = false;
         try {
@@ -77,6 +84,16 @@ public class Task {
                 lock1.unlock();
             }
         }
+    }
+
+  //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60*300L)
+    public void export() {
+        exportTempService.export();
+    }
+
+   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60*300L)
+    public void easyExport() {
+        exportService.export();
     }
 
     //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 300L)

@@ -15,7 +15,7 @@ public class Task5 {
     @Autowired
     private QueryService queryService;
 
-    Criteria criteria = Criteria.where("s8").is("刑事案件").and("fyTree").is("长春市");
+    Criteria criteria = Criteria.where("s8").is("刑事案件").and("fyTree").is("吉林省");
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2014() {

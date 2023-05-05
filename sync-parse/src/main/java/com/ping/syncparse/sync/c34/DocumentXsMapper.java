@@ -15,16 +15,24 @@ public class DocumentXsMapper {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public void insert(DocumentXsLhEntity entity){
+    public void insert(DocumentXsLhEntity entity) {
         mongoTemplate.insert(entity);
     }
+
     public List<DocumentXsLhEntity> findList(int pageNum, int pageSize, Criteria criteria) {
         Query query = new Query();
         if (criteria != null) {
             query.addCriteria(criteria);
         }
-/*        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+     /*   PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
         query.with(pageRequest);*/
+        return mongoTemplate.find(query, DocumentXsLhEntity.class);
+    }
+
+    public List<DocumentXsLhEntity> findByCaseNo() {
+        Query query = new Query();
+        Criteria criteria = Criteria.where("trialProceedings").ne("民事一审");
+        query.addCriteria(criteria);
         return mongoTemplate.find(query, DocumentXsLhEntity.class);
     }
 }

@@ -3,6 +3,9 @@ package com.ping.syncparse.utils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,17 +39,17 @@ public class ExcelUtils {
         }
     }
 
-    public static void export(Workbook wb, Sheet sheet,List<Map<Integer, Object>> data, Object[] header) {
+    public static void export(Workbook wb, Sheet sheet, List<Map<Integer, Object>> data, Object[] header) {
         try {
             createHeader(sheet, header);
-            fillData(sheet, data);
+            fillData(sheet, data, true);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static void createHeader(Sheet sheet, Object[] header) {
+    public static void createHeader(Sheet sheet, Object[] header) {
         Row row = null;
         row = sheet.createRow(0);
         row.setHeightInPoints(30);
@@ -72,25 +75,50 @@ public class ExcelUtils {
         }
     }
 
-    private static void fillData(Sheet sheet, List<Map<Integer, Object>> data) {
+    public static void fillData(Sheet sheet, List<Map<Integer, Object>> data, boolean first) {
         Row row = null;
         Cell cell = null;
         Workbook wb = sheet.getWorkbook();
         CellStyle style = getCellStyle(wb, (short) 11);
+        int lastRowNum = 0;
+        Sheet sheet1 = null;
+        if (wb instanceof SXSSFWorkbook) {
+            SXSSFWorkbook workbook = (SXSSFWorkbook) wb;
+            XSSFWorkbook workbook1 = workbook.getXSSFWorkbook();
+            sheet1 = workbook1.getSheet(sheet.getSheetName());
+            lastRowNum = sheet1.getLastRowNum();
+        } else {
+            lastRowNum = sheet.getLastRowNum();
+            sheet1 = sheet;
+        }
+
+        System.out.println("=========" + sheet1.getSheetName() + "===========");
+        System.out.println("=========" + lastRowNum + "===========");
         for (int i = 0; i < data.size(); i++) {
             Map<Integer, Object> map = data.get(i);
-            row = sheet.createRow(i + 2);
+            if (first) {
+                row = sheet1.createRow(i + 2);
+            } else {
+                row = sheet1.createRow(lastRowNum + i + 1);
+            }
+
             row.setHeight((short) 1000);
             // 序号
             cell = row.createCell(0);
-            cell.setCellValue(String.valueOf(i + 1));
+            if (lastRowNum < 0) {
+                cell.setCellValue(String.valueOf(i + 1));
+            } else {
+                cell.setCellValue(String.valueOf(lastRowNum + i - 1));
+            }
+
+
             cell.setCellStyle(style);
             for (int j = 1; j <= map.size(); j++) {
                 cell = row.createCell(j);
                 try {
                     cell.setCellValue(map.get(j) == null ? "" : map.get(j).toString());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //   e.printStackTrace();
                 }
                 cell.setCellStyle(style);
             }

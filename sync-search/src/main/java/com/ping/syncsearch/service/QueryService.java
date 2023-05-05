@@ -1,5 +1,6 @@
 package com.ping.syncsearch.service;
 
+import cn.hutool.core.date.DateUtil;
 import com.ping.syncsearch.entity.*;
 import com.ping.syncsearch.mapper.*;
 import com.ping.syncsearch.utils.BeanUtils;
@@ -8,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,7 +52,8 @@ public class QueryService {
     private AtomicInteger pageNum2022 = new AtomicInteger(-1);
     private AtomicInteger pageNum2023 = new AtomicInteger(-1);
     private int pageSize = 10000;
-
+    private Date start = DateUtil.parse("2018-01-01 00:00:00").toJdkDate();
+    private Date end = DateUtil.parse("2022-12-31 23:59:59").toJdkDate();;
 
     public void sync2014(Criteria criteria) {
         pageNum2014.getAndIncrement();

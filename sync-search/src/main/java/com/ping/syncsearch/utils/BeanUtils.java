@@ -25,7 +25,7 @@ public class BeanUtils {
     private static List<Dict> caseTypes = new ArrayList<>();
     private static Map<String, String> caseTypeMap = new HashMap<>();
 
-   static  {
+    static {
         try {
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
             Resource[] resources = resolver.getResources("classpath:dict/*.txt");
@@ -72,18 +72,13 @@ public class BeanUtils {
         JSONArray causes = from.getJSONArray("s11");
         JSONArray partys = from.getJSONArray("s17");
         JSONArray keywords = from.getJSONArray("s45");
+        JSONArray legalBasis = from.getJSONArray("s47");
+        String judgmentResult = from.getString("s27");
+        String courtConsidered = from.getString("s26");
+        String litigationRecords = from.getString("s23");
+        String fact = from.getString("s25");
         JSONArray areas = from.getJSONArray("fyTree");
         String htmlContent = from.getString("qwContent");
-        try {
-            from.remove("qwContent");
-            from.remove("ayTree");
-            from.remove("fyTree");
-            from.remove("wsKey");
-            from.remove("_id");
-            from.remove("qwText");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         entity.setId(id);
         entity.setName(name);
         entity.setCaseNo(caseNo);
@@ -107,12 +102,17 @@ public class BeanUtils {
         entity.setDocType(docTypeMap.get(docType));
         entity.setJsonContent(from);
         entity.setHtmlContent(htmlContent);
+        entity.setJudgmentResult(judgmentResult);
+        entity.setCourtConsidered(courtConsidered);
+        entity.setLitigationRecords(litigationRecords);
+        entity.setLegalBasis(legalBasis);
+        entity.setFact(fact);
         try {
             entity.setProvince(areas.getString(0));
             entity.setCity(areas.getString(1));
             entity.setCounty(areas.getString(2));
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
         return entity;
     }

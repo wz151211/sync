@@ -1,6 +1,8 @@
 package com.ping.syncmysqltomongo.temp;
 
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.ping.syncmysqltomongo.mongo.temp.MongoTempEntity;
 import com.ping.syncmysqltomongo.mongo.temp.MongoTempMapper;
 import com.ping.syncmysqltomongo.mysql.temp.TempDocumentEntity;
@@ -33,13 +35,17 @@ public class ToMysqlService {
         pageNum.getAndIncrement();
         for (MongoTempEntity entity : entities) {
             TempDocumentEntity tempDocument = new TempDocumentEntity();
-          //  BeanUtils.copyProperties(entity, tempDocument);
             convert(entity, tempDocument);
             try {
                 tempDocumentMapper.insert(tempDocument);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+/*            try {
+                mongoTempMapper.delete(entity.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }*/
 
         }
     }
@@ -66,8 +72,23 @@ public class ToMysqlService {
         if (from.getKeyword() != null && from.getKeyword().size() > 0) {
             to.setKeyword(from.getKeyword().stream().map(Object::toString).collect(joining(",")));
         }
+
+        if (from.getLegalBasis() != null && from.getLegalBasis().size() > 0) {
+            to.setLegalBasis(from.getLegalBasis().stream().map(c -> {
+                JSONObject aa = JSONObject.parseObject(JSON.toJSONString(c));
+                return aa.getString("fgmc") + aa.getString("tkx");
+            }).collect(joining(",")));
+        }
         to.setTrialProceedings(from.getTrialProceedings());
         to.setDocType(from.getDocType());
         to.setHtmlContent(from.getHtmlContent());
+        to.setJudgmentResult(from.getJudgmentResult());
+        to.setCourtConsidered(from.getCourtConsidered());
+        to.setLitigationRecords(from.getLitigationRecords());
+        to.setFact(from.getFact());
+        to.setProvince(from.getProvince());
+        to.setCity(from.getCity());
+        to.setCounty(from.getCounty());
+
     }
 }

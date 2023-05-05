@@ -2,6 +2,9 @@ package com.ping.syncsearch.vo;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @Author: W.Z
  * @Date: 2022/8/27 00:12
@@ -16,4 +19,6 @@ public class Dict {
     private String name;
 
     private Integer level;
+
+    private List<Dict> child = new ArrayList<>();
 }

@@ -15,7 +15,7 @@ public class Task14 {
     @Autowired
     private QueryTargetService queryService;
 
-    Criteria criteria = Criteria.where("s8").is("行政案件").and("qwContent").regex("指导性案例");
+    Criteria criteria = Criteria.where("s11").is("污染环境");
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
     public void save2014() {

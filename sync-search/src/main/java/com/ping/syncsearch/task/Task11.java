@@ -8,14 +8,17 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.regex.Pattern;
+
 /*@Component
 @Async*/
 @Slf4j
 public class Task11 {
     @Autowired
     private QueryService queryService;
-
-    Criteria criteria = Criteria.where("fyTree").is("江苏省").and("s6").is("01").and("s9").is("0201").and("qwContent").regex("传销");
+   //   Criteria criteria = Criteria.where("s11").is("婚约财产纠纷").and("s6").is("01").and("s8").is("民事案件");
+    Criteria criteria = Criteria.where("s25").regex("中汇电子支付");
+    // Criteria criteria = Criteria.where("qwContent").regex("中汇支付").orOperator(Criteria.where("s25").regex("中汇支付"), Criteria.where("s26").regex("中汇支付"), Criteria.where("s27").regex("中汇支付"));
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
     public void save2014() {

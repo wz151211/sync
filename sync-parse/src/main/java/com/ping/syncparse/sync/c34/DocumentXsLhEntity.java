@@ -7,13 +7,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: W.Z
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_cx")
+@Document(value = "document_zhifu_dianzi")
 public class DocumentXsLhEntity {
 
     @Id
@@ -48,6 +49,10 @@ public class DocumentXsLhEntity {
     private String courtConsidered;
 
     private String judgmentResult;
+
+    private String litigationRecords;
+    private JSONArray legalBasis;
+    private String fact;
 
     private String province;
 

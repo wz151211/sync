@@ -6,4 +6,4 @@ order: desc
 pageNum: 1
 logging:
   level:
-    org.mongodb: debug
+    org.mongodb: info

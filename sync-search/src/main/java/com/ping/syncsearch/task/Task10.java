@@ -1,6 +1,7 @@
 package com.ping.syncsearch.task;
 
 import com.ping.syncsearch.service.QueryService;
+import com.ping.syncsearch.utils.CauseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -8,30 +9,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-//@Component
-//@Async
+/*@Component
+@Async*/
 @Slf4j
 public class Task10 {
     @Autowired
     private QueryService queryService;
 
-    Criteria criteria = Criteria.where("s11").in(
-            "危害税收征管",
-                    "逃税",
-                    "偷税",
-                    "抗税",
-                    "逃避追缴欠税",
-                    "骗取出口退税",
-                    "虚开增值税专用发票、用于骗取出口退税、抵扣税款发票",
-                    "虚开发票",
-                    "伪造、出售伪造的增值税专用发票",
-                    "非法出售增值税专用发票",
-                    "非法购买增值税专用发票、购买伪造的增值税专用发票",
-                    "非法制造、出售非法制造的用于骗取出口退税、抵扣税款发票",
-                    "非法制造、出售非法制造的发票",
-                    "非法出售用于骗取出口退税、抵扣税款发票",
-                    "非法出售发票",
-                    "持有伪造的发票");
+    Criteria criteria = Criteria.where("s11").in(CauseUtils.getCauseList("118"));
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
     public void save2014() {

@@ -35,7 +35,7 @@ public class ExportXsService {
     public void export() {
         pageNum.getAndIncrement();
         Criteria criteria = Criteria.where("name").regex("判决书");
-        List<CaseXsVo> vos = caseMapper.findList(pageNum.get(), pageSize, criteria);
+        List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, criteria);
         Workbook wb = new XSSFWorkbook();
         String[] head = {"案件信息", "序号", "id", "案件名称", "案号", "法院名称", "裁判日期", "案由", "审判程序"
                 , "省份", "市", "区县", "HTML内容", "JSON内容"};
@@ -97,7 +97,7 @@ public class ExportXsService {
             crimeHead.addAll(t);
 
 
-            for (CaseXsVo vo : vos) {
+            for (CaseVo vo : vos) {
                 List<PartyEntity> party = vo.getParty();
                 if (party != null) {
                     Map<String, List<PartyEntity>> listMap = party.stream().filter(c -> StringUtils.hasLength(c.getType())).collect(Collectors.groupingBy(PartyEntity::getType));
@@ -209,7 +209,7 @@ public class ExportXsService {
 
     }
 
-    private Map<Integer, Object> toMap(CaseXsVo vo) {
+    private Map<Integer, Object> toMap(CaseVo vo) {
         Map<Integer, Object> map = new HashMap<>();
         map.put(1, vo.getId());
         map.put(2, vo.getName());
@@ -227,7 +227,7 @@ public class ExportXsService {
         map.put(10, vo.getCounty());
         map.put(11, vo.getHtmlContent());
         if (vo.getJsonContent() != null) {
-            map.put(12, vo.getJsonContent().toJSONString());
+            map.put(12, vo.getJsonContent());
         } else {
             map.put(12, "");
         }

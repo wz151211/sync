@@ -24,20 +24,27 @@ public class CaseXsMapper {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public void insert(CaseXsVo entity) {
+    public void insert(CaseVo entity) {
         mongoTemplate.insert(entity);
     }
 
-    public List<CaseXsVo> findList(int pageNum, int pageSize, Criteria criteria) {
+    public List<CaseVo> findList(int pageNum, int pageSize, Criteria criteria) {
         Query query = new Query();
         if (criteria != null) {
             query.addCriteria(criteria);
         }
-        Sort sort = Sort.by(Sort.Direction.DESC,"refereeDate");
-  /*      PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
-        query.with(pageRequest);*/
+        Sort sort = Sort.by(Sort.Direction.DESC, "refereeDate");
+        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+        query.with(pageRequest);
         query.with(sort);
-        return mongoTemplate.find(query, CaseXsVo.class);
+        return mongoTemplate.find(query, CaseVo.class);
     }
 
+    public long getCount(Criteria criteria) {
+        Query query = new Query();
+        if (criteria != null) {
+            query.addCriteria(criteria);
+        }
+        return mongoTemplate.count(query, CaseVo.class);
+    }
 }

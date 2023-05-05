@@ -14,7 +14,7 @@ public class Task12 {
     @Autowired
     private QueryService queryService;
 
-    Criteria criteria = Criteria.where("qwContent").regex("虚开发票");
+    Criteria criteria = Criteria.where("s8").regex("民事案件").and("s6").is("01").and("s11").is("洗钱");
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
     public void save2014() {

@@ -25,10 +25,16 @@ class SyncPaserApplicationTests {
     private ExportMsService msService;
 
     @Autowired
+    private ExportTempService exportTempService;
+
+    @Autowired
     private ExportXsService xsService;
 
     @Autowired
     private ParsePartyService parsePartyService;
+
+    @Autowired
+    private ParsePartyTempService parsePartyTempService;
 
     @Autowired
     private InternetFraudMapper tempMapper;
@@ -38,6 +44,9 @@ class SyncPaserApplicationTests {
 
     @Autowired
     private ExportService exportService;
+
+    @Autowired
+    private ParsePartyEasyService parsePartyEasyService;
 
 
     @Test
@@ -57,13 +66,24 @@ class SyncPaserApplicationTests {
 
     @Test
     public void test7() {
-        parsePartyService.parse();
+        parsePartyTempService.parse();
     }
 
     @Test
     public void test71() {
         exportService.export();
     }
+
+    @Test
+    public void export() {
+        exportTempService.export();
+    }
+
+    @Test
+    public void parse() {
+        parsePartyEasyService.parse();
+    }
+
 
     @Test
     public void testConvert() {

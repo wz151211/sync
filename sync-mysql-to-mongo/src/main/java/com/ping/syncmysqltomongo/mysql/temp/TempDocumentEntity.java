@@ -1,5 +1,7 @@
 package com.ping.syncmysqltomongo.mysql.temp;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -57,4 +59,27 @@ public class TempDocumentEntity {
     @TableField("json_content")
     private String jsonContent;
 
+    @TableField("judgment_result")
+    private String judgmentResult;
+
+    @TableField("court_considered")
+    private String courtConsidered;
+
+    @TableField("litigation_records")
+    private String litigationRecords;
+
+    @TableField("legal_basis")
+    private String legalBasis;
+
+    @TableField("fact")
+    private String fact;
+
+    @TableField("province")
+    private String province;
+
+    @TableField("city")
+    private String city;
+
+    @TableField("county")
+    private String county;
 }

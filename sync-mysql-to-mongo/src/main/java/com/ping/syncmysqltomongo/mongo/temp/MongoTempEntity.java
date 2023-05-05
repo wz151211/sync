@@ -5,6 +5,6 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(value = "document_xs")
+@Document(value = "document_zhapian")
 public class MongoTempEntity extends BaseEntity {
 }

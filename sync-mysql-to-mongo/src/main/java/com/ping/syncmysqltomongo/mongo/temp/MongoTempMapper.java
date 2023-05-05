@@ -23,4 +23,10 @@ public class MongoTempMapper {
         query.with(pageRequest);
         return mongoTemplate.find(query, MongoTempEntity.class);
     }
+
+    public void delete(String id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(id));
+        mongoTemplate.remove(query, MongoTempEntity.class);
+    }
 }
