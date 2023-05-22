@@ -38,7 +38,7 @@ import static java.util.stream.Collectors.*;
 
 @Service
 @Slf4j
-public class ParsePartyEasyService {
+public class ParseDivorceService {
     @Autowired
     private DocumentMsMapper documentMsMapper;
 
@@ -756,7 +756,7 @@ public class ParsePartyEasyService {
                 }
 
                 if (!StringUtils.hasText(party.getAddress())) {
-                    if (s.contains("住") && (!s.equals("住所地") || !s.equals("住所"))) {
+                    if (s.contains("住") && !s.equals("住所地")) {
                         party.setAddress(s);
                     }
                 }

@@ -1,6 +1,7 @@
 package com.ping.syncsearch.task;
 
 import com.ping.syncsearch.service.QueryService;
+import com.ping.syncsearch.utils.CauseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -10,16 +11,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
-/*@Component
-@Async*/
+@Component
+@Async
 @Slf4j
 public class Task11 {
     @Autowired
     private QueryService queryService;
-   //   Criteria criteria = Criteria.where("s11").is("婚约财产纠纷").and("s6").is("01").and("s8").is("民事案件");
-    Criteria criteria = Criteria.where("s25").regex("中汇电子支付");
-    // Criteria criteria = Criteria.where("qwContent").regex("中汇支付").orOperator(Criteria.where("s25").regex("中汇支付"), Criteria.where("s26").regex("中汇支付"), Criteria.where("s27").regex("中汇支付"));
+    //  Criteria criteria = Criteria.where("s6").is("01").and("s11").in(CauseUtils.getCauseList("9300"));//知识产权合同纠纷
+    //  Criteria criteria = Criteria.where("s6").is("01").and("s11").in(CauseUtils.getCauseList("9363")); //知识产权权属、侵权纠纷
+    //   Criteria criteria = Criteria.where("s6").is("01").and("s11").is("保险诈骗");
+    // Criteria criteria = Criteria.where("s8").is("刑事案件").and("fyTree").is("浙江省").and("s6").is("01").and("s9").is("刑事一审").and("qwContent").regex("电信网络诈骗");
+    Criteria criteria = Criteria.where("qwContent").regex("彩礼");
 
+    //  Criteria criteria = Criteria.where("ayTree").regex("9363").and("s6").is("01"); //知识产权权属、侵权纠纷
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
     public void save2014() {
         try {

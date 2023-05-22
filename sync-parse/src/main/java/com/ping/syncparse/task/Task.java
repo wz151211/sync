@@ -25,6 +25,8 @@ public class Task {
     private ParsePartyService parsePartyService;
 
     @Autowired
+    private ParsePartyEasyService parsePartyEasyService;
+    @Autowired
     private ExportTempService exportTempService;
 
     @Autowired
@@ -40,6 +42,9 @@ public class Task {
 
     @Autowired
     private TempService tempService;
+
+    @Autowired
+    private UpadteTidService upadteTidService;
 
     // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void saveTemp() {
@@ -86,12 +91,12 @@ public class Task {
         }
     }
 
-  //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60*300L)
+    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
     public void export() {
         exportTempService.export();
     }
 
-   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60*300L)
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60*300L)
     public void easyExport() {
         exportService.export();
     }
@@ -126,4 +131,21 @@ public class Task {
         }
     }
 
+     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
+    public void parse() {
+        parsePartyEasyService.parse();
+    }
+
+    //  @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    public void update() {
+        upadteTidService.update();
+    }
+
+    @Autowired
+    private ExportResultService exportResultService;
+
+    //  @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    public void test12() {
+        exportResultService.export();
+    }
 }

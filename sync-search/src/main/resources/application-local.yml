@@ -2,4 +2,4 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/ws
-order: s
+order: desc

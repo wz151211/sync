@@ -1,6 +1,7 @@
 package com.ping.syncparse.service;
 
 
+import com.ping.syncparse.sync.c34.DocumentXsLhEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +35,13 @@ public class CaseMapper {
         }
         PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
         query.with(pageRequest);
+        return mongoTemplate.find(query, CaseVo.class);
+    }
+
+    public List<CaseVo> find(String caseNO) {
+        Query query = new Query();
+        Criteria criteria = Criteria.where("caseNo").is(caseNO);
+        query.addCriteria(criteria);
         return mongoTemplate.find(query, CaseVo.class);
     }
 

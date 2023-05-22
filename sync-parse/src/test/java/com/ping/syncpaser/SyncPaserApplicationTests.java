@@ -48,6 +48,9 @@ class SyncPaserApplicationTests {
     @Autowired
     private ParsePartyEasyService parsePartyEasyService;
 
+    @Autowired
+    private ExportEasyService exportEasyService;
+
 
     @Test
     void contextLoads() {
@@ -83,7 +86,10 @@ class SyncPaserApplicationTests {
     public void parse() {
         parsePartyEasyService.parse();
     }
-
+    @Test
+    public void export1() {
+        exportEasyService.export();
+    }
 
     @Test
     public void testConvert() {
@@ -134,5 +140,11 @@ class SyncPaserApplicationTests {
 
         pkgOut.save(new File(docxPath));
     }
+@Autowired
+    private  ExportResultService exportResultService;
 
+    @Test
+    public void test12(){
+        exportResultService.export();
+    }
 }

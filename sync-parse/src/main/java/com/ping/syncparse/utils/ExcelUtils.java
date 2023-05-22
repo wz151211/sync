@@ -106,9 +106,9 @@ public class ExcelUtils {
             // 序号
             cell = row.createCell(0);
             if (lastRowNum < 0) {
-                cell.setCellValue(String.valueOf(i + 1));
+                cell.setCellValue(String.valueOf(i + 2));
             } else {
-                cell.setCellValue(String.valueOf(lastRowNum + i - 1));
+                cell.setCellValue(String.valueOf(lastRowNum + i ));
             }
 
 

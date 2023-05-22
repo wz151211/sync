@@ -7,3 +7,5 @@ pageNum: 1
 logging:
   level:
     org.mongodb: info
+    com.ping: info
+    org.docx4j: error

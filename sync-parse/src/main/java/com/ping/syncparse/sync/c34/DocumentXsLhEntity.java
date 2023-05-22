@@ -7,18 +7,19 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * @Author: W.Z
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_zhifu_dianzi")
+@Document(value = "document_hunyue")
 public class DocumentXsLhEntity {
 
     @Id
     private String id;
+
+    private String tId;
 
     private String name;
 

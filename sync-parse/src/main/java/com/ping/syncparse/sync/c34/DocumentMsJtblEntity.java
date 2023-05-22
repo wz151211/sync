@@ -13,11 +13,13 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_ms_jtbl_new")
+@Document(value = "document_quanshujiufen_er")
 public class DocumentMsJtblEntity {
 
     @Id
     private String id;
+
+    private String tId;
 
     private String name;
 
@@ -48,4 +50,14 @@ public class DocumentMsJtblEntity {
     private String courtConsidered;
 
     private String judgmentResult;
+
+    private String litigationRecords;
+    private JSONArray legalBasis;
+    private String fact;
+
+    private String province;
+
+    private String city;
+
+    private String county;
 }

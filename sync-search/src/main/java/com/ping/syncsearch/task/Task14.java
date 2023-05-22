@@ -8,16 +8,16 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Component
-@Async
+/*@Component
+@Async*/
 @Slf4j
 public class Task14 {
     @Autowired
     private QueryTargetService queryService;
 
-    Criteria criteria = Criteria.where("s11").is("污染环境");
+    Criteria criteria = Criteria.where("fyTree").is("廊坊市");
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
+    //@Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
     public void save2014() {
         try {
             queryService.sync2014(criteria);
@@ -27,7 +27,7 @@ public class Task14 {
     }
 
 
-    @Scheduled(initialDelay = 4 * 1000L, fixedRate = 1000 * 60)
+    //  @Scheduled(initialDelay = 4 * 1000L, fixedRate = 1000 * 60)
     public void sync2015() {
         try {
             queryService.sync2015(criteria);
@@ -36,7 +36,7 @@ public class Task14 {
         }
     }
 
-    @Scheduled(initialDelay = 6 * 1000L, fixedRate = 1000 * 60)
+    // @Scheduled(initialDelay = 6 * 1000L, fixedRate = 1000 * 60)
     public void save2016() {
         try {
             queryService.sync2016(criteria);
@@ -45,7 +45,7 @@ public class Task14 {
         }
     }
 
-    @Scheduled(initialDelay = 8 * 1000L, fixedRate = 1000 * 60)
+    //  @Scheduled(initialDelay = 8 * 1000L, fixedRate = 1000 * 60)
     public void save2017() {
         try {
             queryService.sync2017(criteria);
@@ -54,7 +54,7 @@ public class Task14 {
         }
     }
 
-    @Scheduled(initialDelay = 10 * 1000L, fixedRate = 1000 * 60)
+    //@Scheduled(initialDelay = 10 * 1000L, fixedRate = 1000 * 60)
     public void save2018() {
         try {
             queryService.sync2018(criteria);

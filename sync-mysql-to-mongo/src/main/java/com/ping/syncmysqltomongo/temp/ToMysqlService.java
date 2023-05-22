@@ -3,12 +3,13 @@ package com.ping.syncmysqltomongo.temp;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.ping.syncmysqltomongo.mongo.entity.BaseEntity;
 import com.ping.syncmysqltomongo.mongo.temp.MongoTempEntity;
 import com.ping.syncmysqltomongo.mongo.temp.MongoTempMapper;
 import com.ping.syncmysqltomongo.mysql.temp.TempDocumentEntity;
 import com.ping.syncmysqltomongo.mysql.temp.TempDocumentMapper;
+import com.ping.syncmysqltomongo.utils.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ public class ToMysqlService {
         pageNum.getAndIncrement();
         for (MongoTempEntity entity : entities) {
             TempDocumentEntity tempDocument = new TempDocumentEntity();
-            convert(entity, tempDocument);
+        //    convert(entity, tempDocument);
             try {
                 tempDocumentMapper.insert(tempDocument);
             } catch (Exception e) {
@@ -50,7 +51,30 @@ public class ToMysqlService {
         }
     }
 
-    private void convert(MongoTempEntity from, TempDocumentEntity to) {
+    public void sync2() {
+        log.info("pageNum={}", pageNum.get());
+        List<MongoTempEntity> entities = mongoTempMapper.findList(pageNum.get(), pageSize, null);
+        pageNum.getAndIncrement();
+        for (MongoTempEntity entity : entities) {
+            TempDocumentEntity tempDocument = new TempDocumentEntity();
+          //  convert(entity, tempDocument);
+            BaseEntity base = BeanUtils.toEntity(entity);
+            convert(base,tempDocument);
+            try {
+                tempDocumentMapper.insert(tempDocument);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+/*            try {
+                mongoTempMapper.delete(entity.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }*/
+
+        }
+    }
+
+    private void convert(BaseEntity from, TempDocumentEntity to) {
         to.setId(from.getId());
         to.setName(from.getName());
         to.setCaseNo(from.getCaseNo());

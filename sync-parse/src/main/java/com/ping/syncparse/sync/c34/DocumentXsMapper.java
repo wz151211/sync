@@ -16,7 +16,7 @@ public class DocumentXsMapper {
     private MongoTemplate mongoTemplate;
 
     public void insert(DocumentXsLhEntity entity) {
-        mongoTemplate.insert(entity);
+        mongoTemplate.save(entity);
     }
 
     public List<DocumentXsLhEntity> findList(int pageNum, int pageSize, Criteria criteria) {
@@ -24,14 +24,21 @@ public class DocumentXsMapper {
         if (criteria != null) {
             query.addCriteria(criteria);
         }
-     /*   PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
-        query.with(pageRequest);*/
+        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+        query.with(pageRequest);
         return mongoTemplate.find(query, DocumentXsLhEntity.class);
     }
 
     public List<DocumentXsLhEntity> findByCaseNo() {
         Query query = new Query();
         Criteria criteria = Criteria.where("trialProceedings").ne("民事一审");
+        query.addCriteria(criteria);
+        return mongoTemplate.find(query, DocumentXsLhEntity.class);
+    }
+
+    public List<DocumentXsLhEntity> find(String caseNO) {
+        Query query = new Query();
+        Criteria criteria = Criteria.where("caseNo").is(caseNO);
         query.addCriteria(criteria);
         return mongoTemplate.find(query, DocumentXsLhEntity.class);
     }

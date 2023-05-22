@@ -1,16 +1,24 @@
 package com.ping.syncpaser;
 
+import cn.hutool.core.convert.NumberChineseFormatter;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.MD5;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.metadata.csv.CsvSheet;
+import com.alibaba.excel.support.ExcelTypeEnum;
+import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.ping.syncparse.service.CaseVo;
 import com.ping.syncparse.service.InternetFraudEntity;
 import org.ansj.domain.Result;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.ToAnalysis;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -21,6 +29,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.AltChunkType;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
@@ -37,12 +46,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -387,84 +401,190 @@ public class Test1 {
         }
     }
 
-    public void htmlAsAltChunk2Docx(String html, String docxPath) throws Exception {
+    @Test
+    public void testToWord() throws Exception {
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                Runtime.getRuntime().availableProcessors(),
+                Runtime.getRuntime().availableProcessors() * 2,
+                30,
+                TimeUnit.MINUTES,
+                new LinkedBlockingQueue<>(),
+                new ThreadPoolExecutor.CallerRunsPolicy());
+        String path = "G:\\案件数据7.3w";
+        String target = "G:\\案件数据7.3w-word\\";
+        File file = new File(path);
+        for (File listFile : file.listFiles()) {
+            String docPath = target + FilenameUtils.getBaseName(listFile.getName()) + ".docx";
+            File docFile = new File(docPath);
+            if (docFile.exists()) {
+                docPath = path + FilenameUtils.getBaseName(listFile.getName()) + "-" + RandomUtil.randomString(5) + ".docx";
+            }
+            String content = IOUtils.toString(new FileInputStream(listFile), "GB2312");
 
-        WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
-        MainDocumentPart mdp = wordMLPackage.getMainDocumentPart();
-        //   wordMLPackage.setFontMapper(IFontHandler.getFontMapper());
-        // Add the Html altChunk
-        //  String html = sb.toString();
-        if (StringUtils.isEmpty(html)) {
-            mdp.addAltChunk(AltChunkType.Html, "<html><center>不公开理由：人民法院认为不宜在互联网公布的其他情形</center></html>".getBytes(StandardCharsets.UTF_8));
-
-        } else {
-            mdp.addAltChunk(AltChunkType.Html, html.getBytes(StandardCharsets.UTF_8));
+            String finalDocPath = docPath;
+            executor.execute(() -> {
+                htmlAsAltChunk2Docx(content, finalDocPath);
+            });
 
         }
-
-        // Round trip
-        WordprocessingMLPackage pkgOut = mdp.convertAltChunks();
-
-        pkgOut.save(new File(docxPath));
     }
 
-@Test
-    public void  test02(){
-    Result parse = ToAnalysis.parse("用于金某接收贪污款项共计人民币380余万元");
-    for (Term term : parse.getTerms()) {
-        System.out.println(term.getRealName());
-        for (int i = 0; i < 5; i++) {
-            if(i==2){
-                System.out.println("--------------------------");
-                break;
+    public void htmlAsAltChunk2Docx(String html, String docxPath) {
+
+        try {
+            WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
+
+            MainDocumentPart mdp = wordMLPackage.getMainDocumentPart();
+            //   wordMLPackage.setFontMapper(IFontHandler.getFontMapper());
+            // Add the Html altChunk
+            //  String html = sb.toString();
+            if (StringUtils.isEmpty(html)) {
+                mdp.addAltChunk(AltChunkType.Html, "<html><center>不公开理由：人民法院认为不宜在互联网公布的其他情形</center></html>".getBytes(StandardCharsets.UTF_8));
+
+            } else {
+                mdp.addAltChunk(AltChunkType.Html, html.getBytes(StandardCharsets.UTF_8));
+
+            }
+
+            // Round trip
+            WordprocessingMLPackage pkgOut = mdp.convertAltChunks();
+
+            pkgOut.save(new File(docxPath));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void test02() {
+        Result parse = ToAnalysis.parse("用于金某接收贪污款项共计人民币380余万元");
+        for (Term term : parse.getTerms()) {
+            System.out.println(term.getRealName());
+            for (int i = 0; i < 5; i++) {
+                if (i == 2) {
+                    System.out.println("--------------------------");
+                    break;
+                }
             }
         }
     }
-}
 
-@Test
+    @Test
     public void test03() throws Exception {
         org.apache.poi.util.IOUtils.setByteArrayMaxOverride(100000000 * 1000);
-    ZipSecureFile.setMinInflateRatio(0.000001);
-    String path = "E:\\导出\\刑事案件11.xlsx";
-    FileInputStream inputStream = new FileInputStream(path);
-    SXSSFWorkbook sxssfWorkbook = null;
-    Sheet sheet = null;
-    Sheet partySheet = null;
-    Sheet partySheet2 = null;
-    XSSFWorkbook wb = null;
+        ZipSecureFile.setMinInflateRatio(0.000001);
+        String path = "E:\\导出\\刑事案件11.xlsx";
+        FileInputStream inputStream = new FileInputStream(path);
+        SXSSFWorkbook sxssfWorkbook = null;
+        Sheet sheet = null;
+        Sheet partySheet = null;
+        Sheet partySheet2 = null;
+        XSSFWorkbook wb = null;
 
-    wb = new XSSFWorkbook(inputStream);
-    sxssfWorkbook = new SXSSFWorkbook(wb);
-    sheet =sxssfWorkbook.getSheetAt(0);
-    Row row0 = sheet.getRow(0);
-    Row row = sheet.getRow(10);
-
-
-    try (OPCPackage opcPackage = OPCPackage.open(new File(path))) {
-        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
-        XSSFSheet sheetAt = workbook.getSheetAt(0);
-        int lastRowNum = sheetAt.getLastRowNum();
-
-        sxssfWorkbook = new SXSSFWorkbook(workbook,10000);
-        Sheet sheet1 = sxssfWorkbook.getSheetAt(0);
-        int lastRowNum1 = sxssfWorkbook.getXSSFWorkbook().getSheetAt(0).getLastRowNum();
-        int rowNum = sheet1.getLastRowNum() + 1;
-        String sheetName = sheet1.getSheetName();
+        wb = new XSSFWorkbook(inputStream);
+        sxssfWorkbook = new SXSSFWorkbook(wb);
+        sheet = sxssfWorkbook.getSheetAt(0);
+        Row row0 = sheet.getRow(0);
+        Row row = sheet.getRow(10);
 
 
+        try (OPCPackage opcPackage = OPCPackage.open(new File(path))) {
+            XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+            XSSFSheet sheetAt = workbook.getSheetAt(0);
+            int lastRowNum = sheetAt.getLastRowNum();
+
+            sxssfWorkbook = new SXSSFWorkbook(workbook, 10000);
+            Sheet sheet1 = sxssfWorkbook.getSheetAt(0);
+            int lastRowNum1 = sxssfWorkbook.getXSSFWorkbook().getSheetAt(0).getLastRowNum();
+            int rowNum = sheet1.getLastRowNum() + 1;
+            String sheetName = sheet1.getSheetName();
+
+
+        }
     }
-}
 
-@Test
-public void test04(){
+    @Test
+    public void test04() {
         String str = "原告襄阳金照普惠网络科技有限公司向本院提出诉讼请求：1、判令被告给付原告分润手续费156783.03元及利息（以156783.03元为基数，按全国银行间同业拆借中心公布的贷款市场报价利率为标准，自起诉之日起计算至清偿之日止）；2、诉讼费由被告承担。事实和理由：2018年9月25日，原、被告经协商一致签订《中汇支付移动支付业务推广合作协议》《中汇电子支付移动支付业务即时付补充协议》和《关于的补充协议》，约定原告在全国开展和推广被告移动支付业务，被告按照原告所拓展商户使用机具的交易量向原告支付交易手续费分润，被告于每个月前10个工作日内通过中汇支付统一平台向原告提供分润明细，原告在收到对账单后开具正式发票并送至被告请款，被告在收到发票后15日内将相应款项支付至原告指定账户。自2018年10月开始，原告将相应发票寄至被告处后，被告推脱拒不付款。截至2019年6月，被告共拖欠原告手续费分润156783.03元，为此诉至法院";
 
-    int index = str.indexOf("诉讼请求：");
-    int index1 = str.indexOf("。");
+        int index = str.indexOf("诉讼请求：");
+        int index1 = str.indexOf("。");
 
-    String substring = str.substring(index+5, index1);
-    System.out.println(substring);
+        String substring = str.substring(index + 5, index1);
+        System.out.println(substring);
 
-}
+    }
+
+    @Test
+    public void test5() {
+
+        String path = "E:\\导出\\刑事案件11.csv";
+
+        try (ExcelWriter excelWriter = EasyExcel.write(path, CaseVo.class).excelType(ExcelTypeEnum.CSV).writeExcelOnException(true).build()) {
+            List<CaseVo> data = new ArrayList<>();
+            WriteSheet partSheet = EasyExcel.writerSheet(1, "当事人信息").build();
+
+            excelWriter.write(data, partSheet);
+        }
+    }
+
+    @Test
+    public void test6() {
+        Pattern AMOUNT_PATTERN =
+                Pattern.compile("^(0|[1-9]\\d{0,11})\\.(\\d\\d)$"); // 不考虑分隔符的正确性
+        String amount = "七千三六十四";
+        Matcher matcher = AMOUNT_PATTERN.matcher(amount);
+        System.out.println(matcher.find());
+        int i = NumberChineseFormatter.chineseToNumber(amount);
+        System.out.println(i);
+    }
+
+    @Test
+    public void test7() {
+        StringBuilder county = new StringBuilder();
+        for (Term term : ToAnalysis.parse("住所地重庆市巴南区李家沱陈家湾三村40号")) {
+          //  System.out.println(term.getRealName());
+     /*       if (term.getNatureStr().equals("mq")) {
+                System.out.println(term.from().getRealName());
+                System.out.println(term.getRealName());
+            }*/
+        //    county.insert(0,term.getRealName());
+            System.out.println(term.from().getRealName());
+        }
+        System.out.println(county.toString());
+       // System.out.println(new StringBuilder("住所地重庆市永川区双石镇杨家湾").reverse().toString());
+/*        String str = "广州知识产权法院";
+        int index = str.indexOf("知识产权法院");
+        System.out.println(str.substring(0,index));*/
+    }
+
+    @Test
+    public void test11(){
+        List<CaseVo> list = new ArrayList<>();
+        list.add(new CaseVo());
+        list.add(new CaseVo());
+        list.add(new CaseVo());
+        list.add(new CaseVo());
+        list.add(new CaseVo());
+        List<CaseVo> collect = list.stream().collect(Collectors.toList());
+        for (CaseVo caseVo : collect) {
+            caseVo.setName("1");
+        }
+        System.out.println(collect.size());
+    }
+
+    @Test
+    public void tset12(){
+        String s1 = "二审案件受理费2087元";
+        int start = s1.indexOf("受理费");
+        if (start == -1) {
+            start = s1.indexOf("诉讼费");
+        }
+        int end = s1.indexOf("元");
+        if (end > start + 3) {
+            String s2 = s1.substring(start + 3, end);
+            System.out.println(s2);
+        }
+
+    }
 }
