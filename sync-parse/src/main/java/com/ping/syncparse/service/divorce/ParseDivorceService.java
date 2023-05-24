@@ -1,6 +1,5 @@
-package com.ping.syncparse.service;
+package com.ping.syncparse.service.divorce;
 
-import cn.hutool.core.convert.NumberChineseFormatter;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -9,7 +8,8 @@ import com.ping.syncparse.common.Dict;
 import com.ping.syncparse.common.DwbmCode;
 import com.ping.syncparse.entity.AreaEntity;
 import com.ping.syncparse.entity.PartyEntity;
-import com.ping.syncparse.sync.c34.DocumentMsMapper;
+import com.ping.syncparse.service.AreaService;
+import com.ping.syncparse.service.TempMapper;
 import com.ping.syncparse.sync.c34.DocumentXsLhEntity;
 import com.ping.syncparse.sync.c34.DocumentXsMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.*;
@@ -40,12 +39,9 @@ import static java.util.stream.Collectors.*;
 @Slf4j
 public class ParseDivorceService {
     @Autowired
-    private DocumentMsMapper documentMsMapper;
-
-    @Autowired
     private DocumentXsMapper documentXsMapper;
     @Autowired
-    private CaseMapper caseMapper;
+    private DivorceMapper caseMapper;
     @Autowired
     private TempMapper tempMapper;
     @Autowired
@@ -129,7 +125,7 @@ public class ParseDivorceService {
         List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, null);
         pageNum.getAndIncrement();
         entities.parallelStream().forEach(entity -> {
-            CaseVo vo = new CaseVo();
+            DivorceVo vo = new DivorceVo();
             vo.setId(entity.getId());
             if (!StringUtils.hasLength(entity.getTId())) {
                 vo.setTId(entity.getCaseNo());
@@ -344,323 +340,88 @@ public class ParseDivorceService {
                     }
                 }
             }
-            //   vo.setMoneySet(parseMoney(party, s25));
-
-               /* if ("刑事案件".equals(entity.getCaseType())) {
-                    String s27 = object.getString("s27");
-                    //    vo.setJudgmenResultContent(s27);
-                    if (StringUtils.hasLength(s27)) {
-                        String replace = s27.replace("；", "。");
-                        replace = replace.replace("\n", "。");
-                        String[] split = replace.split("。");
-                        if (array != null && array.size() > 0) {
-                            for (Object o : array) {
-                                for (String s : split) {
-                                    if (s.contains(o.toString()) && s.contains("犯") && s.contains("罪")) {
-                                        CrimeVO crimeVO = new CrimeVO();
-                                        crimeVO.setName(o.toString());
-                                        for (String cause : causeSet) {
-                                            if (s.contains(cause)) {
-                                                if (StringUtils.hasLength(crimeVO.getCrime())) {
-                                                    crimeVO.setCrime(crimeVO.getCrime() + "、" + cause);
-                                                } else {
-                                                    crimeVO.setCrime(cause);
-                                                }
-                                            }
-                                        }
-                                        try {
-                                            if (s.contains("有期徒刑") && s.contains("月")) {
-                                                int start = s.indexOf("有期徒刑");
-                                                int end = s.indexOf("月") + 1;
-                                                String s1 = s.substring(start, end);
-                                                crimeVO.setImprisonmentTerm(s1);
-                                            } else if (s.contains("有期徒刑") && s.contains("年")) {
-                                                String s1 = s.substring(s.indexOf("有期徒刑"), s.lastIndexOf("年") + 1);
-                                                crimeVO.setImprisonmentTerm(s1);
-                                            } else if (s.contains("死刑")) {
-                                                crimeVO.setImprisonmentTerm("死刑");
-                                            } else if (s.contains("无期徒刑")) {
-                                                crimeVO.setImprisonmentTerm("无期徒刑");
-                                            } else if (s.contains("拘役") && s.contains("月")) {
-                                                String s1 = s.substring(s.indexOf("拘役"), s.lastIndexOf("月") + 1);
-                                                crimeVO.setImprisonmentTerm(s1);
-                                            } else if (s.contains("免予刑事处罚")) {
-                                                crimeVO.setImprisonmentTerm("免予刑事处罚");
-                                            }
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        vo.getCrimes().add(crimeVO);
-                                        break;
-                                    }
-                                }
-
-                            }
-                        }
-                    }
-                }*/
 
             if ("民事案件".equals(entity.getCaseType())) {
-                String judgmentResult = entity.getJudgmentResult();
-                if (StringUtils.hasLength(judgmentResult)) {
-                    judgmentResult = judgmentResult.replace("；", "。");
-                    for (String s : judgmentResult.split("。")) {
-                        if (!s.contains("受理费") && !s.contains("诉讼费")) {
-                            continue;
-                        }
-                        s = s.replace(",", "，");
-                        s = s.replace("、", "，");
-                        if (s.contains("（") && s.contains("）")) {
-                            try {
-                                int start = s.indexOf("（");
-                                int end = s.indexOf("）");
-                                if (end - start > 5) {
-                                    s = s.substring(0, start) + s.substring(end + 1);
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        for (String s1 : s.split("，")) {
-                            if (!StringUtils.hasLength(s1)) {
-                                continue;
-                            }
-                            if (s1.contains("一审") && s1.contains("受理费") && !"民事一审".equals(vo.getTrialProceedings())) {
-                                continue;
-                            }
-                            if (s1.contains("受理费") || s1.contains("减半") || s1.contains("诉讼费")) {
-                                if ((StringUtils.hasLength(vo.getHearingFees()) && s1.contains("减半")) || !StringUtils.hasLength(vo.getHearingFees())) {
-                                    for (Term term : ToAnalysis.parse(s1)) {
-                                        if ((term.getNatureStr().equals("mq") && term.getRealName().contains("元")) || ((term.from() != null && (term.from().getRealName().contains("受理费") || term.from().getRealName().contains("受理") || term.from().getRealName().contains("人民币"))) && term.getNatureStr().equals("mq"))) {
-                                            Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
-                                            if (matcher.find()) {
-                                                vo.setHearingFees(term.getRealName());
-                                            } else {
-                                                try {
-                                                    vo.setHearingFees(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
-                                                } catch (Exception e) {
-                                                    vo.setHearingFees(term.getRealName());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!StringUtils.hasLength(vo.getHearingFees())) {
-                                    int start = s1.indexOf("受理费");
-                                    if (start == -1) {
-                                        start = s1.indexOf("诉讼费");
-                                    }
-                                    int end = s1.indexOf("元");
-                                    if (end > start + 3) {
-                                        String s2 = s1.substring(start + 3, end);
-                                        Matcher matcher = AMOUNT_PATTERN.matcher(s2);
-                                        if (matcher.find()) {
-                                            vo.setHearingFees(s2 + "元");
-                                        } else {
-                                            try {
-                                                vo.setHearingFees(NumberChineseFormatter.chineseToNumber(s2) + "元");
-                                            } catch (Exception e) {
-                                                vo.setHearingFees(s2 + "元");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                String fact = entity.getFact();
 
-                            if (vo.getParty() != null && vo.getParty().size() > 0) {
-                                for (PartyEntity partyEntity : vo.getParty()) {
-                                    if (partyEntity.getName() == null) {
-                                        continue;
-                                    }
-                                    if ((s1.contains("负担") || s1.contains("承担")) && s1.contains("元")) {
-                                        for (Term term : ToAnalysis.parse(s1)) {
-                                            if ((term.getNatureStr().equals("mq") && term.getRealName().contains("元")) || ((term.from() != null && (term.from().getRealName().contains("受理费") || term.from().getRealName().contains("人民币"))) && term.getNatureStr().equals("mq"))) {
-                                                if (("原告".equals(partyEntity.getType()) && s1.contains(partyEntity.getName())) || (s1.contains("原告") || s1.contains("上诉人"))) {
-                                                    if (!StringUtils.hasLength(vo.getPlaintiffHearingFees())) {
-                                                        Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
-                                                        if (matcher.find()) {
-                                                            vo.setPlaintiffHearingFees(term.getRealName());
-                                                        } else {
-                                                            try {
-                                                                vo.setPlaintiffHearingFees(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
-                                                            } catch (Exception e) {
-                                                                vo.setPlaintiffHearingFees(term.getRealName());
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                if (("被告".equals(partyEntity.getType()) && s1.contains(partyEntity.getName())) || (s1.contains("被告") || s1.contains("被上诉人"))) {
-                                                    if (!StringUtils.hasLength(vo.getDefendantHearingFees())) {
-                                                        Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
-                                                        if (matcher.find()) {
-                                                            vo.setDefendantHearingFees(term.getRealName());
-                                                        } else {
-                                                            try {
-                                                                vo.setDefendantHearingFees(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
-                                                            } catch (Exception e) {
-                                                                vo.setDefendantHearingFees(term.getRealName());
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    } else if (s1.contains(partyEntity.getName()) && (s1.contains("负担") || s1.contains("承担"))) {
-                                        if ("原告".equals(partyEntity.getType())) {
-                                            if (!StringUtils.hasLength(vo.getPlaintiffHearingFees())) {
-                                                vo.setPlaintiffHearingFees(vo.getHearingFees());
-                                            }
-                                        }
-                                        if ("被告".equals(partyEntity.getType())) {
-                                            if (!StringUtils.hasLength(vo.getDefendantHearingFees())) {
-                                                vo.setDefendantHearingFees(vo.getHearingFees());
-                                            }
-                                        }
-                                    } else if (s1.contains("负担") || s1.contains("承担")) {
-                                        if (s1.contains("原告") || s1.equals("上诉人")) {
-                                            if (!StringUtils.hasLength(vo.getPlaintiffHearingFees())) {
-                                                vo.setPlaintiffHearingFees(vo.getHearingFees());
-                                            }
-                                        }
-                                        if (s1.contains("被告") || s1.contains("被上诉人")) {
-                                            if (!StringUtils.hasLength(vo.getDefendantHearingFees())) {
-                                                vo.setDefendantHearingFees(vo.getHearingFees());
-                                            }
-                                        }
-                                    }
+                if (StringUtils.hasLength(fact)) {
+                    fact = fact.replace("；", "，");
+                    fact = fact.replace("：", "，");
+                    fact = fact.replace(",", "，");
+                    fact = fact.replace("。", "，");
+                    String[] split = fact.split("，");
+                    for (int i = 0; i < split.length; i++) {
+                        String temp = split[i];
+                        if (temp.contains("介绍")) {
+                            if (temp.contains("媒人介绍") || (temp.contains("媒人") && temp.contains("介绍"))) {
+                                vo.setKnowWay("媒人介绍");
+                            } else if (temp.contains("经人介绍")) {
+                                vo.setKnowWay("经人介绍");
+                            } else if (temp.contains("网上相识")) {
+                                vo.setKnowWay("网上相识");
+                            } else if (temp.contains("同事")) {
+                                vo.setKnowWay("同事");
+                            } else if ((temp.contains("经") || temp.contains("通过")) && (temp.contains("相识") || temp.contains("认识"))) {
+                                int start = temp.indexOf("经");
+                                if (start == -1) {
+                                    start = temp.indexOf("通过");
                                 }
-                            } else {
-                                if (s1.contains("负担") || s1.contains("承担")) {
-                                    for (Term term : ToAnalysis.parse(s1)) {
-                                        if ((term.getNatureStr().equals("mq") && term.getRealName().contains("元")) || ((term.from() != null && (term.from().getRealName().contains("受理费") || term.from().getRealName().contains("人民币"))) && term.getNatureStr().equals("mq"))) {
-                                            if (s1.contains("原告") || s1.equals("上诉人")) {
-                                                if (!StringUtils.hasLength(vo.getPlaintiffHearingFees())) {
-                                                    Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
-                                                    if (matcher.find()) {
-                                                        vo.setPlaintiffHearingFees(term.getRealName());
-                                                    } else {
-                                                        try {
-                                                            vo.setPlaintiffHearingFees(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
-                                                        } catch (Exception e) {
-                                                            vo.setPlaintiffHearingFees(term.getRealName());
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            if (s1.contains("被告") || s1.contains("被上诉人")) {
-                                                if (!StringUtils.hasLength(vo.getDefendantHearingFees())) {
-                                                    Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
-                                                    if (matcher.find()) {
-                                                        vo.setDefendantHearingFees(term.getRealName());
-                                                    } else {
-                                                        try {
-                                                            vo.setDefendantHearingFees(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
-                                                        } catch (Exception e) {
-                                                            vo.setDefendantHearingFees(term.getRealName());
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                                int end = temp.indexOf("相识");
+                                if (end == -1) {
+                                    end = temp.indexOf("认识");
                                 }
-                                if (s1.contains("原告") || s1.equals("上诉人")) {
-                                    if (!StringUtils.hasLength(vo.getPlaintiffHearingFees())) {
-                                        vo.setPlaintiffHearingFees(vo.getHearingFees());
-                                    }
-                                }
-                                if (s1.contains("被告") || s1.contains("被上诉人")) {
-                                    if (!StringUtils.hasLength(vo.getDefendantHearingFees())) {
-                                        vo.setDefendantHearingFees(vo.getHearingFees());
-                                    }
+                                if (end > start) {
+                                    vo.setKnowWay(temp.substring(start, end + 2));
                                 }
                             }
+                            String knowDate = "";
+                            if (!temp.contains("年")) {
+                                temp = split[i - 1];
+                            }
+                            for (Term term : ToAnalysis.parse(temp)) {
+                                if (term.termNatures().equals("t")) {
+                                    knowDate += term.getRealName();
+                                }
+                            }
+                            vo.setKnowDate(knowDate);
+                        }
+
+                        if (temp.contains("订婚") || temp.contains("定亲")) {
+                            String engagedDate = "";
+                            for (Term term : ToAnalysis.parse(temp)) {
+                                if (term.termNatures().equals("t")) {
+                                    engagedDate += term.getRealName();
+                                }
+                            }
+                            vo.setEngagedDate(engagedDate);
+                        }
+
+
+                        if (temp.contains("同居期间") || temp.contains("同居生活") || temp.contains("共同生活")) {
+                            vo.setLiveTogether("是");
+                        }
+                        if (temp.contains("未办理结婚登记") || temp.contains("")) {
+                            vo.setMarriageRegistration("否");
+                        } else if (temp.contains("结婚登记")) {
+                            String marriageRegistrationDate = "";
+                            if (temp.contains(""))
+                                for (Term term : ToAnalysis.parse(temp)) {
+                                    if (term.termNatures().equals("t")) {
+                                        marriageRegistrationDate += term.getRealName();
+                                    }
+                                }
+                            vo.setMarriageRegistration("是");
+                            vo.setMarriageRegistrationDate(marriageRegistrationDate);
+                        }
+                        if (temp.contains("未举办婚礼") || temp.contains("没有举办婚礼") || (temp.contains("未") && temp.contains("举办婚礼"))) {
+                            vo.setHostingWedding("否");
+                        } else if (temp.contains("未举行婚礼") || temp.contains("没有举行婚礼") || (temp.contains("未") && temp.contains("举行婚礼"))) {
+                            vo.setHostingWedding("否");
+                        } else if ((temp.contains("年") || temp.contains("月") || temp.contains("日")) && (temp.contains("举办婚礼") || temp.contains("举行婚礼"))) {
+                            vo.setHostingWedding("是");
                         }
                     }
 
-                    judgmentResult = entity.getJudgmentResult();
-                    if (judgmentResult.contains("维持原判")) {
-                        if (StringUtils.hasLength(entity.getTId())) {
-                            List<DocumentXsLhEntity> list = documentXsMapper.find(entity.getTId());
-                            if (list != null && list.size() > 0) {
-                                DocumentXsLhEntity xsLh = list.get(0);
-                                judgmentResult = xsLh.getJudgmentResult();
-                            }
-                        }
-                    }
-                    if (StringUtils.hasLength(judgmentResult)) {
-                        if ((judgmentResult.contains("准许") || judgmentResult.contains("本案按")) && (judgmentResult.contains("撤回起诉") || judgmentResult.contains("撤诉"))) {
-                            vo.setJudgmentDesc("撤回起诉");
-                        } /*else if (judgmentResult.contains("维持原判")) {
-                            vo.setJudgmentDesc("维持原判");
-
-                        }*/ else if (judgmentResult.contains("驳回原告") && judgmentResult.contains("全部诉讼请求")) {
-                            // vo.setJudgmentDesc("驳回诉讼请求");
-                            vo.setJudgmentDesc("被告胜诉");
-                        } else {
-                            if (StringUtils.hasLength(vo.getPlaintiffHearingFees()) && !StringUtils.hasLength(vo.getDefendantHearingFees())) {
-                                vo.setJudgmentDesc("被告胜诉");
-                            } else if (!StringUtils.hasLength(vo.getPlaintiffHearingFees()) && StringUtils.hasLength(vo.getDefendantHearingFees())) {
-                                vo.setJudgmentDesc("原告胜诉");
-                            } else if (StringUtils.hasLength(vo.getPlaintiffHearingFees()) && StringUtils.hasLength(vo.getDefendantHearingFees())) {
-
-                                double a = 0;
-                                double b = 0;
-                                try {
-                                    a = Double.parseDouble(vo.getPlaintiffHearingFees().replace("元", ""));
-                                } catch (NumberFormatException e) {
-                                    try {
-                                        String plaintiffHearingFees = vo.getPlaintiffHearingFees();
-                                        plaintiffHearingFees = plaintiffHearingFees.replace("1", "一");
-                                        plaintiffHearingFees = plaintiffHearingFees.replace("2", "二");
-                                        plaintiffHearingFees = plaintiffHearingFees.replace("3", "三");
-                                        plaintiffHearingFees = plaintiffHearingFees.replace("4", "四");
-                                        plaintiffHearingFees = plaintiffHearingFees.replace("5", "五");
-                                        plaintiffHearingFees = plaintiffHearingFees.replace("6", "六");
-                                        plaintiffHearingFees = plaintiffHearingFees.replace("7", "七");
-                                        plaintiffHearingFees = plaintiffHearingFees.replace("8", "八");
-                                        plaintiffHearingFees = plaintiffHearingFees.replace("9", "九");
-                                        plaintiffHearingFees = plaintiffHearingFees.replace("元", "");
-                                        a = NumberChineseFormatter.chineseToNumber(plaintiffHearingFees);
-                                    } catch (Exception ex) {
-                                        log.info("原告={}", vo.getPlaintiffHearingFees());
-                                        ex.printStackTrace();
-                                    }
-                                }
-
-                                try {
-                                    b = Double.parseDouble(vo.getDefendantHearingFees().replace("元", ""));
-                                } catch (NumberFormatException e) {
-                                    try {
-                                        String defendantHearingFees = vo.getDefendantHearingFees();
-                                        defendantHearingFees = defendantHearingFees.replace("1", "一");
-                                        defendantHearingFees = defendantHearingFees.replace("2", "二");
-                                        defendantHearingFees = defendantHearingFees.replace("3", "三");
-                                        defendantHearingFees = defendantHearingFees.replace("4", "四");
-                                        defendantHearingFees = defendantHearingFees.replace("5", "五");
-                                        defendantHearingFees = defendantHearingFees.replace("6", "六");
-                                        defendantHearingFees = defendantHearingFees.replace("7", "七");
-                                        defendantHearingFees = defendantHearingFees.replace("8", "八");
-                                        defendantHearingFees = defendantHearingFees.replace("9", "九");
-                                        defendantHearingFees = defendantHearingFees.replace("元", "");
-                                        b = NumberChineseFormatter.chineseToNumber(defendantHearingFees);
-                                    } catch (Exception ex) {
-                                        log.info("被告={}", vo.getDefendantHearingFees());
-                                        ex.printStackTrace();
-                                    }
-                                }
-
-                                if (a > b) {
-                                    vo.setJudgmentDesc("被告胜诉");
-                                } else {
-                                    vo.setJudgmentDesc("原告胜诉");
-                                }
-
-                            }
-
-                        }
-
-                    }
                 }
             }
             try {
@@ -1149,7 +910,7 @@ public class ParseDivorceService {
     }
 
 
-    public void address(DocumentXsLhEntity entity, CaseVo vo) {
+    public void address(DocumentXsLhEntity entity, DivorceVo vo) {
         if (StringUtils.hasLength(entity.getCourtName())) {
             if (entity.getCourtName().contains("省")) {
 

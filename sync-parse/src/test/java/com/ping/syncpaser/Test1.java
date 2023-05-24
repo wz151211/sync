@@ -542,24 +542,18 @@ public class Test1 {
     @Test
     public void test7() {
         StringBuilder county = new StringBuilder();
-        for (Term term : ToAnalysis.parse("住所地重庆市巴南区李家沱陈家湾三村40号")) {
-          //  System.out.println(term.getRealName());
-     /*       if (term.getNatureStr().equals("mq")) {
-                System.out.println(term.from().getRealName());
-                System.out.println(term.getRealName());
-            }*/
-        //    county.insert(0,term.getRealName());
-            System.out.println(term.from().getRealName());
+        for (Term term : ToAnalysis.parse("2021年正月初三")) {
+            System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
         System.out.println(county.toString());
-       // System.out.println(new StringBuilder("住所地重庆市永川区双石镇杨家湾").reverse().toString());
+        // System.out.println(new StringBuilder("住所地重庆市永川区双石镇杨家湾").reverse().toString());
 /*        String str = "广州知识产权法院";
         int index = str.indexOf("知识产权法院");
         System.out.println(str.substring(0,index));*/
     }
 
     @Test
-    public void test11(){
+    public void test11() {
         List<CaseVo> list = new ArrayList<>();
         list.add(new CaseVo());
         list.add(new CaseVo());
@@ -574,7 +568,7 @@ public class Test1 {
     }
 
     @Test
-    public void tset12(){
+    public void tset12() {
         String s1 = "二审案件受理费2087元";
         int start = s1.indexOf("受理费");
         if (start == -1) {
@@ -585,6 +579,22 @@ public class Test1 {
             String s2 = s1.substring(start + 3, end);
             System.out.println(s2);
         }
+    }
 
+    @Test
+    public void test13() {
+        String temp = "2021年8月份原告与被告智某1通过手机抖音视频相识";
+        int start = temp.indexOf("经");
+        if (start == -1) {
+            start = temp.indexOf("通过");
+        }
+        int end = temp.indexOf("相识");
+        if (end == -1) {
+            end = temp.indexOf("认识");
+        }
+        if (end > start) {
+            System.out.println(temp.substring(start, end + 2));
+        }
+        System.out.println(   DateUtil.date().hour(true));
     }
 }

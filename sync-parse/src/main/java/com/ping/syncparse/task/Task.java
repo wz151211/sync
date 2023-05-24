@@ -1,7 +1,7 @@
 package com.ping.syncparse.task;
 
 import com.ping.syncparse.service.*;
-import com.ping.syncparse.sync.c140.Sync140Service;
+import com.ping.syncparse.service.divorce.ParseDivorceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -91,7 +91,7 @@ public class Task {
         }
     }
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
+   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
     public void export() {
         exportTempService.export();
     }
@@ -131,7 +131,7 @@ public class Task {
         }
     }
 
-     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
+  //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
     public void parse() {
         parsePartyEasyService.parse();
     }
@@ -144,8 +144,16 @@ public class Task {
     @Autowired
     private ExportResultService exportResultService;
 
-    //  @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+      @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
     public void test12() {
         exportResultService.export();
+    }
+
+    @Autowired
+    private ParseDivorceService parseDivorceService;
+
+   // @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    public void divorce() {
+        parseDivorceService.parse();
     }
 }

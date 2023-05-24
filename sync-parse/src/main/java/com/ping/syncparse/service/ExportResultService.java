@@ -146,7 +146,7 @@ public class ExportResultService {
             ExcelUtils.export(wb, partySheet, partyList, partyHead.toArray());
 
             Sheet partySheet2 = wb.createSheet("当事人信息2");
-            ExcelUtils.export(wb, partySheet2, partyList, partyHead2.toArray());
+            ExcelUtils.export(wb, partySheet2, partyList2, partyHead2.toArray());
             wb.write(out);
             System.out.println("导出完成");
         } catch (FileNotFoundException e) {
