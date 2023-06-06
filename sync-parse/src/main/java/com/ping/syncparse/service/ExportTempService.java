@@ -38,7 +38,8 @@ public class ExportTempService {
 
     public void export() {
         pageNum.getAndIncrement();
-        String[] head = {"案件信息", "序号", "id", "案件名称", "案号", "一/二审案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县", "审理费", "原告审理费", "被告审理费", "判决结果", "判决结果", "理由/法院认为", "法律依据", "引用的法律条文数量", "诉讼记录", "事实", "HTML内容", "JSON内容"};
+        String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县", "判决结果", "理由/法院认为", "法律依据", "诉讼记录", "事实", "HTML内容", "JSON内容"
+                , "申请主体/解除申请主体", "姓名", "性别", "年龄", "学历", "居住地城乡", "职业", "涉嫌犯罪类型", "涉嫌犯罪类型内容","家属是否参与开庭", "家属意见", "作案时间", "鉴定诊断", "刑事责任能力", "强制医疗决定", "人身危险性评估", "诊断评估机构", "诊断评估意见"};
         List<String> partyHead = new ArrayList<>();
         List<String> partyHead2 = new ArrayList<>();
         partyHead.add("当事人信息");
@@ -85,7 +86,7 @@ public class ExportTempService {
                     .lte(DateUtil.parse("2014-12-31 23:59:59").toJdkDate());
 
             System.out.println("-----------" + pageNum.get() + "---------------");
-            List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, criteria);
+            List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
             if (vos.size() == 0) {
                 log.info("查询数据={}", vos.size());
                 return;
@@ -165,7 +166,7 @@ public class ExportTempService {
                 }
             }
             ExcelUtils.export(workbook, sheet, list, head);
-            ExcelUtils.export(workbook, partySheet, partyList, partyHead.toArray());
+            //     ExcelUtils.export(workbook, partySheet, partyList, partyHead.toArray());
             ExcelUtils.export(workbook, partySheet2, partyList2, partyHead2.toArray());
     /*        if (pageNum.get() == 0) {
                 ExcelUtils.export(workbook, sheet, list, head);
@@ -240,42 +241,59 @@ public class ExportTempService {
 
     private Map<Integer, Object> toMap(CaseVo vo) {
         Map<Integer, Object> map = new HashMap<>();
-        map.put(1, vo.getId());
-        map.put(2, vo.getName());
-        map.put(3, vo.getCaseNo());
-        map.put(4, vo.getTId());
-        map.put(5, vo.getCourtName());
-
+        map.put(1, vo.getName());
+        map.put(2, vo.getCaseNo());
+        map.put(3, vo.getCourtName());
         if (vo.getRefereeDate() != null) {
-            map.put(6, DateUtil.format(vo.getRefereeDate(), DateTimeFormatter.ISO_LOCAL_DATE));
+            map.put(4, DateUtil.format(vo.getRefereeDate(), DateTimeFormatter.ISO_LOCAL_DATE));
         } else {
-            map.put(6, "");
+            map.put(4, "");
         }
-        map.put(7, vo.getCause());
-        map.put(8, vo.getCaseType());
-        map.put(9, vo.getTrialProceedings());
-
-        map.put(10, vo.getDocType());
-        map.put(11, vo.getProvince());
-        map.put(12, vo.getCity());
-        map.put(13, vo.getCounty());
-        map.put(14, vo.getHearingFees());
-        map.put(15, vo.getPlaintiffHearingFees());
-        map.put(16, vo.getDefendantHearingFees());
-
-        map.put(17, vo.getJudgmentResult());
-        map.put(18, vo.getJudgmentDesc());
-        map.put(19, vo.getCourtConsidered());
-        map.put(20, vo.getLegalBasis());
-        map.put(21, vo.getLegalBasisCount());
-        map.put(22, vo.getLitigationRecords());
-        map.put(23, vo.getFact());
-        map.put(24, vo.getHtmlContent());
+        map.put(5, vo.getCause());
+        map.put(6, vo.getCaseType());
+        map.put(7, vo.getTrialProceedings());
+        map.put(8, vo.getDocType());
+        map.put(9, vo.getProvince());
+        map.put(10, vo.getCity());
+        map.put(11, vo.getCounty());
+        map.put(12, vo.getJudgmentResult());
+        map.put(13, vo.getCourtConsidered());
+        map.put(14, vo.getLegalBasis());
+        map.put(15, vo.getLitigationRecords());
+        map.put(16, vo.getFact());
+        map.put(17, vo.getHtmlContent());
         if (vo.getJsonContent() != null) {
-            map.put(25, vo.getJsonContent());
+            map.put(18, vo.getJsonContent());
         } else {
-            map.put(25, "");
+            map.put(18, "");
         }
+        map.put(19, vo.getApplicant());
+        if (vo.getParty() != null && vo.getParty().size() > 0) {
+            for (PartyEntity party : vo.getParty()) {
+                if ("被告".equals(party.getType())) {
+                    map.put(20, party.getName());
+                    map.put(21, party.getSex());
+                    map.put(22, party.getAge());
+                    map.put(23, party.getEduLevel());
+                    map.put(24, "");
+                    map.put(25, party.getProfession());
+                    break;
+                }
+            }
+        }
+
+        map.put(26, vo.getCharge());
+        map.put(27, vo.getJoinHearing());
+        map.put(28, vo.getOpinion());
+        map.put(29, vo.getCrimeTime());
+        map.put(30, vo.getDiagnosticResult());
+        map.put(31, vo.getResponsibility());
+        map.put(32, vo.getMedicalDecisions());
+        map.put(33, vo.getRisk());
+        map.put(34, vo.getEvaluationAgency());
+        map.put(35, vo.getEvaluationOpinions());
+
+
         return map;
 
     }

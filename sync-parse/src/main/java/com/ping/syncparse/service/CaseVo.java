@@ -25,7 +25,7 @@ import java.util.*;
 @HeadRowHeight(25)
 @HeadStyle
 @HeadFontStyle(fontHeightInPoints = 12)
-@Document(value = "document_hunyue_result")
+@Document(value = "document_qiangzhi_result")
 public class CaseVo {
 
     @Id
@@ -126,6 +126,42 @@ public class CaseVo {
     //原告受理费
     @ExcelIgnore
     private String plaintiffHearingFees;
+    @ExcelIgnore
+    private String registerCaseDate;
+
+    //申请主体
+    private String applicant;
+    //罪名
+    private String charge;
+    //作案时间
+    private String crimeTime;
+    private String crimeTimeContent;
+    //参与开庭
+    private String joinHearing;
+    private String joinHearingContent;
+    //家属意见
+    private String opinion;
+    // private String opinionContent;
+    //诊断结果
+    private String diagnosticResult;
+    private String diagnosticResultContent;
+
+    //刑事责任能力
+    private String responsibility;
+    private String responsibilityContent;
+
+    //强制医疗决定
+    private String medicalDecisions;
+    private String medicalDecisionsContent;
+    //人身危险性评估
+    private String risk;
+    //诊断评估机构
+    private String evaluationAgency;
+
+    //诊断评估意见
+    private String evaluationOpinions;
+
+
 
 
 }

@@ -142,10 +142,10 @@ public class ExportResultService {
                     partyList2.add(new HashMap<>());
                 }
             }
-            Sheet partySheet = wb.createSheet("当事人信息");
-            ExcelUtils.export(wb, partySheet, partyList, partyHead.toArray());
+    /*        Sheet partySheet = wb.createSheet("当事人信息");
+            ExcelUtils.export(wb, partySheet, partyList, partyHead.toArray());*/
 
-            Sheet partySheet2 = wb.createSheet("当事人信息2");
+            Sheet partySheet2 = wb.createSheet("当事人信息");
             ExcelUtils.export(wb, partySheet2, partyList2, partyHead2.toArray());
             wb.write(out);
             System.out.println("导出完成");

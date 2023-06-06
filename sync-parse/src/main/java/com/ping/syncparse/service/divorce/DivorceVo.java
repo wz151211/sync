@@ -9,12 +9,14 @@ import com.ping.syncparse.service.CaseSummaryVO;
 import com.ping.syncparse.service.CrimeVO;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Data
+@Document(value = "document_hunyue_result")
 public class DivorceVo {
 
     @Id
@@ -100,61 +102,85 @@ public class DivorceVo {
     //相识方式
     private String knowWay;
 
+    private String knowWayContent;
+
     //相识日期
     private String knowDate;
+    private String knowDateContent;
 
     //订婚日期
+    private String engaged;
+    private String engagedContent;
+
     private String engagedDate;
+    private String engagedDateContent;
 
     //是否同居
     private String liveTogether;
+    private String liveTogetherContent;
     //是否办理结婚登记
     private String marriageRegistration;
+    private String marriageRegistrationContent;
 
     //是否办理结婚登记
     private String marriageRegistrationDate;
+    private String marriageRegistrationDateContent;
 
     //是否举办婚礼
     private String hostingWedding;
+    private String hostingWeddingContent;
 
     //解除关系
     private String dissolveRelationshipDate;
+    private String dissolveRelationshipDateContent;
 
     //流产
     private String abort;
+    private String abortContent;
 
     //是否有孩子
     private String child;
+    private String childContent;
     //是否涉及彩礼
     private String bridePrice;
+    private String bridePriceContent;
     //彩礼数额
     private String bridePriceTotal;
+    private String bridePriceTotalContent;
 
     //彩礼是否包含首饰三金
     private String bridePriceGold;
+    private String bridePriceGoldContent;
 
     //彩礼是否包含首饰三金
     private String bridePriceCar;
+    private String bridePriceCarContent;
     //彩礼是否包含房子
     private String bridePriceHouse;
+    private String bridePriceHouseContent;
 
     //彩礼来源
     private String bridePriceFrom;
+    private String bridePriceFromContent;
 
     //彩礼去向
     private String bridePriceTo;
+    private String bridePriceToContent;
 
     //彩礼原文表述
     private String bridePriceText;
 
     //是否提到生活困难
     private String bridePricePoverty;
+    private String bridePricePovertyContent;
 
     //是否提到生活困难
     private String bridePriceIndebted;
+    private String bridePriceIndebtedContent;
 
     //判决彩礼返还金额
     private String bridePriceReturn;
+    private String bridePriceReturnContent;
 
     //最终彩礼认定句
     private String bridePriceNote;

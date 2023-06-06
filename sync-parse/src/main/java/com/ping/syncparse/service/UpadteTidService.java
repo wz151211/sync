@@ -22,21 +22,25 @@ public class UpadteTidService {
     @Autowired
     private DocumentXsMapper documentXsMapper;
     private int pageSize = 10000;
-    private AtomicInteger pageNum = new AtomicInteger(7);
+    private AtomicInteger pageNum = new AtomicInteger(0);
     AtomicInteger count = new AtomicInteger();
 
     public void update() {
         List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, null);
         pageNum.getAndIncrement();
 
-        entities.parallelStream().filter(entity -> "民事一审".equals(entity.getTrialProceedings())).forEach(entity -> {
+        entities.parallelStream().filter(entity -> !entity.getCaseNo().contains("解")).forEach(entity -> {
             log.info("{}", count.getAndIncrement());
-            List<DocumentMsJtblEntity> byCaseNo = documentMsMapper.findParty(entity.getParty().toJavaList(String.class));
+            List<DocumentMsJtblEntity> byCaseNo = documentMsMapper.find(entity.getCaseNo());
             for (DocumentMsJtblEntity lh : byCaseNo) {
-                DocumentXsLhEntity xsLhEntity = new DocumentXsLhEntity();
+                if (entity.getCaseNo().equals(lh.getCaseNo())) {
+                    continue;
+                }
+          /*      DocumentXsLhEntity xsLhEntity = new DocumentXsLhEntity();
                 lh.setTId(entity.getCaseNo());
-                BeanUtils.copyProperties(lh, xsLhEntity);
-                documentXsMapper.insert(xsLhEntity);
+                BeanUtils.copyProperties(lh, xsLhEntity);*/
+                lh.setTId(entity.getCaseNo());
+                documentMsMapper.insert(lh);
             }
         });
     }

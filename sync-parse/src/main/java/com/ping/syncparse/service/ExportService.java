@@ -1,12 +1,14 @@
 package com.ping.syncparse.service;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.entity.PartyEntity;
 import com.ping.syncparse.sync.c34.DocumentXsLhEntity;
 import com.ping.syncparse.sync.c34.DocumentXsMapper;
 import com.ping.syncparse.utils.ExcelUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -36,7 +38,7 @@ public class ExportService {
 
     @Autowired
     private CaseXsMapper caseMapper;
-    private int pageSize = 400;
+    private int pageSize = 10000;
     private AtomicInteger pageNum = new AtomicInteger(-1);
 
     @Autowired
@@ -44,7 +46,7 @@ public class ExportService {
     public void export() {
         pageNum.getAndIncrement();
         List<DocumentXsLhEntity> vos = documentXsMapper.findList(pageNum.get(), pageSize, null);
-        Workbook wb = new XSSFWorkbook();
+ /*       Workbook wb = new XSSFWorkbook();
         String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县",
                 "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容"};
         Sheet sheet = wb.createSheet("案件信息");
@@ -71,16 +73,19 @@ public class ExportService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
- /*       String target = "G:\\保险诈骗\\";
+        }*/
+        String target = "G:\\保险诈骗\\";
         for (DocumentXsLhEntity vo : vos) {
+            String name = vo.getName();
+            name = name.replace("span>","");
+            vo.setName(name);
             String docPath = target + FilenameUtils.getBaseName(vo.getName()) + ".docx";
             File docFile = new File(docPath);
             if (docFile.exists()) {
                 docPath = target + FilenameUtils.getBaseName(vo.getName()) + "-" + RandomUtil.randomString(5) + ".docx";
             }
             htmlAsAltChunk2Docx(vo.getHtmlContent(), docPath);
-        }*/
+        }
     }
     public void htmlAsAltChunk2Docx(String html, String docxPath) {
 

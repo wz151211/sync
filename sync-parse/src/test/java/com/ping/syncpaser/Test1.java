@@ -542,7 +542,7 @@ public class Test1 {
     @Test
     public void test7() {
         StringBuilder county = new StringBuilder();
-        for (Term term : ToAnalysis.parse("2021年正月初三")) {
+        for (Term term : ToAnalysis.parse("××××年农历正月初")) {
             System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
         System.out.println(county.toString());
@@ -595,6 +595,39 @@ public class Test1 {
         if (end > start) {
             System.out.println(temp.substring(start, end + 2));
         }
-        System.out.println(   DateUtil.date().hour(true));
+        System.out.println(DateUtil.date().hour(true));
+    }
+
+    @Test
+    public void test15() {
+        String temp = "原告苑某1与被告翟某于××××年××月××日办理结婚登记手续";
+        int start = temp.lastIndexOf("年");
+        int end = temp.lastIndexOf("日");
+        if (end == -1) {
+            end = temp.lastIndexOf("月");
+        }
+        if (end > start) {
+            System.out.println(temp.substring(start - 4, end + 1));
+        }
+
+    }
+
+    @Test
+    public void test16() {
+        String sentence = "经海南省安宁医院精神疾病司法鉴定中心鉴定:1、林慧诗在本次作案时患有妄想阵发和人格障碍;2、林慧诗对本次作案无刑事责任能力";
+        int start = sentence.indexOf("患");
+        if (start == -1) {
+            start = sentence.indexOf("系");
+        }
+        int end = sentence.lastIndexOf("症");
+        if (end == -1) {
+            end = sentence.lastIndexOf("碍");
+        }
+        if (end == -1) {
+            end = sentence.lastIndexOf("病");
+        }
+
+        System.out.println(sentence.substring(start,end));
+
     }
 }

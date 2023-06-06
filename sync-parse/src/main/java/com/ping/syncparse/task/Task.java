@@ -91,7 +91,7 @@ public class Task {
         }
     }
 
-   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
+    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
     public void export() {
         exportTempService.export();
     }
@@ -99,21 +99,6 @@ public class Task {
     // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60*300L)
     public void easyExport() {
         exportService.export();
-    }
-
-    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 300L)
-    public void save2() {
-        boolean tryLock = false;
-        try {
-            tryLock = lock1.tryLock(2, TimeUnit.SECONDS);
-            exportMsService.export();
-        } catch (Exception e) {
-            log.error("", e);
-        } finally {
-            if (tryLock) {
-                lock1.unlock();
-            }
-        }
     }
 
     //    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 300L)
@@ -131,12 +116,12 @@ public class Task {
         }
     }
 
-  //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
+   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
     public void parse() {
         parsePartyEasyService.parse();
     }
 
-    //  @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+       @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
     public void update() {
         upadteTidService.update();
     }
@@ -144,7 +129,7 @@ public class Task {
     @Autowired
     private ExportResultService exportResultService;
 
-      @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    //   @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
     public void test12() {
         exportResultService.export();
     }
@@ -152,8 +137,14 @@ public class Task {
     @Autowired
     private ParseDivorceService parseDivorceService;
 
-   // @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    //   @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
     public void divorce() {
         parseDivorceService.parse();
     }
+
+    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 6)
+    public void save2() {
+        exportMsService.export();
+    }
+
 }

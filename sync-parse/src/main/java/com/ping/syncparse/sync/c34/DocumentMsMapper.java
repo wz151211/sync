@@ -16,7 +16,7 @@ public class DocumentMsMapper {
     private MongoTemplate mongoTemplate;
 
     public void insert(DocumentMsJtblEntity entity) {
-        mongoTemplate.insert(entity);
+        mongoTemplate.save(entity);
     }
 
     public List<DocumentMsJtblEntity> findList(int pageNum, int pageSize, Criteria criteria) {
@@ -31,14 +31,14 @@ public class DocumentMsMapper {
 
     public List<DocumentMsJtblEntity> find(String caseNO) {
         Query query = new Query();
-        Criteria criteria = Criteria.where("trialProceedings").ne("民事一审").and("htmlContent").regex(caseNO);
+        Criteria criteria = Criteria.where("htmlContent").regex(caseNO);
         query.addCriteria(criteria);
         return mongoTemplate.find(query, DocumentMsJtblEntity.class);
     }
 
     public List<DocumentMsJtblEntity> findParty(List<String> party) {
         Query query = new Query();
-        Criteria criteria = Criteria.where("party").all(party);
+        Criteria criteria = Criteria.where("party").all(party).and("trialProceedings").ne("民事一审");
         query.addCriteria(criteria);
         return mongoTemplate.find(query, DocumentMsJtblEntity.class);
     }
