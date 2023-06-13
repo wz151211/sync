@@ -82,6 +82,10 @@ public class ParsePartyEasyService {
                     String text = IOUtils.toString(resource.getURI(), StandardCharsets.UTF_8);
                     causeList.addAll(JSON.parseArray(text, Dict.class));
                 }
+                if ("cause.txt".equals(resource.getFilename())) {
+                    String text = IOUtils.toString(resource.getURI(), StandardCharsets.UTF_8);
+                    causeList.addAll(JSON.parseArray(text, Dict.class));
+                }
 
                 if ("area.txt".contains(resource.getFilename())) {
                     String text = IOUtils.toString(resource.getURI(), StandardCharsets.UTF_8);
@@ -115,7 +119,11 @@ public class ParsePartyEasyService {
             }
             areaMap = areaList.stream().collect(toMap(Dict::getName, c -> c, (k1, k2) -> k1));
             areaCodeMap = areaList.parallelStream().collect(toMap(Dict::getCode, c -> c, (k1, k2) -> k2));
-            causeSet = causeList.stream().map(Dict::getName).collect(toSet());
+            causeSet = causeList.stream().peek(c -> {
+                if (c.getName().endsWith("罪")) {
+                    c.setName(c.getName().substring(0, c.getName().length() - 1));
+                }
+            }).map(Dict::getName).collect(toSet());
 
 
         } catch (
@@ -129,17 +137,15 @@ public class ParsePartyEasyService {
     public void parse() {
         Pattern compile = Pattern.compile("^((?!解).)*$", Pattern.CASE_INSENSITIVE);
 
-        //  Criteria criteria = Criteria.where("caseNo").is(compile);
-        Criteria criteria = Criteria.where("caseNo").regex("解");
+        Criteria criteria = Criteria.where("caseNo").is(compile);
+        //Criteria criteria = Criteria.where("caseNo").regex("解");
 
         List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, criteria);
         pageNum.getAndIncrement();
         entities.parallelStream().forEach(entity -> {
             CaseVo vo = new CaseVo();
             vo.setId(entity.getId());
-//            if (!entity.getTId().equals(entity.getTId())) {
-//                vo.setTId(entity.getTId());
-//            }
+            vo.setTId(entity.getTId());
             vo.setName(entity.getName());
             vo.setCaseNo(entity.getCaseNo());
             vo.setCourtName(entity.getCourtName());
@@ -229,9 +235,8 @@ public class ParsePartyEasyService {
                 JSONArray array = entity.getParty();
                 if (array != null && array.size() > 0) {
                     for (Object o : array) {
-                        if (o.toString().contains("检察院") || o.toString().contains("医院")) {
+                        if (o.toString().contains("检察院") || o.toString().contains("医院") || o.toString().contains("医疗所") || o.toString().contains("医疗中心")) {
                             vo.setApplicant(o.toString());
-                            continue;
                         }
                         boolean isExist = false;
                         for (int i = 0; i < elements.size(); i++) {
@@ -337,35 +342,75 @@ public class ParsePartyEasyService {
                             }
                         }
                     }
-                }
-                if (StringUtils.isEmpty(vo.getApplicant())) {
-                    for (int i = 0; i < 10; i++) {
+                } else {
+                    for (int i = 0; i < 20; i++) {
                         if (i > elements.size() - 1) {
                             continue;
                         }
                         Element element = elements.get(i);
                         String text = element.text();
                         text = text.replace(",", "，");
-                        if (text.startsWith("被申请人") || text.startsWith("申请人") || text.startsWith("申请机关") || text.contains("原申请机关")) {
+                        if (text.contains("被申请人") || text.startsWith("申请机关") || text.startsWith("原申请机关") || text.startsWith("被强制医疗人") || text.startsWith("申请人") || text.startsWith("申请复议人")) {
                             //   log.info("当事人信息={}", text);
-                            party = parseText(text, null);
-                            vo.getParty().add(party);
+                            try {
+                                party = parseText(text, null);
+                                vo.getParty().add(party);
+                                break;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
+                    }
+                }
+
+                if (StringUtils.isEmpty(vo.getApplicant())) {
+                    for (int i = 0; i < 20; i++) {
+                        if (i > elements.size() - 1) {
+                            continue;
+                        }
+                        Element element = elements.get(i);
+                        String text = element.text();
+                        text = text.replace(",", "，");
                         String temp = text.split("，")[0];
-                        if ((temp.startsWith("申请人") || temp.startsWith("申请机关") || temp.contains("原申请机关")) && (temp.contains("检察院") || temp.contains("医院"))) {
+                        if ((temp.contains("申请人") || temp.contains("申请机关") || temp.contains("原申请机关") || temp.contains("强制医疗机构") || temp.contains("建议解除强制医疗医院")) && (temp.contains("检察院") || temp.contains("医院") || temp.contains("医疗所"))) {
                             int start = temp.lastIndexOf("申请人");
                             if (start == -1) {
                                 start = temp.lastIndexOf("申请机关");
-                                start += 4;
+                                if (start > -1) {
+                                    start += 4;
+                                }
+                            }
+                            if (start == -1) {
+                                start = temp.lastIndexOf("建议解除强制医疗医院");
+                                if (start > -1) {
+                                    start += 10;
+                                }
+                            }
+                            if (start == -1) {
+                                start = temp.lastIndexOf("制医疗机构");
+                                if (start > -1) {
+                                    start += 5;
+                                }
                             } else {
                                 start += 3;
                             }
                             int end = temp.lastIndexOf("检察院");
+                            if (end > -1) {
+                                end += 3;
+                            }
                             if (end == -1) {
                                 end = temp.lastIndexOf("医院");
-                                end += 2;
-                            } else {
-                                end += 3;
+                                if (end > -1) {
+                                    end += 2;
+                                }
+
+                            }
+                            if (end == -1) {
+                                end = temp.lastIndexOf("医疗所");
+                                if (end > -1) {
+                                    end += 3;
+                                }
+
                             }
                             if (StringUtils.isEmpty(vo.getApplicant())) {
                                 try {
@@ -375,11 +420,19 @@ public class ParsePartyEasyService {
                                     e.printStackTrace();
                                 }
                             }
-                        } else if (temp.contains("申请人")) {
-                            int index = temp.lastIndexOf("人");
+                        }
+                        if (temp.contains("申请人") || temp.contains("法定代理人") || temp.contains("申请解除强制医疗人")) {
+                            int index = temp.indexOf("人");
                             if (StringUtils.isEmpty(vo.getApplicant())) {
                                 try {
-                                    vo.setApplicant(temp.substring(index + 1));
+                                    String substring = temp.substring(index + 1);
+                                    substring = substring.replace("。", "");
+                                    substring = substring.replace(")", "");
+                                    substring = substring.replace("及其法定代理人", "");
+                                    substring = substring.replace("暨法定代理人", "");
+                                    substring = substring.replace("的法定代理人", "");
+                                    substring = substring.replace("被强制医疗人姚翠果的法定代理人", "");
+                                    vo.setApplicant(substring);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -388,72 +441,160 @@ public class ParsePartyEasyService {
                     }
                 }
 
-                for (int i = 0; i < 10; i++) {
-                    if (i > elements.size() - 1) {
-                        continue;
-                    }
+                for (int i = 0; i < elements.size(); i++) {
                     Element element = elements.get(i);
                     String temp = element.text();
-                    if ((temp.startsWith("被申请人") || temp.startsWith("复议申请人")) && temp.contains("涉嫌") && temp.contains("罪")) {
-                        temp = temp.replace("。", "，");
-                        temp = temp.replace(",", "，");
-                        String[] split = temp.split("，");
-                        for (String text : split) {
-                            if (!text.contains("涉嫌") && !text.contains("罪")) {
-                                continue;
-                            }
-                            int start = text.indexOf("涉嫌");
-                            int end = text.indexOf("罪");
-                            //   if (StringUtils.isEmpty(vo.getCharge())) {
-                            if (end > start) {
-                                try {
-                                    vo.setCharge(text.substring(start + 2, end + 1));
-                                } catch (Exception e) {
-                                    log.info("罪名={}", text);
-                                    e.printStackTrace();
+                    if (StringUtils.isEmpty(vo.getCharge())) {
+                        String finalTemp = temp;
+                        causeSet.parallelStream().filter(temp::contains).forEach(c ->
+                        {
+                            vo.setCharge(c + "罪");
+                            vo.setChargeContent(finalTemp);
+                        });
+                    }
+                    if (temp.contains("检察院申请称")
+                            || temp.contains("经查")
+                            || temp.contains("审理查明")
+                            || temp.contains("提出强制医疗申请认定")
+                            || temp.contains("经审查查明")
+                            || temp.contains("原决定认定")
+                            || temp.contains("检察院称")
+                            || temp.contains("经审理查明")) {
+
+                    }
+
+                    temp = temp.replace("；", "。");
+                    String[] split = temp.split("。");
+                    for (String sentence : split) {
+                        if (sentence.contains("生")) {
+                            continue;
+                        }
+                        for (String text : sentence.split("，")) {
+                            if (text.contains("涉嫌") || text.contains("实施") || text.contains("因犯")) {
+                                int start = text.indexOf("实施");
+                                if (start == -1) {
+                                    start = text.indexOf("涉嫌");
                                 }
-                            }
-                            if (end == -1 && start > 0 && StringUtils.isEmpty(vo.getCharge())) {
-                                try {
-                                    vo.setCharge(text.substring(start + 2));
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                if (start == -1) {
+                                    start = text.indexOf("因犯");
+                                }
+                                int end = text.indexOf("罪");
+                                //   if (StringUtils.isEmpty(vo.getCharge())) {
+                                if (end > start) {
+                                    try {
+                                        if (StringUtils.isEmpty(vo.getCharge())) {
+                                            vo.setChargeContent(temp);
+                                            String charge = text.substring(start + 2, end + 1);
+                                            if (charge.length() > 2) {
+                                                vo.setCharge(charge);
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        log.info("罪名={}", text);
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
 
-                            //     }
-                            String date = "";
-                            for (Term term : ToAnalysis.parse(text)) {
-                                if (term.getNatureStr().equals("t")) {
-                                    date += term.getRealName();
+                            illness.parallelStream().filter(text::contains).forEach(c -> {
+                                if (StringUtils.isEmpty(vo.getDiagnosticResult())) {
+                                    vo.setDiagnosticResult(c);
+                                    vo.setDiagnosticResultContent(sentence);
                                 }
-                                if (term.getRealName().contains("涉嫌") || term.getRealName().contains("罪")) {
-                                    break;
-                                }
+                            });
+
+                            if (sentence.contains("刑事责任能力") && (sentence.contains("没有") || sentence.contains("无"))) {
+                                vo.setResponsibility("无");
+                                vo.setResponsibilityContent(sentence);
+                            } else if (sentence.contains("有刑事责任能力")) {
+                                vo.setResponsibility("有");
+                                vo.setResponsibilityContent(sentence);
+                            } else if (sentence.contains("限制刑事责任能力")) {
+                                vo.setResponsibility("限制");
+                                vo.setResponsibilityContent(sentence);
+                            } else if (sentence.contains("不负刑事责任")) {
+                                vo.setResponsibility("无");
+                                vo.setResponsibilityContent(sentence);
                             }
-                           /* if (StringUtils.isEmpty(date)) {
-                                vo.setCrimeTime(date);
-                            }*/
-                            vo.setCrimeTime(date);
+
+                            if (sentence.contains("人身危险性") || sentence.contains("危险行为") || sentence.contains("危险性")) {
+                                vo.setRisk(sentence);
+                                vo.setEvaluationOpinions(sentence);
+
+                            }
+
+                            if (sentence.contains("强制医疗的决定") || sentence.contains("执行强制医疗") || sentence.contains("强制医疗决定书") || sentence.contains("决定强制医疗") || sentence.contains("强制医疗")) {
+                                if (!sentence.contains("解除")
+                                        && !sentence.contains("出身")
+                                        && !sentence.contains("生")
+                                ) {
+                                    String medicalDecisions = "";
+                                    for (Term term : ToAnalysis.parse(sentence)) {
+                                        if (term.getNatureStr().equals("t") && (term.getRealName().contains("年") || term.getRealName().contains("月") || term.getRealName().contains("日"))) {
+                                            medicalDecisions += term.getRealName();
+                                            if (medicalDecisions.contains("年") && medicalDecisions.contains("月") && medicalDecisions.contains("日")) {
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (StringUtils.isEmpty(vo.getMedicalDecisions())) {
+                                        vo.setMedicalDecisions(medicalDecisions);
+                                        vo.setMedicalDecisionsContent(sentence);
+                                    }
+                                }
+
+                            }
                         }
                     }
+
+
                 }
             }
-            //   vo.setMoneySet(parseMoney(party, s25));
+
+            if (StringUtils.hasLength(vo.getCharge())) {
+                String charge = vo.getCharge();
+                charge = charge.replace("了", "");
+                vo.setCharge(charge);
+            }
+            if (StringUtils.isEmpty(vo.getCharge()) && StringUtils.hasLength(vo.getCause())) {
+                if (!vo.getCause().equals("其他刑事犯")) {
+                    vo.setCharge(vo.getCause() + "罪");
+                }
+
+            }
 
             if ("刑事案件".equals(entity.getCaseType())) {
-
                 String litigationRecords = entity.getLitigationRecords();
                 if (StringUtils.hasLength(litigationRecords)) {
+                    litigationRecords = litigationRecords.replace("，", "");
+                    litigationRecords = litigationRecords.replace("；", "");
+
                     for (String temp : litigationRecords.split("。")) {
+                        if (!temp.contains("代理人")) {
+                            continue;
+                        }
+                        String content = temp;
+                        int index = temp.indexOf("被申请人");
+                        int index1 = temp.indexOf("法定代理");
+                        try {
+                            if (index > index1) {
+                                temp = temp.substring(index1, index1);
+                            }
+
+                            if (index < index1) {
+                                temp = temp.substring(index1);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         if (temp.contains("代理人") && (temp.contains("未") || temp.contains("没有")) && temp.contains("到庭")) {
                             vo.setJoinHearing("否");
-                            vo.setJoinHearingContent(temp);
+                            vo.setJoinHearingContent(content);
                         } else if ((temp.contains("代理人") && temp.contains("到庭"))
                                 || (temp.contains("听取") && temp.contains("代理人") && temp.contains("意见"))
                                 || (temp.contains("代理人") && temp.contains("不开庭审理"))) {
                             vo.setJoinHearing("是");
-                            vo.setJoinHearingContent(temp);
+                            vo.setJoinHearingContent(content);
                         }
 
                     }
@@ -464,6 +605,28 @@ public class ParsePartyEasyService {
                     fact = entity.getCourtConsidered();
                 }
                 if (StringUtils.hasLength(fact)) {
+                    for (String sentence : fact.split("。")) {
+                        if (StringUtils.isEmpty(vo.getOpinion())) {
+                            if ((sentence.contains("代理人") || sentence.contains("辩护人")) && (sentence.contains("不") || sentence.contains("未") || sentence.contains("没有"))) {
+                                vo.setOpinion(sentence);
+                            } else if ((sentence.contains("代理人") || sentence.contains("辩护人")) && (sentence.contains("同意") || sentence.contains("无异议") || sentence.contains("参加") || sentence.contains("符合") || sentence.contains("没有意见") || sentence.contains("予以采纳"))) {
+                                vo.setOpinion(sentence);
+                            } else if (sentence.contains("无监管能力")) {
+                                vo.setOpinion(sentence);
+                            } else if (sentence.contains("不需强制医疗")) {
+                                vo.setOpinion(sentence);
+                            } else if (sentence.contains("没有能力") && sentence.contains("监管")) {
+                                vo.setOpinion(sentence);
+                            } else if ((sentence.contains("代理人") || sentence.contains("辩护人")) && sentence.contains("书面") && sentence.contains("意见")) {
+                                vo.setOpinion(sentence);
+                            }
+                            if (StringUtils.hasLength(vo.getOpinion()) && StringUtils.isEmpty(vo.getJoinHearing())) {
+                                vo.setJoinHearing("是");
+                                vo.setJoinHearingContent(sentence);
+                            }
+                        }
+                    }
+
                     fact = fact.replace(",", "，");
                     fact = fact.replace("；", "，");
                     fact = fact.replace("：", "，");
@@ -471,7 +634,6 @@ public class ParsePartyEasyService {
                         for (String sentence : paragraph.split("，")) {
                             sentence = sentence.replace("患者", "");
                             sentence = sentence.replace("患病", "");
-
                             if (paragraph.contains("鉴定") && sentence.contains("患") && (sentence.equals("症") || sentence.contains("病")) && (!sentence.contains("患病期")) || !sentence.contains("刑事责任")) {
                                 int start = sentence.indexOf("患");
                                 if (start == -1) {
@@ -479,6 +641,9 @@ public class ParsePartyEasyService {
                                 }
                                 if (start == -1) {
                                     start = sentence.indexOf("为");
+                                }
+                                if (start == -1) {
+                                    start = sentence.indexOf("属");
                                 }
                                 int end = sentence.lastIndexOf("症");
                                 if (end == -1) {
@@ -531,28 +696,35 @@ public class ParsePartyEasyService {
                                     end += 1;
                                     if (end > start) {
                                         try {
-                                            vo.setDiagnosticResult(sentence.substring(start, end));
-                                            vo.setDiagnosticResultContent(sentence);
+                                            if (StringUtils.isEmpty(vo.getDiagnosticResult())) {
+                                                vo.setDiagnosticResult(sentence.substring(start, end));
+                                                vo.setDiagnosticResultContent(sentence);
+                                            }
+
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                     }
                                 }
                                 if (StringUtils.isEmpty(vo.getDiagnosticResult())) {
-                                    if ((sentence.contains("诊断为") || sentence.contains("状态为") || sentence.contains("案时为") || sentence.contains("系")) && (sentence.contains("症") || sentence.contains("病") || sentence.contains("碍"))) {
+                                    if ((sentence.contains("诊断为") || sentence.contains("状态为") || sentence.contains("案时为") || sentence.contains("系") || sentence.contains("属")) && (sentence.contains("症") || sentence.contains("病") || sentence.contains("碍"))) {
                                         if (!sentence.contains("刑事责任")) {
                                             start = sentence.indexOf("诊断为");
                                             if (start == -1) {
                                                 start = sentence.indexOf("状态为");
+                                                start += 3;
                                             }
                                             if (start == -1) {
                                                 start = sentence.indexOf("案时为");
+                                                start += 3;
+                                            }
+                                            if (start == -1) {
+                                                start = sentence.indexOf("属");
+                                                start += 1;
                                             }
                                             if (start == -1) {
                                                 start = sentence.indexOf("系");
                                                 start += 1;
-                                            } else {
-                                                start += 3;
                                             }
                                             end = sentence.lastIndexOf("症");
                                             if (end == -1) {
@@ -565,8 +737,10 @@ public class ParsePartyEasyService {
 
                                             if (end > start) {
                                                 try {
-                                                    vo.setDiagnosticResult(sentence.substring(start, end));
-                                                    vo.setDiagnosticResultContent(sentence);
+                                                    if (StringUtils.isEmpty(vo.getDiagnosticResult())) {
+                                                        vo.setDiagnosticResult(sentence.substring(start, end));
+                                                        vo.setDiagnosticResultContent(sentence);
+                                                    }
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -576,7 +750,9 @@ public class ParsePartyEasyService {
                                 }
                             }
 
-                            if (StringUtils.isEmpty(vo.getDiagnosticResult()) && !sentence.contains("刑事责任")) {
+                            if (StringUtils.isEmpty(vo.getDiagnosticResult())
+                                    && !sentence.contains("缓解期")
+                                    && !sentence.contains("刑事责任")) {
                                 if ((sentence.contains("处于") || sentence.contains("诊断") || sentence.contains("为")) && (sentence.contains("症") || sentence.contains("病") || sentence.contains("碍"))) {
 
                                     int start = sentence.indexOf("处于");
@@ -598,9 +774,16 @@ public class ParsePartyEasyService {
                                     }
                                     try {
                                         String temp = sentence.substring(start, end + 1);
-                                        if (!temp.contains("发病") && !temp.contains("疾病")) {
-                                            vo.setDiagnosticResult(sentence.substring(start, end + 1));
-                                            vo.setDiagnosticResultContent(sentence);
+                                        if (!temp.contains("发病")
+                                                && !temp.contains("疾病")
+                                                && !temp.contains("证明")
+                                                && !temp.contains("评估报告")
+                                                && !temp.equals("障碍")
+                                                && !temp.contains("目前")) {
+                                            if (StringUtils.isEmpty(vo.getDiagnosticResult())) {
+                                                vo.setDiagnosticResult(sentence.substring(start, end + 1));
+                                                vo.setDiagnosticResultContent(sentence);
+                                            }
                                         }
 
                                     } catch (Exception e) {
@@ -622,37 +805,11 @@ public class ParsePartyEasyService {
                                     }
                                 }
                             }
-                            if (sentence.contains("病理性半醒")) {
-                                vo.setDiagnosticResult("病理性半醒");
-                                vo.setDiagnosticResultContent(sentence);
-                            }
-                            if (sentence.contains("继发性痴呆")) {
-                                vo.setDiagnosticResult("继发性痴呆");
-                                vo.setDiagnosticResultContent(sentence);
-                            }
-                            if (sentence.contains("重度抑郁")) {
-                                vo.setDiagnosticResult("重度抑郁");
-                                vo.setDiagnosticResultContent(sentence);
-                            }
-                            if (sentence.contains("精神分裂症")) {
-                                vo.setDiagnosticResult("精神分裂症");
-                                vo.setDiagnosticResultContent(sentence);
-                            }
-                            if (sentence.contains("病理性醉酒")) {
-                                vo.setDiagnosticResult("病理性醉酒");
-                                vo.setDiagnosticResultContent(sentence);
-                            }
-                            if (sentence.contains("癫痫性精神病")) {
-                                vo.setDiagnosticResult("癫痫性精神病");
-                                vo.setDiagnosticResultContent(sentence);
-                            }
-                            if (sentence.contains("情感性精神障碍")) {
-                                vo.setDiagnosticResult("情感性精神障碍");
-                                vo.setDiagnosticResultContent(sentence);
-                            }
-                            if (sentence.contains("器质性精神障碍")) {
-                                vo.setDiagnosticResult("器质性精神障碍");
-                                vo.setDiagnosticResultContent(sentence);
+                            if (StringUtils.isEmpty(vo.getDiagnosticResult())) {
+                                if (sentence.contains("精神障碍")) {
+                                    vo.setDiagnosticResult("精神障碍");
+                                    vo.setDiagnosticResultContent(sentence);
+                                }
                             }
                             if (StringUtils.hasLength(vo.getDiagnosticResult())) {
                                 String diagnosticResult = vo.getDiagnosticResult();
@@ -664,11 +821,15 @@ public class ParsePartyEasyService {
                             if (StringUtils.isEmpty(vo.getOpinion())) {
                                 if (sentence.contains("代理人") && (sentence.contains("不") || sentence.contains("未") || sentence.contains("没有"))) {
                                     vo.setOpinion(sentence);
-                                } else if (sentence.contains("代理人") && (sentence.contains("同意") || sentence.contains("无异议") || sentence.contains("参加") || sentence.contains("没有意见"))) {
+                                } else if (sentence.contains("代理人") && (sentence.contains("同意") || sentence.contains("无异议") || sentence.contains("参加") || sentence.contains("符合") || sentence.contains("没有意见") || sentence.contains("予以采纳"))) {
                                     vo.setOpinion(sentence);
                                 } else if (sentence.contains("无监管能力")) {
                                     vo.setOpinion(sentence);
                                 } else if (sentence.contains("不需强制医疗")) {
+                                    vo.setOpinion(sentence);
+                                } else if (sentence.contains("没有能力") && sentence.contains("监管")) {
+                                    vo.setOpinion(sentence);
+                                } else if (sentence.contains("法定代理人") && sentence.contains("意见")) {
                                     vo.setOpinion(sentence);
                                 }
                                 if (StringUtils.hasLength(vo.getOpinion()) && StringUtils.isEmpty(vo.getJoinHearing())) {
@@ -676,30 +837,16 @@ public class ParsePartyEasyService {
                                     vo.setJoinHearingContent(sentence);
                                 }
                             }
-                            if (paragraph.contains("检察院申请称") || paragraph.contains("经查") || paragraph.contains("审理查明") || paragraph.contains("提出强制医疗申请认定")) {
+                            if (paragraph.contains("检察院申请称")
+                                    || paragraph.contains("经查")
+                                    || paragraph.contains("审理查明")
+                                    || paragraph.contains("提出强制医疗申请认定")
+                                    || paragraph.contains("经审查查明")
+                                    || paragraph.contains("原决定认定")
+                                    || paragraph.contains("检察院称")
+                                    || paragraph.contains("经审理查明")) {
                                 if (sentence.contains("年") && sentence.contains("月") && sentence.contains("日")) {
                                     String crimeTime = "";
-                                    if (StringUtils.isEmpty(vo.getCrimeTime())) {
-                                        for (Term term : ToAnalysis.parse(paragraph)) {
-                                            if (term.getRealName().contains("时") || term.getRealName().contains("许")) {
-                                                break;
-                                            }
-                                            if (crimeTime.contains("年") && crimeTime.contains("月") && crimeTime.contains("日")) {
-                                                break;
-                                            }
-                                            if (term.getNatureStr().equals("t")) {
-                                                crimeTime += term.getRealName();
-                                            }
-
-                                        }
-                                        vo.setCrimeTime(crimeTime);
-                                        vo.setCrimeTimeContent(paragraph);
-                                    }
-
-                                }
-                            } else if (sentence.contains("年") && sentence.contains("月") && sentence.contains("日") && sentence.contains("许")) {
-                                String crimeTime = "";
-                                if (StringUtils.isEmpty(vo.getCrimeTime())) {
                                     for (Term term : ToAnalysis.parse(paragraph)) {
                                         if (term.getRealName().contains("时") || term.getRealName().contains("许")) {
                                             break;
@@ -707,16 +854,61 @@ public class ParsePartyEasyService {
                                         if (crimeTime.contains("年") && crimeTime.contains("月") && crimeTime.contains("日")) {
                                             break;
                                         }
-                                        if (term.getNatureStr().equals("t")) {
+                                        if (term.getRealName().contains("当日") || term.getRealName().contains("次日") || (term.getRealName().contains("年") && term.getRealName().length() <= 3)) {
+                                            continue;
+                                        }
+                                        if (term.getNatureStr().equals("t") && (term.getRealName().contains("年") || term.getRealName().contains("月") || term.getRealName().contains("日"))) {
+                                            crimeTime += term.getRealName();
+                                        }
+
+                                    }
+                                    if (StringUtils.isEmpty(vo.getCrimeTime()) && StringUtils.hasLength(crimeTime)) {
+                                        vo.setCrimeTime(crimeTime);
+                                        vo.setCrimeTimeContent(paragraph);
+                                    }
+
+                                }
+                            } else if (sentence.contains("年") && sentence.contains("月") && sentence.contains("日")
+                                    && (sentence.contains("许")
+                                    || sentence.contains("左右")
+                                    || sentence.contains("晚")
+                                    || sentence.contains("中")
+                                    || sentence.contains("上")
+                                    || sentence.contains("下")
+                                    || sentence.contains("凌晨")
+                                    || sentence.contains("早"))) {
+                                String crimeTime = "";
+                                if (StringUtils.isEmpty(vo.getCrimeTime())) {
+                                    for (Term term : ToAnalysis.parse(paragraph)) {
+                                        if (term.getRealName().contains("时")
+                                                || term.getRealName().contains("许")
+                                                || term.getRealName().contains("晚")
+                                                || term.getRealName().contains("中")
+                                                || term.getRealName().contains("上")
+                                                || term.getRealName().contains("下")
+                                                || term.getRealName().contains("早")
+                                                || term.getRealName().contains("左右")) {
+                                            break;
+                                        }
+                                        if (crimeTime.contains("年") && crimeTime.contains("月") && crimeTime.contains("日")) {
+                                            break;
+                                        }
+                                        if (term.getRealName().contains("当日") || term.getRealName().contains("次日") || (term.getRealName().contains("年") && term.getRealName().length() <= 3)) {
+                                            continue;
+                                        }
+                                        if (term.getNatureStr().equals("t") && (term.getRealName().contains("年") || term.getRealName().contains("月") || term.getRealName().contains("日"))) {
                                             crimeTime += term.getRealName();
                                         }
                                     }
-                                    vo.setCrimeTime(crimeTime);
-                                    vo.setCrimeTimeContent(paragraph);
+
+                                    if (StringUtils.hasLength(crimeTime) && StringUtils.isEmpty(vo.getCrimeTime())) {
+                                        vo.setCrimeTime(crimeTime);
+                                        vo.setCrimeTimeContent(paragraph);
+                                    }
                                 }
 
                             }
-                            if (sentence.contains("刑事责任能力") && (sentence.contains("没有") || sentence.contains("无"))) {
+                            if (sentence.contains("刑事责任") && (sentence.contains("没有") || sentence.contains("无") || sentence.contains("不具有") || sentence.contains("不负"))) {
                                 vo.setResponsibility("无");
                                 vo.setResponsibilityContent(paragraph);
                             } else if (sentence.contains("有刑事责任能力")) {
@@ -735,11 +927,11 @@ public class ParsePartyEasyService {
                                 vo.setEvaluationOpinions(paragraph);
 
                             }
-                            if (sentence.contains("强制医疗的决定") || sentence.contains("执行强制医疗") || sentence.contains("强制医疗决定书") || sentence.contains("决定强制医疗") || sentence.contains("强制医疗")) {
+                            if ((sentence.contains("强制医疗的决定") || sentence.contains("执行强制医疗") || sentence.contains("强制医疗决定书") || sentence.contains("决定强制医疗") || sentence.contains("强制医疗")) && !sentence.contains("解除")) {
 
                                 String medicalDecisions = "";
                                 for (Term term : ToAnalysis.parse(sentence)) {
-                                    if (term.getNatureStr().equals("t")) {
+                                    if (term.getNatureStr().equals("t") && (term.getRealName().contains("年") || term.getRealName().contains("月") || term.getRealName().contains("日"))) {
                                         medicalDecisions += term.getRealName();
                                         if (medicalDecisions.contains("年") && medicalDecisions.contains("月") && medicalDecisions.contains("日")) {
                                             break;
@@ -748,17 +940,21 @@ public class ParsePartyEasyService {
                                 }
                                 if (StringUtils.isEmpty(vo.getMedicalDecisions())) {
                                     vo.setMedicalDecisions(medicalDecisions);
+                                    vo.setMedicalDecisionsContent(sentence);
                                 }
                             }
                             if ((sentence.contains("医院") || sentence.contains("定所") || sentence.contains("疗所")) && (sentence.contains("省") || sentence.contains("市") || sentence.contains("县"))) {
                                 for (String temp : sentence.split("、")) {
-                                    if (temp.contains("医院") || temp.contains("定所") || temp.contains("疗所")) {
+                                    if (temp.contains("医院") || temp.contains("定所") || temp.contains("疗所") || temp.contains("中心")) {
                                         int index = temp.indexOf("医院");
                                         if (index == -1) {
                                             index = temp.indexOf("定所");
                                         }
                                         if (index == -1) {
                                             index = temp.indexOf("疗所");
+                                        }
+                                        if (index == -1) {
+                                            index = temp.indexOf("中心");
                                         }
                                         try {
                                             if (vo.getApplicant() != null && (vo.getApplicant().contains("医院") || vo.getApplicant().contains("定所") || vo.getApplicant().contains("疗所"))) {
@@ -1225,6 +1421,11 @@ public class ParsePartyEasyService {
                 party.setName(name);
             }
             if (!StringUtils.hasLength(party.getName())) {
+                if (s.contains("（") && s.contains("）")) {
+                    int start = s.indexOf("（");
+                    int end = s.indexOf("）");
+                    s = s.substring(0, start) + s.substring(end + 1);
+                }
                 try {
                     if (s.contains("被告人")) {
                         int start = s.indexOf("被告人");
@@ -1239,13 +1440,8 @@ public class ParsePartyEasyService {
 
                     if (s.contains("被申请人")) {
                         if (!StringUtils.hasLength(party.getName())) {
-                            int index = s.indexOf("被申请人");
                             try {
-                                if (s.contains("（") && s.contains("）")) {
-                                    int start = s.indexOf("（");
-                                    int end = s.indexOf("）");
-                                    s = s.substring(0, start) + s.substring(end + 1);
-                                }
+                                int index = s.indexOf("被申请人");
                                 party.setName(s.substring(index + 4));
                             } catch (Exception e) {
                                 log.info("party={}", s);
@@ -1257,19 +1453,37 @@ public class ParsePartyEasyService {
 
                     if (s.contains("申请人")) {
                         if (!StringUtils.hasLength(party.getName())) {
-                            int index = s.indexOf("申请人");
                             try {
-                                if (s.contains("（") && s.contains("）")) {
-                                    int start = s.indexOf("（");
-                                    int end = s.indexOf("）");
-                                    s = s.substring(0, start) + s.substring(end + 1);
-                                }
+                                int index = s.indexOf("申请人");
                                 party.setName(s.substring(index + 3));
                             } catch (Exception e) {
                                 log.info("party={}", s);
                                 e.printStackTrace();
                             }
 
+                        }
+                    }
+
+                    if (s.contains("法定代理人")) {
+                        if (!StringUtils.hasLength(party.getName())) {
+                            try {
+                                int index = s.indexOf("法定代理人");
+                                party.setName(s.substring(index + 5));
+                            } catch (Exception e) {
+                                log.info("party={}", s);
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    if (s.contains("申请复议人")) {
+                        if (!StringUtils.hasLength(party.getName())) {
+                            try {
+                                int index = s.indexOf("申请复议人");
+                                party.setName(s.substring(index + 5));
+                            } catch (Exception e) {
+                                log.info("party={}", s);
+                                e.printStackTrace();
+                            }
                         }
                     }
 
@@ -1390,9 +1604,9 @@ public class ParsePartyEasyService {
                     }
                 }
             }
-            if (text.contains("反诉被告") || text.contains("被执行人") || text.contains("被申请人") || text.contains("被上诉人") || text.contains("被申诉人")) {
+            if (text.contains("反诉被告") || text.contains("被执行人") || text.contains("被申请人") || text.contains("被上诉人") || text.contains("被申诉人") || text.contains("被强制医疗人")) {
                 party.setType("被告");
-            } else if (text.contains("反诉原告") || text.contains("申请执行人") || text.contains("申请人") || text.contains("自诉人") || text.contains("再审申请人") || text.contains("申诉人") || text.contains("上诉人") || text.contains("申请机关")) {
+            } else if (text.contains("反诉原告") || text.contains("申请执行人") || text.contains("申请人") || text.contains("自诉人") || text.contains("再审申请人") || text.contains("申诉人") || text.contains("上诉人") || text.contains("申请机关") || text.contains("法定代理人") || text.contains("申请复议人")) {
                 party.setType("原告");
             } else if (text.contains("公诉机关") && text.contains("检察院")) {
                 party.setType("原告");
@@ -1839,5 +2053,316 @@ public class ParsePartyEasyService {
         if (!StringUtils.hasLength(vo.getProvince())) {
             vo.setProvince(convert(vo.getCaseNo()));
         }
+    }
+
+    private Set<String> illness = new HashSet<>();
+
+    {
+        illness.add("重度抑郁");
+        illness.add("复发性抑郁障碍");
+        illness.add("精神病症状的抑郁症");
+        illness.add("抑郁症");
+        illness.add("酒精所致的精神和行为障碍");
+        illness.add("酒精所致精神障碍");
+        illness.add("复发性抑郁症");
+        illness.add("酒精中毒所致精神障碍");
+        illness.add("未特定的精神障碍");
+        illness.add("酒精中毒性精神障碍");
+        illness.add("特定的精神障碍");
+        illness.add("精神活性物质所致的精神和行为障碍");
+        illness.add("精神分裂症");
+        illness.add("癫痫");
+        illness.add("癔症");
+        illness.add("病理性醉酒");
+        illness.add("甲状腺功能亢进所致精神障碍");
+        illness.add("双向情感障碍");
+        illness.add("中度精神发育迟滞");
+        illness.add("重度精神发育迟滞");
+        illness.add("持久的妄想性障碍");
+
+        illness.add("边缘智力伴精神障碍");
+        illness.add("情感性精神障碍");
+        illness.add("急性而短暂的精神病性障碍");
+        illness.add("急性而短暂的精神病性症");
+        illness.add("急性而短暂的××性障碍");
+        illness.add("急性短暂性精神障碍");
+        illness.add("急性短暂性精神病");
+        illness.add("急性应激性精神病");
+        illness.add("酒精所致精神和行为障碍");
+        illness.add("酒精所致幻觉症");
+        illness.add("脑器质性疾病所致精神障碍");
+        illness.add("待分类的其他精神障碍");
+        illness.add("心境障碍");
+        illness.add("被害妄想症");
+        illness.add("被害妄想");
+        illness.add("待分类的精神病性障碍");
+        illness.add("待分类的××性障碍");
+        illness.add("巫术所致精神障碍");
+        illness.add("妄想、被害妄想等精神病性症");
+        illness.add("复发性躁狂症");
+        illness.add("复发性抑郁障碍");
+        illness.add("复发性抑郁症");
+        illness.add("器质性精神障碍");
+        illness.add("器质性幻觉症");
+        illness.add("器质性妄想症");
+        illness.add("双相障碍");
+        illness.add("双相情感障碍");
+        illness.add("双相情感精神障碍");
+        illness.add("双相障碍-伴××性症");
+        illness.add("双相障碍-伴精神病症");
+        illness.add("双向障碍-伴精神病性症");
+        illness.add("双向障碍-伴精神病性");
+        illness.add("分裂样精神病");
+        illness.add("列表现符合ＣＣＭＤ-3心境");
+        illness.add("分裂情感性精神病");
+        illness.add("其他待分类的精神障碍");
+        illness.add("偏执性精神障碍");
+        illness.add("偏执型精神障碍");
+        illness.add("偏执型分裂症");
+        illness.add("酒精所致精神病障碍");
+        illness.add("酒精所致的精神及行为障碍");
+        illness.add("酒精引起精神和行为障碍");
+        illness.add("伴精神病性症");
+        illness.add("××病");
+
+
+        illness.add("脑变性病所致精神障碍");
+        illness.add("颅内感染所致精神障碍");
+        illness.add("急性病毒脑炎所致精神障碍");
+        illness.add("克—雅病所致精神障碍");
+        illness.add("克—雅病痴呆");
+        illness.add("脑炎后综合征");
+        illness.add("脱髓鞘脑病所致精神障碍");
+        illness.add("急性播散性脑炎和急性出血性白质脑炎所致精神障碍");
+        illness.add("多发性硬化所致精神障碍");
+        illness.add("精神活性物质所致精神障碍");
+        illness.add("酒精所致精神障碍");
+        illness.add("鸦片类物质所致精神障碍");
+        illness.add("大麻类物质所致精神障碍");
+        illness.add("镇静催眠药或抗焦虑药所致精神障碍");
+        illness.add("兴奋剂所致精神障碍");
+        illness.add("烟草所致精神障碍");
+        illness.add("挥发性溶剂所致精神障碍");
+        illness.add("其他或待分类的精神活性物质所致精神障碍");
+        illness.add("癔症");
+        illness.add("癔症性精神障碍");
+        illness.add("癔症性温游");
+        illness.add("癔症性身份识别障碍");
+        illness.add("癔症性精神病");
+        illness.add("癔症性附体障碍");
+        illness.add("癔症性躯体障碍");
+        illness.add("器质性精神障碍");
+        illness.add("急性脑血管病所致精神障碍");
+        illness.add("皮层性血管病所致精神障碍");
+        illness.add("皮层下血管病所致精神障碍");
+        illness.add("皮层和皮层下血管病所致精神障碍");
+        illness.add("其他或待分类血管病所致精神障碍");
+        illness.add("待分类血管性痴呆");
+        illness.add("其他脑部疾病所致精神障碍");
+        illness.add("脑变性病所致精神障碍");
+        illness.add("匹克病所致精神障碍");
+        illness.add("享廷顿病所致精神障碍");
+        illness.add("偏执型精神分裂症");
+        illness.add("癲痫所致精神障碍");
+        illness.add("享廷顿病痴呆");
+        illness.add("匹克病痴呆");
+        illness.add("巴金森病所致精神障碍");
+        illness.add("巴金森病痴呆");
+        illness.add("肝豆状核变性所致精神障碍");
+        illness.add("颅内感染所致精神障碍");
+        illness.add("急性病毒性脑炎所致精神障碍");
+        illness.add("克—雅病所致精神障碍");
+        illness.add("脑炎后综合征");
+        illness.add("脱髓鞘脑病所致精神障碍");
+        illness.add("急性播散性脑脊髓炎和急性出血性白质脑炎所致精神障碍");
+        illness.add("多发性硬化所致精神障碍");
+        illness.add("脑外伤所致精神障碍");
+        illness.add("脑震荡后综合征");
+        illness.add("脑挫裂伤后综合征");
+        illness.add("脑瘤所致精神障碍");
+        illness.add("癫痫所致精神障碍");
+        illness.add("躯体疾病所致精神障碍");
+        illness.add("躯体感染所致精神障碍");
+        illness.add("人类免疫缺陷病毒所致精神障碍");
+        illness.add("内脏器官疾病所致精神障碍");
+        illness.add("内分泌疾病所致精神障碍");
+        illness.add("营养代谢疾病所致精神障碍");
+        illness.add("结缔组织疾病所致精神障碍");
+        illness.add("系统性红斑狼疮所致精神障碍");
+        illness.add("染色体异常所致精神障碍");
+        illness.add("物理因素所致精神障碍");
+        illness.add("围生期精神障碍");
+        illness.add("其他或待分类器质性精神");
+        illness.add("器质性智能损害");
+        illness.add("器质性意识障碍");
+        illness.add("器质性情感障碍");
+        illness.add("器质性癔症样综合征");
+        illness.add("器质性神经症样综合征");
+        illness.add("器质性情绪不稳（脆弱）障碍");
+        illness.add("精神活性物质所致精神障碍");
+        illness.add("酒精所致精神障碍");
+        illness.add("阿片类物质所致精神障碍");
+        illness.add("大麻类物质所致精神障碍");
+        illness.add("镇静催眠药或抗焦虑药所致精神障碍");
+        illness.add("兴奋剂所致精神障碍");
+        illness.add("致幻剂所致精神障碍");
+        illness.add("烟草所致精神障碍");
+        illness.add("挥发性溶剂所致精神障碍");
+        illness.add("其他或待分类的精神活性物质所致精神障碍");
+        illness.add("非成瘾物质所致精神障碍");
+        illness.add("非成瘾药物所致精神障碍");
+        illness.add("一氧化碳所致精神障碍");
+        illness.add("有机化合物所致精神障碍");
+        illness.add("重金属所致精神障碍");
+        illness.add("食物所致精神障碍");
+        illness.add("其他或待分类的非成瘾物质所致精神障碍");
+        illness.add("精神分裂症");
+        //    illness.add("分裂症");
+        illness.add("偏执型分裂症");
+        illness.add("瓦解型分裂症");
+        illness.add("青春型分裂症");
+        illness.add("紧张型分裂症");
+        illness.add("单纯型分裂症");
+        illness.add("未定型分裂症");
+        illness.add("其他型或待分类的精神分裂症");
+        illness.add("精神分裂症后抑郁");
+        illness.add("精神分裂症缓解期");
+        illness.add("精神分裂症残留期");
+        illness.add("慢性精神分裂症");
+        illness.add("慢性精神分裂症");
+        illness.add("精神分裂症衰退期");
+        illness.add("偏执性精神障碍");
+        illness.add("急性短暂性精神病");
+        illness.add("分裂样精神病");
+        illness.add("旅途性精神病");
+        illness.add("妄想阵发（急性妄想发作");
+        illness.add("其他或待分类的急性短暂精神病");
+        illness.add("感应性精神病");
+        illness.add("分裂情感性精神病");
+        illness.add("分裂情感性精神病");
+        illness.add("躁狂型");
+        illness.add("分裂情感性精神病");
+        illness.add("抑郁型");
+        illness.add("分裂情感性精神病");
+        illness.add("其他或待分类的精神病性障碍");
+        illness.add("周期性精神病");
+        illness.add("轻性躁狂症");
+        illness.add("无精神病性症状的躁狂症");
+        illness.add("有精神病性症状的躁狂症");
+        illness.add("复发性躁狂");
+        illness.add("复发性躁狂症");
+        illness.add("复发性躁狂症");
+        illness.add("其他或待分类的躁狂");
+        illness.add("轻性抑郁症");
+        illness.add("无精神病性症状的抑郁症");
+        illness.add("有精神病性症状的抑郁症");
+        illness.add("复发性抑郁症");
+        illness.add("有精神病性症状的抑郁");
+        illness.add("持续性心境障碍");
+        illness.add("恶劣心境");
+        illness.add("其他或待分类的持续性心境障碍");
+        illness.add("其他或待分类的心境障碍");
+        illness.add("意识障碍");
+        illness.add("癔症性精神障碍");
+        illness.add("癔症性遗忘");
+        illness.add("癔症性漫游");
+        illness.add("癔症性身份识别障碍");
+        illness.add("癔症性精神病");
+        illness.add("癔症性附体障碍");
+        illness.add("癔症性木僵");
+        illness.add("癔症性躯体障碍");
+        illness.add("癔症性运动障碍");
+        illness.add("癔症性抽搐发作");
+        illness.add("癔症性感觉障碍");
+        illness.add("混合性癔症躯体—精神障碍");
+        illness.add("其他或待分类癔症");
+        illness.add("Ganser综合征");
+        illness.add("短暂的癔症性障碍");
+        illness.add("应激相关障碍");
+        illness.add("急性应激障碍");
+        illness.add("急性应激性精神病");
+        illness.add("创伤后应激障碍");
+        illness.add("适应障碍");
+        illness.add("偏执性人格障碍");
+        illness.add("分裂样人格障碍");
+        illness.add("反社会性人格障碍");
+        illness.add("冲动性人格障碍");
+        illness.add("攻击性人格障碍");
+        illness.add("表演性人格障碍");
+        illness.add("癔症性人格障碍");
+        illness.add("强迫性人格障碍");
+        illness.add("焦虑性人格障碍");
+        illness.add("依赖性人格障碍");
+        illness.add("其他或待分类的人格障碍");
+        illness.add("习惯与冲动控制障碍");
+        illness.add("病理性赌博");
+        illness.add("病理性纵火");
+        illness.add("病理性偷窃");
+        illness.add("性心理障碍");
+        illness.add("性身份障碍");
+        illness.add("易性症");
+        illness.add("其他或待分类的性身份障碍");
+        illness.add("性偏好障碍");
+        illness.add("恋物症");
+        illness.add("异装症");
+        illness.add("露阴症");
+        illness.add("窥阴症");
+        illness.add("磨擦症");
+        illness.add("性施虐与性受虐症");
+        illness.add("混合型性偏好障碍");
+        illness.add("其他或待分类的性偏好障碍");
+        illness.add("性指向障碍");
+        illness.add("同性恋");
+        illness.add("双性恋");
+        illness.add("其他或待分类的性指向障碍");
+        illness.add("精神发育迟滞");
+        illness.add("轻度精神发育迟滞");
+        illness.add("中度精神发育迟滞");
+        illness.add("重度精神发育迟滞");
+        illness.add("极重度精神发育迟滞");
+        illness.add("其他或待分类的精神发育迟滞");
+        illness.add("无或轻微的行为障碍");
+        illness.add("其他或待分类的行为障碍");
+        illness.add("言语和语言发育障碍");
+        illness.add("特定言语构音障碍");
+        illness.add("表达性语言障碍");
+        illness.add("感受性语言障碍");
+        illness.add("伴发癫痫的获得性失语");
+        illness.add("其他或待分类的言语和语言发育障碍");
+        illness.add("特定学校技能发育障碍");
+        illness.add("特定阅读障碍");
+        illness.add("特定拼写障碍");
+        illness.add("特定计算技能障碍");
+        illness.add("合性学习技能障碍");
+        illness.add("其他或待分类的特定学习技能发育障碍");
+        illness.add("儿童分离性焦虑症");
+        illness.add("儿童恐惧症");
+        illness.add("儿童社交恐惧症");
+        illness.add("儿童社会功能障碍");
+        illness.add("神经性厌食");
+        illness.add("失眠症");
+        illness.add("嗜睡症");
+        illness.add("睡眠—觉醒节律障碍");
+        illness.add("恐惧症");
+        illness.add("场所恐惧症");
+        illness.add("社交恐惧症");
+        illness.add("特定的恐惧症");
+        illness.add("焦虑症");
+        illness.add("惊恐障碍");
+        illness.add("广泛性焦虑");
+        illness.add("强迫症");
+        illness.add("病理性半醒");
+        illness.add("酒精所致××障碍");
+        illness.add("继发性痴呆");
+        illness.add("重度抑郁");
+        illness.add("精神分裂症");
+        illness.add("病理性醉酒");
+        illness.add("癫痫性精神病");
+        illness.add("情感性精神障碍");
+        illness.add("器质性精神障碍");
+        illness.add("癫痫");
+        illness.add("偏执型精神分裂症");
+        illness.add("妄想状态");
+        //    illness.add("精神障碍");
     }
 }

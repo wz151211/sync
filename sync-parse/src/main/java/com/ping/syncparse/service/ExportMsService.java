@@ -29,25 +29,25 @@ public class ExportMsService {
 
     @Autowired
     private DivorceMapper divorceMapper;
-    private int pageSize = 33000;
-    private AtomicInteger pageNum = new AtomicInteger(-1);
+    private int pageSize = 40000;
+    private AtomicInteger pageNum = new AtomicInteger(0);
 
     public void export() {
         pageNum.getAndIncrement();
         Criteria criteria = Criteria.where("name").regex("判决书");
 
         List<DivorceVo> vos = divorceMapper.findList(pageNum.get(), pageSize, null);
-        String[] head = {"案件信息", "序号", "案件名称", "案号", "二审案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县",
-                "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容", "相识年份", "相识月份", "相识月份内容", "相识方式", "相识方式内容",
-                "订婚年份", "订婚月份", "订婚日期内容", "是否办理结婚登记", "是否办理结婚登记内容", "办理结婚登记年份", "办理结婚登记月份", "办理结婚登记内容", "是否举办婚礼", "是否举办婚礼内容",
-                "是否同居", "是否同居内容", "解除关系年份", "解除关系月份", "解除关系内容", "是否有流产经历", "是否有流产经历内容", "是否有孩子", "是否有孩子内容",
-                "是否涉及彩礼", "是否涉及彩礼内容", "彩礼数额", "彩礼数额内容", "彩礼是否包含首饰三金", "彩礼是否包含首饰三金内容", "彩礼是否包含汽车", "彩礼是否包含汽车内容", "彩礼是否包含房子", "彩礼是否包含房子内容",
-                "彩礼来源", "彩礼来源内容", "彩礼去向", "彩礼去向内容", "彩礼原文表述", "是否提到生活困难", "是否提到生活困难内容", "是否提及负债", "是否提及负债内容", "判决彩礼返还金额", "判决彩礼返还金额内容"};
+        String[] head = {"案件信息", "序号", "案件名称", "案号", "回溯一审案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县",
+                "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容", "相识年份", "相识月份", "相识时间", "相识时间内容", "相识方式", "相识方式内容",
+                "是否订婚", "是否订婚内容", "订婚年份", "订婚月份", "订婚日期", "订婚日期内容", "是否办理结婚登记", "是否办理结婚登记内容", "办理结婚登记年份", "办理结婚登记月份", "办理结婚登记日期", "办理结婚登记内容", "是否举办婚礼", "是否举办婚礼内容",
+                "是否同居", "是否同居内容", "解除关系年份", "解除关系月份", "解除关系日期", "解除关系内容", "是否有流产经历", "是否有流产经历内容", "是否有孩子", "是否有孩子内容",
+                "彩礼数额", "彩礼数额内容", "彩礼是否包含首饰三金", "彩礼是否包含首饰三金内容", "彩礼是否包含汽车", "彩礼是否包含汽车内容", "彩礼是否包含房子", "彩礼是否包含房子内容",
+                "彩礼来源", "彩礼去向", "是否提到生活困难", "是否提到生活困难内容", "是否提及负债", "是否提及负债内容", "判决彩礼返还金额", "判决彩礼返还金额内容"};
 
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
         try {
-            File file = new File("E:\\导出\\民事案件.xlsx");
+            File file = new File("E:\\导出\\婚约纠纷" + pageNum.get() + 1 + ".xlsx");
             if (file.exists()) {
                 file.delete();
             } else {
@@ -66,8 +66,12 @@ public class ExportMsService {
             temp.add("年龄");
             temp.add("出生日期");
             temp.add("民族");
+            temp.add("省份");
+            temp.add("地市");
+            temp.add("区县");
             temp.add("地址");
             temp.add("文化水平");
+            temp.add("职业");
             temp.add("内容");
             partyHead.addAll(temp);
        /*      partyHead.addAll(temp);
@@ -125,24 +129,30 @@ public class ExportMsService {
             Sheet partySheet2 = null;
             XSSFWorkbook work = null;
             FileInputStream inputStream = new FileInputStream(file);
-            if (pageNum.get() == 0) {
-                workbook = new SXSSFWorkbook(1000);
-                sheet = workbook.createSheet("案件信息");
-                partySheet = workbook.createSheet("当事人信息");
+
+            workbook = new SXSSFWorkbook(1000);
+            sheet = workbook.createSheet("案件信息");
+            partySheet = workbook.createSheet("当事人信息");
+       /*     if (pageNum.get() == 0) {
+            workbook = new SXSSFWorkbook(1000);
+            sheet = workbook.createSheet("案件信息");
+            partySheet = workbook.createSheet("当事人信息");
             } else {
                 work = new XSSFWorkbook(inputStream);
                 workbook = new SXSSFWorkbook(work, 1000);
                 sheet = workbook.getSheet("案件信息");
                 partySheet = workbook.getSheet("当事人信息");
-            }
+            }*/
 
-            if (pageNum.get() == 0) {
+            ExcelUtils.export(workbook, sheet, list, head);
+            ExcelUtils.export(workbook, partySheet, partyList, partyHead.toArray());
+      /*      if (pageNum.get() == 0) {
                 ExcelUtils.export(workbook, sheet, list, head);
                 ExcelUtils.export(workbook, partySheet, partyList, partyHead.toArray());
             } else {
                 ExcelUtils.fillData(sheet, list, false);
                 ExcelUtils.fillData(partySheet, partyList, false);
-            }
+            }*/
             workbook.write(out);
             workbook.dispose();
             workbook.close();
@@ -212,50 +222,102 @@ public class ExportMsService {
         }
         map.put(20, getYear(vo.getKnowDate()));
         map.put(21, getMonth(vo.getKnowDate()));
-        map.put(22, vo.getKnowDateContent());
+        map.put(22, vo.getKnowDate());
+        map.put(23, vo.getKnowDateContent());
+        map.put(24, vo.getKnowWay());
+        map.put(25, vo.getKnowWayContent());
+        map.put(26, vo.getEngaged());
+        map.put(27, vo.getEngagedContent());
+        map.put(28, getYear(vo.getEngagedDate()));
+        map.put(29, getMonth(vo.getEngagedDate()));
+        map.put(30, vo.getEngagedDate());
+        map.put(31, vo.getEngagedDateContent());
+        map.put(32, vo.getMarriageRegistration());
+        map.put(33, vo.getMarriageRegistrationContent());
+        map.put(34, getYear(vo.getMarriageRegistrationDate()));
+        map.put(35, getMonth(vo.getMarriageRegistrationDate()));
+        map.put(36, vo.getMarriageRegistrationDate());
+        map.put(37, vo.getMarriageRegistrationDateContent());
+        map.put(38, vo.getHostingWedding());
+        map.put(39, vo.getHostingWeddingContent());
+        map.put(40, vo.getLiveTogether());
+        map.put(41, vo.getLiveTogetherContent());
+        map.put(42, getYear(vo.getDissolveRelationshipDate()));
+        map.put(43, getMonth(vo.getDissolveRelationshipDate()));
+        map.put(44, vo.getDissolveRelationshipDate());
+        map.put(45, vo.getDissolveRelationshipDateContent());
+        map.put(46, vo.getAbort());
+        map.put(47, vo.getAbortContent());
+        map.put(48, vo.getChild());
+        map.put(49, vo.getChildContent());
+        try {
+            if (vo.getBridePriceTotal() != null && vo.getBridePriceTotal().size() > 0) {
+                int index = 1;
+                StringBuilder total = new StringBuilder();
+                for (String s : vo.getBridePriceTotal()) {
+                    total.append(index).append("、").append(s).append("\r\n");
+                    index++;
+                }
+                map.put(50, total.toString());
+                StringBuilder totalContent = new StringBuilder();
+                index = 1;
+                for (String s : vo.getBridePriceTotalContent()) {
+                    totalContent.append(index).append("、").append(s).append("\r\n");
+                    index++;
+                }
+                map.put(51, totalContent.toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        map.put(52, vo.getBridePriceGold());
+        map.put(53, vo.getBridePriceGoldContent());
+        map.put(54, vo.getBridePriceCar());
+        map.put(55, vo.getBridePriceCarContent());
+        map.put(56, vo.getBridePriceHouse());
+        map.put(57, vo.getBridePriceHouseContent());
+        try {
+            if (vo.getBridePriceFrom() != null && vo.getBridePriceFrom().size() > 0) {
+                int index = 1;
+                StringBuilder from = new StringBuilder();
+                for (String s : vo.getBridePriceFrom()) {
+                    from.append(index).append("、").append(s).append("\r\n");
+                    index++;
+                }
+                map.put(58, from.toString());
+            } else {
+                map.put(58, "");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        map.put(23, vo.getKnowWay());
-        map.put(24, vo.getKnowWayContent());
-        map.put(25, getYear(vo.getEngagedDate()));
-        map.put(26, getMonth(vo.getEngagedDate()));
-        map.put(27, vo.getEngagedDateContent());
-        map.put(28, vo.getMarriageRegistration());
-        map.put(29, vo.getMarriageRegistrationContent());
-        map.put(30, getYear(vo.getMarriageRegistrationDate()));
-        map.put(31, getMonth(vo.getMarriageRegistrationDate()));
-        map.put(32, vo.getMarriageRegistrationDateContent());
-        map.put(33, vo.getHostingWedding());
-        map.put(34, vo.getHostingWeddingContent());
-        map.put(35, vo.getLiveTogether());
-        map.put(36, vo.getLiveTogetherContent());
-        map.put(37, getYear(vo.getDissolveRelationshipDate()));
-        map.put(38, getMonth(vo.getDissolveRelationshipDate()));
-        map.put(39, vo.getDissolveRelationshipDateContent());
-        map.put(40, vo.getAbort());
-        map.put(41, vo.getAbortContent());
-        map.put(42, vo.getChild());
-        map.put(43, vo.getChildContent());
-        map.put(44, vo.getBridePrice());
-        map.put(45, vo.getBridePriceContent());
-        map.put(46, vo.getBridePriceTotal());
-        map.put(47, vo.getBridePriceTotalContent());
-        map.put(48, vo.getBridePriceGold());
-        map.put(49, vo.getBridePriceGoldContent());
-        map.put(50, vo.getBridePriceCar());
-        map.put(51, vo.getBridePriceCarContent());
-        map.put(52, vo.getBridePriceHouse());
-        map.put(53, vo.getBridePriceHouseContent());
-        map.put(54, vo.getBridePriceFrom());
-        map.put(55, vo.getBridePriceFromContent());
-        map.put(56, vo.getBridePriceTo());
-        map.put(57, vo.getBridePriceToContent());
-        map.put(58, vo.getBridePriceText());
-        map.put(59, vo.getBridePricePoverty());
-        map.put(60, vo.getBridePricePovertyContent());
-        map.put(61, vo.getBridePriceIndebted());
-        map.put(62, vo.getBridePriceIndebtedContent());
-        map.put(63, vo.getBridePriceReturn());
-        map.put(64, vo.getBridePriceReturnContent());
+        try {
+            if (vo.getBridePriceTo() != null && vo.getBridePriceTo().size() > 0) {
+                int index = 1;
+                StringBuilder to = new StringBuilder();
+                for (String s : vo.getBridePriceFrom()) {
+                    to.append(index).append("、").append(s).append("\r\n");
+                    index++;
+                }
+                map.put(59, to.toString());
+            } else {
+                map.put(59, "");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        map.put(60, vo.getBridePricePoverty());
+        map.put(61, vo.getBridePricePovertyContent());
+        map.put(62, vo.getBridePriceIndebted());
+        map.put(63, vo.getBridePriceIndebtedContent());
+        map.put(64, vo.getBridePriceReturn());
+        if (StringUtils.hasLength(vo.getBridePriceReturnContent())) {
+            map.put(65, vo.getBridePriceReturnContent());
+            //   log.info("彩礼内容={}", vo.getBridePriceReturnContent());
+        } else {
+            map.put(65, "");
+        }
         return map;
 
     }
@@ -287,6 +349,9 @@ public class ExportMsService {
                         if (content.contains("腊月")) {
                             return "腊月";
                         }
+                        if (content.contains("元月")) {
+                            return "元月";
+                        }
                         return content.substring(yearIndex + 1, monthIndex);
                     } catch (Exception e) {
                         log.info("日期={}", content);
@@ -304,6 +369,9 @@ public class ExportMsService {
                         if (content.contains("正月")) {
                             return "正月";
                         }
+                        if (content.contains("正月")) {
+                            return "正月";
+                        }
                         if (content.contains("腊月")) {
                             return "腊月";
                         }
@@ -313,7 +381,11 @@ public class ExportMsService {
                         e.printStackTrace();
                         yearIndex = content.lastIndexOf("年");
                         monthIndex = content.lastIndexOf("月");
-                        return content.substring(0, monthIndex);
+                        try {
+                            return content.substring(0, monthIndex);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
 
                     }
                 }

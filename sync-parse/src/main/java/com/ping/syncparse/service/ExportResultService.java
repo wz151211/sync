@@ -2,10 +2,7 @@ package com.ping.syncparse.service;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.entity.PartyEntity;
-import com.ping.syncparse.sync.c34.DocumentXsLhEntity;
 import com.ping.syncparse.sync.c34.DocumentXsMapper;
 import com.ping.syncparse.utils.ExcelUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,8 +28,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.joining;
-
 @Service
 public class ExportResultService {
 
@@ -43,12 +38,13 @@ public class ExportResultService {
 
     @Autowired
     private DocumentXsMapper documentXsMapper;
+
     public void export() {
         pageNum.getAndIncrement();
         List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
         Workbook wb = new XSSFWorkbook();
         String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县",
-                "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容"};
+                "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容", "涉案金额", "涉案金额内容"};
         Sheet sheet = wb.createSheet("案件信息");
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
@@ -107,6 +103,14 @@ public class ExportResultService {
                     if (entities != null && entities.size() > 0) {
                         for (int i = 0; i < entities.size(); i++) {
                             PartyEntity entity = entities.get(i);
+                            entity.setAge("");
+                            try {
+                                if (StringUtils.isNotEmpty(entity.getAgeContent())) {
+                                    entity.setAge(DateUtil.age(DateUtil.parse(entity.getAgeContent()), vo.getRefereeDate()) + "");
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             toParty(start, partyMap, entity);
                             Map<Integer, Object> partyMap2 = new HashMap<>();
                             partyMap2.put(1, vo.getCaseNo());
@@ -124,8 +128,15 @@ public class ExportResultService {
                                 break;
                             }
                             PartyEntity entity = bList.get(i);
+                            entity.setAge("");
+                            try {
+                                if (StringUtils.isNotEmpty(entity.getAgeContent())) {
+                                    entity.setAge(DateUtil.age(DateUtil.parse(entity.getAgeContent()), vo.getRefereeDate()) + "");
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             toParty(start, partyMap, entity);
-
                             Map<Integer, Object> partyMap2 = new HashMap<>();
                             partyMap2.put(1, vo.getCaseNo());
                             toParty(partyMap2, entity);
@@ -170,6 +181,7 @@ public class ExportResultService {
             htmlAsAltChunk2Docx(vo.getHtmlContent(), docPath);
         }*/
     }
+
     public void htmlAsAltChunk2Docx(String html, String docxPath) {
 
         try {
@@ -195,6 +207,7 @@ public class ExportResultService {
             e.printStackTrace();
         }
     }
+
     private Map<Integer, Object> toCrime(int start, Map<Integer, Object> map, CrimeVO vo) {
         map.put(start + 2, vo.getName());
         map.put(start + 3, vo.getCrime());
@@ -241,8 +254,6 @@ public class ExportResultService {
     }
 
     private Map<Integer, Object> toMap(CaseVo vo) {
-        String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县",
-                "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容"};
         Map<Integer, Object> map = new HashMap<>();
         map.put(1, vo.getName());
         map.put(2, vo.getCaseNo());
@@ -262,7 +273,7 @@ public class ExportResultService {
         map.put(12, vo.getFact());
         map.put(13, vo.getJudgmentResult());
         map.put(14, vo.getCourtConsidered());
-        map.put(15,vo.getLegalBasis());
+        map.put(15, vo.getLegalBasis());
         map.put(16, vo.getLitigationRecords());
         map.put(17, vo.getHtmlContent());
         if (vo.getJsonContent() != null) {
@@ -270,6 +281,21 @@ public class ExportResultService {
         } else {
             map.put(18, "");
         }
+        if (vo.getMoney().size() > 0) {
+            StringBuilder money = new StringBuilder();
+            int index = 1;
+            for (String s : vo.getMoney()) {
+                money.append(index).append("、").append(s).append("\r\n");
+                index++;
+            }
+            StringBuilder moneyContent = new StringBuilder();
+            for (int i = 0; i < vo.getMoneyString().size(); i++) {
+                moneyContent.append(i + 1).append("、").append(vo.getMoneyString().get(i)).append("\r\n");
+            }
+            map.put(19, money);
+            map.put(20, moneyContent);
+        }
+
         return map;
 
     }

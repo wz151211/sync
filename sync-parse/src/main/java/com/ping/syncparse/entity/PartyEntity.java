@@ -5,6 +5,8 @@ import com.alibaba.excel.annotation.write.style.*;
 import com.alibaba.excel.enums.poi.HorizontalAlignmentEnum;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @Author: W.Z
  * @Date: 2022/12/15 22:26
@@ -32,6 +34,8 @@ public class PartyEntity {
 
     @ExcelProperty(value = "年龄", index = 4)
     private String age;
+
+    private String ageContent;
 
     @ExcelProperty(value = "出生日期", index = 5)
     private String birthday;

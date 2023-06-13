@@ -11,9 +11,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Data
 @Document(value = "document_hunyue_result")
@@ -59,8 +57,6 @@ public class DivorceVo {
     private String litigationRecords;
 
     private String legalBasis;
-
-    private String legalBasisCount;
 
     private String fact;
 
@@ -141,12 +137,9 @@ public class DivorceVo {
     //是否有孩子
     private String child;
     private String childContent;
-    //是否涉及彩礼
-    private String bridePrice;
-    private String bridePriceContent;
     //彩礼数额
-    private String bridePriceTotal;
-    private String bridePriceTotalContent;
+    private Set<String> bridePriceTotal = new LinkedHashSet<>();
+    private Set<String> bridePriceTotalContent = new LinkedHashSet<>();
 
     //彩礼是否包含首饰三金
     private String bridePriceGold;
@@ -160,12 +153,10 @@ public class DivorceVo {
     private String bridePriceHouseContent;
 
     //彩礼来源
-    private String bridePriceFrom;
-    private String bridePriceFromContent;
+    private Set<String> bridePriceFrom = new LinkedHashSet<>();
 
     //彩礼去向
-    private String bridePriceTo;
-    private String bridePriceToContent;
+    private Set<String> bridePriceTo = new LinkedHashSet<>();
 
     //彩礼原文表述
     private String bridePriceText;

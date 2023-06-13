@@ -28,8 +28,7 @@ public class UpadteTidService {
     public void update() {
         List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, null);
         pageNum.getAndIncrement();
-
-        entities.parallelStream().filter(entity -> !entity.getCaseNo().contains("解")).forEach(entity -> {
+        entities.parallelStream().filter(entity -> entity.getTrialProceedings().equals("民事一审")).forEach(entity -> {
             log.info("{}", count.getAndIncrement());
             List<DocumentMsJtblEntity> byCaseNo = documentMsMapper.find(entity.getCaseNo());
             for (DocumentMsJtblEntity lh : byCaseNo) {

@@ -40,14 +40,9 @@ import static java.util.stream.Collectors.joining;
 @Slf4j
 public class ParsePartyTempService {
     @Autowired
-    private DocumentMsMapper documentMapper;
-
-    @Autowired
     private DocumentXsMapper documentXsMapper;
     @Autowired
-    private CaseMapper caseMapper;
-    @Autowired
-    private TempMapper tempMapper;
+    private CaseMapper caseMapper;;
     @Autowired
     private AreaService areaService;
 

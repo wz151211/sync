@@ -542,7 +542,7 @@ public class Test1 {
     @Test
     public void test7() {
         StringBuilder county = new StringBuilder();
-        for (Term term : ToAnalysis.parse("××××年农历正月初")) {
+        for (Term term : ToAnalysis.parse("住内蒙古自治区扎赉特旗")) {
             System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
         System.out.println(county.toString());
@@ -600,7 +600,8 @@ public class Test1 {
 
     @Test
     public void test15() {
-        String temp = "原告苑某1与被告翟某于××××年××月××日办理结婚登记手续";
+        String temp = "申请机关宁波市强制医疗所";
+        String[] split = temp.split("，");
         int start = temp.lastIndexOf("年");
         int end = temp.lastIndexOf("日");
         if (end == -1) {

@@ -2,6 +2,7 @@ package com.ping.syncparse.task;
 
 import com.ping.syncparse.service.*;
 import com.ping.syncparse.service.divorce.ParseDivorceService;
+import com.ping.syncparse.service.gamble.ParseGambleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -91,10 +92,6 @@ public class Task {
         }
     }
 
-    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
-    public void export() {
-        exportTempService.export();
-    }
 
     // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60*300L)
     public void easyExport() {
@@ -116,12 +113,26 @@ public class Task {
         }
     }
 
-   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
+    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
+    public void export() {
+        exportTempService.export();
+    }
+
+   //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
     public void parse() {
         parsePartyEasyService.parse();
     }
 
-       @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    @Autowired
+    private ParseGambleService parseGambleService;
+
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
+    public void parseGamble() {
+        parseGambleService.parse();
+    }
+
+
+    // @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
     public void update() {
         upadteTidService.update();
     }
@@ -129,7 +140,7 @@ public class Task {
     @Autowired
     private ExportResultService exportResultService;
 
-    //   @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    // @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 60L)
     public void test12() {
         exportResultService.export();
     }
@@ -137,13 +148,13 @@ public class Task {
     @Autowired
     private ParseDivorceService parseDivorceService;
 
-    //   @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    //  @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
     public void divorce() {
         parseDivorceService.parse();
     }
 
-    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 6)
-    public void save2() {
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
+    public void divorceExport() {
         exportMsService.export();
     }
 

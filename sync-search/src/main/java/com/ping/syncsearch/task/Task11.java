@@ -21,7 +21,8 @@ public class Task11 {
     //  Criteria criteria = Criteria.where("s6").is("01").and("s11").in(CauseUtils.getCauseList("9363")); //知识产权权属、侵权纠纷
     //   Criteria criteria = Criteria.where("s6").is("01").and("s11").is("保险诈骗");
     // Criteria criteria = Criteria.where("s8").is("刑事案件").and("fyTree").is("浙江省").and("s6").is("01").and("s9").is("刑事一审").and("qwContent").regex("电信网络诈骗");
-    Criteria criteria = Criteria.where("s8").is("刑事案件").and("s6").is("04").and("qwContent").regex("强制医疗");
+    //Criteria criteria = Criteria.where("s8").is("刑事案件").and("s6").is("04").and("qwContent").regex("强制医疗");
+    Criteria criteria = Criteria.where("s6").is("01").and("s9").in("民事一审", "0301").and("s11").in(CauseUtils.getCauseList("9177"));
 
     //  Criteria criteria = Criteria.where("ayTree").regex("9363").and("s6").is("01"); //知识产权权属、侵权纠纷
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)

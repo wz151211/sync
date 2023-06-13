@@ -114,7 +114,7 @@ public class CaseVo {
     private String judgmentDesc;
 
     @ExcelIgnore
-    private List<String> money = new ArrayList<>();
+    private Set<String> money = new LinkedHashSet<>();
 
     @ExcelIgnore
     private String executionResult;
@@ -133,6 +133,7 @@ public class CaseVo {
     private String applicant;
     //罪名
     private String charge;
+    private String chargeContent;
     //作案时间
     private String crimeTime;
     private String crimeTimeContent;

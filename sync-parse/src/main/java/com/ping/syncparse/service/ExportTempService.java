@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +40,9 @@ public class ExportTempService {
     public void export() {
         pageNum.getAndIncrement();
         String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县", "判决结果", "理由/法院认为", "法律依据", "诉讼记录", "事实", "HTML内容", "JSON内容"
-                , "申请主体/解除申请主体", "姓名", "性别", "年龄", "学历", "居住地城乡", "职业", "涉嫌犯罪类型", "涉嫌犯罪类型内容","家属是否参与开庭", "家属意见", "作案时间", "鉴定诊断", "刑事责任能力", "强制医疗决定", "人身危险性评估", "诊断评估机构", "诊断评估意见"};
+                , "申请主体/解除申请主体", "姓名", "性别", "年龄", "学历", "居住地城乡", "职业", "涉嫌犯罪类型", "涉嫌犯罪类型内容",
+                "家属是否参与开庭", "家属是否参与开庭内容", "家属意见", "作案时间", "作案时间内容", "鉴定诊断", "鉴定诊断内容",
+                "刑事责任能力", "刑事责任能力内容", "强制医疗决定", "强制医疗决定内容", "人身危险性评估", "诊断评估机构", "诊断评估意见","制医疗决定书案号"};
         List<String> partyHead = new ArrayList<>();
         List<String> partyHead2 = new ArrayList<>();
         partyHead.add("当事人信息");
@@ -82,11 +85,12 @@ public class ExportTempService {
             } else {
                 file.createNewFile();
             }
-            Criteria criteria = Criteria.where("refereeDate").gte(DateUtil.parse("2014-01-01 00:00:00").toJdkDate())
-                    .lte(DateUtil.parse("2014-12-31 23:59:59").toJdkDate());
+         //   Criteria criteria = Criteria.where("caseNo").regex("解");
+            Pattern compile = Pattern.compile("^((?!解).)*$", Pattern.CASE_INSENSITIVE);
 
+            Criteria criteria = Criteria.where("caseNo").is(compile);
             System.out.println("-----------" + pageNum.get() + "---------------");
-            List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
+            List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, criteria);
             if (vos.size() == 0) {
                 log.info("查询数据={}", vos.size());
                 return;
@@ -100,8 +104,8 @@ public class ExportTempService {
             FileInputStream inputStream = new FileInputStream(file);
             workbook = new SXSSFWorkbook(1000);
             sheet = workbook.createSheet("案件信息");
-            partySheet = workbook.createSheet("当事人信息");
-            partySheet2 = workbook.createSheet("当事人信息2");
+          //  partySheet = workbook.createSheet("当事人信息");
+            partySheet2 = workbook.createSheet("当事人信息");
         /*    if (pageNum.get() == 0) {
                 workbook = new SXSSFWorkbook(1000);
                 sheet = workbook.createSheet("案件信息");
@@ -275,7 +279,11 @@ public class ExportTempService {
                     map.put(21, party.getSex());
                     map.put(22, party.getAge());
                     map.put(23, party.getEduLevel());
-                    map.put(24, "");
+                    if (party.getContent().contains("村") && party.getContent().equals("镇")) {
+                        map.put(24, "农村");
+                    } else {
+                        map.put(24, "城市");
+                    }
                     map.put(25, party.getProfession());
                     break;
                 }
@@ -283,15 +291,22 @@ public class ExportTempService {
         }
 
         map.put(26, vo.getCharge());
-        map.put(27, vo.getJoinHearing());
-        map.put(28, vo.getOpinion());
-        map.put(29, vo.getCrimeTime());
-        map.put(30, vo.getDiagnosticResult());
-        map.put(31, vo.getResponsibility());
-        map.put(32, vo.getMedicalDecisions());
-        map.put(33, vo.getRisk());
-        map.put(34, vo.getEvaluationAgency());
-        map.put(35, vo.getEvaluationOpinions());
+        map.put(27, vo.getChargeContent());
+        map.put(28, vo.getJoinHearing());
+        map.put(29, vo.getJoinHearingContent());
+        map.put(30, vo.getOpinion());
+        map.put(31, vo.getCrimeTime());
+        map.put(32, vo.getCrimeTimeContent());
+        map.put(33, vo.getDiagnosticResult());
+        map.put(34, vo.getDiagnosticResultContent());
+        map.put(35, vo.getResponsibility());
+        map.put(36, vo.getResponsibilityContent());
+        map.put(37, vo.getMedicalDecisions());
+        map.put(38, vo.getMedicalDecisionsContent());
+        map.put(39, vo.getRisk());
+        map.put(40, vo.getEvaluationAgency());
+        map.put(41, vo.getEvaluationOpinions());
+        map.put(42, vo.getTId());
 
 
         return map;

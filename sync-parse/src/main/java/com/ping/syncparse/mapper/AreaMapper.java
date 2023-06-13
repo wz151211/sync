@@ -1,10 +1,7 @@
 package com.ping.syncparse.mapper;
 
-import cn.hutool.core.stream.StreamUtil;
 import com.ping.syncparse.entity.AreaEntity;
-import com.ping.syncparse.entity.Document2014Entity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -24,11 +21,12 @@ public class AreaMapper {
         if (StringUtils.isEmpty(city) && StringUtils.isEmpty(county)) {
             return null;
         }
-        if (StringUtils.hasText(city)) {
-            criteria.and("city").is(city);
-        }
-        if (StringUtils.hasText(county)) {
-            criteria.and("county").is(county);
+        if (StringUtils.hasText(city) && StringUtils.hasText(county)) {
+            criteria.and("city").is(city.trim()).orOperator(Criteria.where("county").in(city.trim(), county.trim()));
+        } else if (StringUtils.hasText(city) && StringUtils.isEmpty(county)) {
+            criteria.and("name").is(city.trim());
+        } else if ((StringUtils.isEmpty(city) && StringUtils.hasLength(county))) {
+            criteria.and("name").is(county.trim());
         }
         if (criteria != null) {
             query.addCriteria(criteria);

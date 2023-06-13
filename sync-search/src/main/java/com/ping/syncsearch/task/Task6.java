@@ -15,10 +15,14 @@ public class Task6 {
     @Autowired
     private QueryService queryService;
 
-    Criteria criteria = Criteria.where("s9").is("0201").and("s6").is("01").orOperator(
-            Criteria.where("qwContent").regex("非法集资"), Criteria.where("s25").regex("非法集资"), Criteria.where("s26").regex("非法集资"), Criteria.where("s27").regex("非法集资"));
+    Criteria criteria = Criteria.where("s9").is("0201").and("s6").is("01").and("s11").is("开设赌场")
+            .andOperator(Criteria.where("qwContent").regex("微信群"),
+                    Criteria.where("qwContent").regex("抢红包"),
+                    Criteria.where("qwContent").regex("聚众赌博")
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
+            );
+
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2014() {
         try {
             queryService.sync2014(criteria);
@@ -28,7 +32,7 @@ public class Task6 {
     }
 
 
-    @Scheduled(initialDelay = 4 * 1000L, fixedRate = 1000 * 60 * 3L)
+    //   @Scheduled(initialDelay = 4 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void sync2015() {
         try {
             queryService.sync2015(criteria);
@@ -37,7 +41,7 @@ public class Task6 {
         }
     }
 
-    @Scheduled(initialDelay = 6 * 1000L, fixedRate = 1000 * 60 * 3L)
+    //  @Scheduled(initialDelay = 6 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2016() {
         try {
             queryService.sync2016(criteria);
@@ -73,7 +77,7 @@ public class Task6 {
         }
     }
 
-    @Scheduled(initialDelay = 14 * 1000L, fixedRate = 1000 * 60 * 3L)
+    // @Scheduled(initialDelay = 14 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2020() {
         try {
             queryService.sync2020(criteria);
@@ -82,7 +86,7 @@ public class Task6 {
         }
     }
 
-    @Scheduled(initialDelay = 16 * 1000L, fixedRate = 1000 * 60 * 3L)
+    // @Scheduled(initialDelay = 16 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2021() {
         try {
             queryService.sync2021(criteria);
@@ -91,7 +95,7 @@ public class Task6 {
         }
     }
 
-    @Scheduled(initialDelay = 18 * 1000L, fixedRate = 1000 * 60 * 3L)
+    //  @Scheduled(initialDelay = 18 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2022() {
         try {
             queryService.sync2022(criteria);
@@ -100,7 +104,7 @@ public class Task6 {
         }
     }
 
-    @Scheduled(initialDelay = 20 * 1000L, fixedRate = 1000 * 60 * 3L)
+    //  @Scheduled(initialDelay = 20 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2023() {
         try {
             queryService.sync2023(criteria);

@@ -106,9 +106,9 @@ public class ExcelUtils {
             // 序号
             cell = row.createCell(0);
             if (lastRowNum < 0) {
-                cell.setCellValue(String.valueOf(i + 2));
+                cell.setCellValue(String.valueOf(i + 1));
             } else {
-                cell.setCellValue(String.valueOf(lastRowNum + i ));
+                cell.setCellValue(String.valueOf(lastRowNum + i));
             }
 
 
@@ -118,7 +118,7 @@ public class ExcelUtils {
                 try {
                     cell.setCellValue(map.get(j) == null ? "" : map.get(j).toString());
                 } catch (Exception e) {
-                    //   e.printStackTrace();
+                    e.printStackTrace();
                 }
                 cell.setCellStyle(style);
             }
