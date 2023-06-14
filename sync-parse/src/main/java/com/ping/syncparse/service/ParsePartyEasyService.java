@@ -137,10 +137,10 @@ public class ParsePartyEasyService {
     public void parse() {
         Pattern compile = Pattern.compile("^((?!解).)*$", Pattern.CASE_INSENSITIVE);
 
-        Criteria criteria = Criteria.where("caseNo").is(compile);
+    //    Criteria criteria = Criteria.where("caseNo").is(compile);
         //Criteria criteria = Criteria.where("caseNo").regex("解");
 
-        List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, criteria);
+        List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, null);
         pageNum.getAndIncrement();
         entities.parallelStream().forEach(entity -> {
             CaseVo vo = new CaseVo();

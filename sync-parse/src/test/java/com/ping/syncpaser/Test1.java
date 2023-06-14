@@ -542,7 +542,7 @@ public class Test1 {
     @Test
     public void test7() {
         StringBuilder county = new StringBuilder();
-        for (Term term : ToAnalysis.parse("住内蒙古自治区扎赉特旗")) {
+        for (Term term : ToAnalysis.parse("被告冯甲某、冯乙某在本判决生效后十日内酌情返还原告陈某某彩礼款贰万肆仟圆整")) {
             System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
         System.out.println(county.toString());

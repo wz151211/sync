@@ -113,12 +113,12 @@ public class Task {
         }
     }
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
+    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
     public void export() {
         exportTempService.export();
     }
 
-   //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
+    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
     public void parse() {
         parsePartyEasyService.parse();
     }
@@ -137,6 +137,11 @@ public class Task {
         upadteTidService.update();
     }
 
+    //  @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    public void updateCaseNo() {
+        upadteTidService.updateCaseNo();
+    }
+
     @Autowired
     private ExportResultService exportResultService;
 
@@ -153,7 +158,7 @@ public class Task {
         parseDivorceService.parse();
     }
 
-    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
+    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
     public void divorceExport() {
         exportMsService.export();
     }

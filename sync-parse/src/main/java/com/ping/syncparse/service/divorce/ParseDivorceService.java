@@ -392,26 +392,45 @@ public class ParseDivorceService {
                                 } else if (temp.contains("打工认识")) {
                                     vo.setKnowWay("打工认识");
                                     vo.setKnowWayContent(temp);
+                                } else if (temp.contains("打工相识")) {
+                                    vo.setKnowWay("打工相识");
+                                    vo.setKnowWayContent(temp);
                                 } else if (temp.contains("公司认识")) {
                                     vo.setKnowWay("同事");
                                     vo.setKnowWayContent(temp);
-                                } else if ((temp.contains("经") || temp.contains("通过")) && (temp.contains("相识") || temp.contains("认识"))) {
+                                } else if ((temp.contains("经") || temp.contains("通过") || temp.contains("在") || temp.contains("于")) && (temp.contains("相识") || temp.contains("认识") || temp.contains("介绍") || temp.contains("撮合"))) {
                                     int start = temp.indexOf("经");
                                     if (start == -1) {
                                         start = temp.indexOf("通过");
+                                    }
+                                    if (start == -1) {
+                                        start = temp.indexOf("在");
+                                    }
+                                    if (start == -1) {
+                                        start = temp.indexOf("于");
                                     }
                                     int end = temp.indexOf("相识");
                                     if (end == -1) {
                                         end = temp.indexOf("认识");
                                     }
+                                    if (end == -1) {
+                                        end = temp.indexOf("介绍");
+                                    }
+                                    if (end == -1) {
+                                        end = temp.indexOf("撮合");
+                                    }
                                     if (end > start) {
                                         try {
-                                            vo.setKnowWay(temp.substring(start, end + 2));
+                                            String knowDay = temp.substring(start, end + 2);
+                                            if (!knowDay.contains("年") && !knowDay.contains("月")) {
+                                                vo.setKnowWay(knowDay);
+                                                vo.setKnowWayContent(temp);
+                                            }
                                         } catch (Exception e) {
                                             log.info("认识方式={}", temp);
                                             e.printStackTrace();
                                         }
-                                        vo.setKnowWayContent(temp);
+
                                     }
                                 }
                                 String knowDate = "";
@@ -845,7 +864,7 @@ public class ParseDivorceService {
                             }
 
                             if (StringUtils.isEmpty(vo.getBridePriceIndebted())) {
-                                if ((temp.contains("借款") || temp.contains("贷款") || temp.contains("举债") || temp.contains("借外债") || temp.contains("借债")|| temp.contains("欠钱")) && (!temp.contains("未") || !temp.contains("没有") || !temp.contains("无"))) {
+                                if ((temp.contains("借款") || temp.contains("贷款") || temp.contains("举债") || temp.contains("借外债") || temp.contains("借债") || temp.contains("欠钱")) && (!temp.contains("未") || !temp.contains("没有") || !temp.contains("无"))) {
                                     vo.setBridePriceIndebted("是");
                                     vo.setBridePriceIndebtedContent(temp);
                                 }
@@ -860,17 +879,49 @@ public class ParseDivorceService {
                         judgmentResult = judgmentResult.replace(";", "。");
                         judgmentResult = judgmentResult.replace("；", "。");
                         for (String result : judgmentResult.split("。")) {
+                            result = result.replace("元和", "元");
+                            result = result.replace("现金", "元");
+                            result = result.replace("\n", "");
                             if (result.contains("维持原判")) {
                                 vo.setBridePriceReturn("维持原判");
                                 vo.setBridePriceReturnContent(result);
-                            } else if ((result.contains("退还") || result.contains("返还"))) {
+                            } else if ((result.contains("退还")
+                                    || result.contains("返还")
+                                    || result.contains("给付")
+                                    || result.contains("归还")
+                                    || result.contains("返回")
+                                    || result.contains("退给")
+                                    || result.contains("偿还")
+                                    || result.contains("赔偿")
+                                    || result.contains("返给")
+                                    || result.contains("清偿")
+                                    || result.contains("付给")
+                                    || result.contains("偿付")
+                                    || result.contains("退于")
+                                    || result.contains("退")
+                                    || result.contains("支付"))) {
                                 for (Term term : ToAnalysis.parse(result)) {
                                     if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
                                         if (StringUtils.isEmpty(vo.getBridePriceReturn())) {
                                             vo.setBridePriceReturn(term.getRealName());
                                             vo.setBridePriceReturnContent(result);
                                         }
+                                    } else if (term.getNatureStr().equals("m") && term.from() != null && (term.from().getRealName().contains("人民币") || term.from().getRealName().contains("彩礼"))) {
+                                        if (StringUtils.isEmpty(vo.getBridePriceReturn())) {
+                                            vo.setBridePriceReturn(term.getRealName());
+                                            vo.setBridePriceReturnContent(result);
+                                        }
                                     }
+                                }
+                            } else if (result.contains("驳回") && result.contains("诉讼请求")) {
+                                if (StringUtils.isEmpty(vo.getBridePriceReturn())) {
+                                    vo.setBridePriceReturn("驳回诉讼请求");
+                                    vo.setBridePriceReturnContent(result);
+                                }
+                            } else if (result.contains("准许") && (result.contains("撤回起诉") || result.contains("撤诉"))) {
+                                if (StringUtils.isEmpty(vo.getBridePriceReturn())) {
+                                    vo.setBridePriceReturn("撤回起诉");
+                                    vo.setBridePriceReturnContent(result);
                                 }
                             }
                         }
