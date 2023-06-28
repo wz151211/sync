@@ -30,7 +30,7 @@ public class ExportMsService {
     @Autowired
     private DivorceMapper divorceMapper;
     private int pageSize = 40000;
-    private AtomicInteger pageNum = new AtomicInteger(0);
+    private AtomicInteger pageNum = new AtomicInteger(-1);
 
     public void export() {
         pageNum.getAndIncrement();
@@ -39,7 +39,8 @@ public class ExportMsService {
         List<DivorceVo> vos = divorceMapper.findList(pageNum.get(), pageSize, null);
         String[] head = {"案件信息", "序号", "案件名称", "案号", "回溯一审案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县",
                 "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容", "相识年份", "相识月份", "相识时间", "相识时间内容", "相识方式", "相识方式内容",
-                "是否订婚", "是否订婚内容", "订婚年份", "订婚月份", "订婚日期", "订婚日期内容", "是否办理结婚登记", "是否办理结婚登记内容", "办理结婚登记年份", "办理结婚登记月份", "办理结婚登记日期", "办理结婚登记内容", "是否举办婚礼", "是否举办婚礼内容",
+                "是否订婚", "是否订婚内容", "订婚年份", "订婚月份", "订婚日期", "订婚日期内容", "是否办理结婚登记", "是否办理结婚登记内容", "办理结婚登记年份", "办理结婚登记月份", "办理结婚登记日期", "办理结婚登记内容",
+                "是否举办婚礼", "是否举办婚礼内容", "举办婚礼年份", "举办婚礼月份", "举办婚礼日期", "举办婚礼日期内容",
                 "是否同居", "是否同居内容", "解除关系年份", "解除关系月份", "解除关系日期", "解除关系内容", "是否有流产经历", "是否有流产经历内容", "是否有孩子", "是否有孩子内容",
                 "彩礼数额", "彩礼数额内容", "彩礼是否包含首饰三金", "彩礼是否包含首饰三金内容", "彩礼是否包含汽车", "彩礼是否包含汽车内容", "彩礼是否包含房子", "彩礼是否包含房子内容",
                 "彩礼来源", "彩礼去向", "是否提到生活困难", "是否提到生活困难内容", "是否提及负债", "是否提及负债内容", "判决彩礼返还金额", "判决彩礼返还金额内容"};
@@ -47,7 +48,7 @@ public class ExportMsService {
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
         try {
-            File file = new File("E:\\导出\\婚约纠纷" + pageNum.get() + 1 + ".xlsx");
+            File file = new File("E:\\导出\\婚约纠纷" + (pageNum.get() + 1) + ".xlsx");
             if (file.exists()) {
                 file.delete();
             } else {
@@ -240,16 +241,20 @@ public class ExportMsService {
         map.put(37, vo.getMarriageRegistrationDateContent());
         map.put(38, vo.getHostingWedding());
         map.put(39, vo.getHostingWeddingContent());
-        map.put(40, vo.getLiveTogether());
-        map.put(41, vo.getLiveTogetherContent());
-        map.put(42, getYear(vo.getDissolveRelationshipDate()));
-        map.put(43, getMonth(vo.getDissolveRelationshipDate()));
-        map.put(44, vo.getDissolveRelationshipDate());
-        map.put(45, vo.getDissolveRelationshipDateContent());
-        map.put(46, vo.getAbort());
-        map.put(47, vo.getAbortContent());
-        map.put(48, vo.getChild());
-        map.put(49, vo.getChildContent());
+        map.put(40, getYear(vo.getHostingWeddingDate()));
+        map.put(41, getMonth(vo.getHostingWeddingDate()));
+        map.put(42, vo.getHostingWeddingDate());
+        map.put(43, vo.getHostingWeddingDateContent());
+        map.put(44, vo.getLiveTogether());
+        map.put(45, vo.getLiveTogetherContent());
+        map.put(46, getYear(vo.getDissolveRelationshipDate()));
+        map.put(47, getMonth(vo.getDissolveRelationshipDate()));
+        map.put(48, vo.getDissolveRelationshipDate());
+        map.put(49, vo.getDissolveRelationshipDateContent());
+        map.put(50, vo.getAbort());
+        map.put(51, vo.getAbortContent());
+        map.put(52, vo.getChild());
+        map.put(53, vo.getChildContent());
         try {
             if (vo.getBridePriceTotal() != null && vo.getBridePriceTotal().size() > 0) {
                 int index = 1;
@@ -258,24 +263,49 @@ public class ExportMsService {
                     total.append(index).append("、").append(s).append("\r\n");
                     index++;
                 }
-                map.put(50, total.toString());
+                map.put(54, total.toString());
                 StringBuilder totalContent = new StringBuilder();
                 index = 1;
                 for (String s : vo.getBridePriceTotalContent()) {
                     totalContent.append(index).append("、").append(s).append("\r\n");
                     index++;
                 }
-                map.put(51, totalContent.toString());
+                map.put(55, totalContent.toString());
+            } else {
+                map.put(54, "");
+                map.put(55, "");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        map.put(52, vo.getBridePriceGold());
-        map.put(53, vo.getBridePriceGoldContent());
-        map.put(54, vo.getBridePriceCar());
-        map.put(55, vo.getBridePriceCarContent());
-        map.put(56, vo.getBridePriceHouse());
-        map.put(57, vo.getBridePriceHouseContent());
+        map.put(56, vo.getBridePriceGold());
+        map.put(57, vo.getBridePriceGoldContent());
+        map.put(58, vo.getBridePriceCar());
+        if (vo.getBridePriceCarContent() != null && vo.getBridePriceCarContent().size() > 0) {
+            int index = 1;
+            StringBuilder from = new StringBuilder();
+            for (String s : vo.getBridePriceCarContent()) {
+                from.append(index).append("、").append(s).append("\r\n");
+                index++;
+            }
+            map.put(59, from.toString());
+        } else {
+            map.put(59, "");
+        }
+
+        map.put(60, vo.getBridePriceHouse());
+
+        if (vo.getBridePriceHouseContent() != null && vo.getBridePriceHouseContent().size() > 0) {
+            int index = 1;
+            StringBuilder from = new StringBuilder();
+            for (String s : vo.getBridePriceHouseContent()) {
+                from.append(index).append("、").append(s).append("\r\n");
+                index++;
+            }
+            map.put(61, from.toString());
+        } else {
+            map.put(61, "");
+        }
         try {
             if (vo.getBridePriceFrom() != null && vo.getBridePriceFrom().size() > 0) {
                 int index = 1;
@@ -284,9 +314,9 @@ public class ExportMsService {
                     from.append(index).append("、").append(s).append("\r\n");
                     index++;
                 }
-                map.put(58, from.toString());
+                map.put(62, from.toString());
             } else {
-                map.put(58, "");
+                map.put(62, "");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -300,23 +330,23 @@ public class ExportMsService {
                     to.append(index).append("、").append(s).append("\r\n");
                     index++;
                 }
-                map.put(59, to.toString());
+                map.put(63, to.toString());
             } else {
-                map.put(59, "");
+                map.put(63, "");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        map.put(60, vo.getBridePricePoverty());
-        map.put(61, vo.getBridePricePovertyContent());
-        map.put(62, vo.getBridePriceIndebted());
-        map.put(63, vo.getBridePriceIndebtedContent());
-        map.put(64, vo.getBridePriceReturn());
+        map.put(64, vo.getBridePricePoverty());
+        map.put(65, vo.getBridePricePovertyContent());
+        map.put(66, vo.getBridePriceIndebted());
+        map.put(67, vo.getBridePriceIndebtedContent());
+        map.put(68, vo.getBridePriceReturn());
         if (StringUtils.hasLength(vo.getBridePriceReturnContent())) {
-            map.put(65, vo.getBridePriceReturnContent());
+            map.put(69, vo.getBridePriceReturnContent());
             //   log.info("彩礼内容={}", vo.getBridePriceReturnContent());
         } else {
-            map.put(65, "");
+            map.put(69, "");
         }
         return map;
 

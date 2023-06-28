@@ -118,7 +118,7 @@ public class ExcelUtils {
                 try {
                     cell.setCellValue(map.get(j) == null ? "" : map.get(j).toString());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                 //   e.printStackTrace();
                 }
                 cell.setCellStyle(style);
             }

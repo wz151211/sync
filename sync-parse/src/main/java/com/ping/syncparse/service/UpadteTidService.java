@@ -25,14 +25,14 @@ public class UpadteTidService {
 
     @Autowired
     private DocumentXsMapper documentXsMapper;
-    private int pageSize = 10000;
+    private int pageSize = 20000;
     private AtomicInteger pageNum = new AtomicInteger(0);
     AtomicInteger count = new AtomicInteger();
 
     public void update() {
         List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, null);
         pageNum.getAndIncrement();
-        entities.parallelStream().filter(entity -> entity.getTrialProceedings().equals("民事一审")).forEach(entity -> {
+        entities.parallelStream().forEach(entity -> {
             log.info("{}", count.getAndIncrement());
             List<DocumentMsJtblEntity> byCaseNo = documentMsMapper.find(entity.getCaseNo());
             for (DocumentMsJtblEntity lh : byCaseNo) {
@@ -49,7 +49,9 @@ public class UpadteTidService {
     }
 
     public void updateCaseNo() {
+        //  Criteria criteria = Criteria.where("caseNo").regex("解");
         Criteria criteria = Criteria.where("trialProceedings").is("民事二审");
+
         List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, criteria);
         pageNum.getAndIncrement();
         entities.parallelStream().forEach(entity -> {
@@ -65,9 +67,15 @@ public class UpadteTidService {
                 records = records.replace("院的", "院");
                 records = records.replace("日的", "日");
                 for (String temp : records.split("，")) {
-                    if (temp.contains("不服") && temp.contains("民") && (temp.contains("初") || temp.contains("重") ||temp.contains("再")|| temp.contains("终"))) {
+                    if (temp.contains("不服") && temp.contains("民") && (temp.contains("初") || temp.contains("重") || temp.contains("再") || temp.contains("终"))) {
 
                         int start = temp.indexOf("院（");
+                        if (start == -1) {
+                            start = temp.indexOf("日［");
+                        }
+                        if (start == -1) {
+                            start = temp.indexOf("日以");
+                        }
                         if (start == -1) {
                             start = temp.indexOf("日（");
                         }
@@ -88,23 +96,49 @@ public class UpadteTidService {
                         }
                         if (start == -1) {
                             start = temp.indexOf("（");
+                            start = start - 1;
                         }
+                        if (start == -1) {
+                            start = temp.indexOf("公诉");
+                        }
+
                         int end = temp.indexOf("号");
                         if (end == -1) {
                             end = temp.indexOf("民事判决");
                         }
                         if (end > start) {
-                            String caseNo = temp.substring(start + 1, end + 1);
-                            caseNo = caseNo.replace("（以下简称一审法院）", "");
-                            caseNo = caseNo.replace("的", "");
-                            //  log.info(caseNo);
-                            entity.setTId(caseNo);
-                            documentXsMapper.insert(entity);
+                            String caseNo = null;
+                            try {
+                                caseNo = temp.substring(start + 1, end + 1);
+                                caseNo = caseNo.replace("（以下简称一审法院）", "");
+                                caseNo = caseNo.replace("的", "");
+                                caseNo = caseNo.replace("以", "");
+                                log.info(caseNo);
+                                entity.setTId(caseNo);
+                                    documentXsMapper.insert(entity);
+                            } catch (Exception e) {
+                                log.info("诉讼记录={}", temp);
+                                e.printStackTrace();
+                            }
+                            break;
+
                         } else if (start > 0 && end == -1) {
-                            String caseNo = temp.substring(start + 1);
-                            log.info(caseNo);
-                            entity.setTId(caseNo);
-                            documentXsMapper.insert(entity);
+                            String caseNo = null;
+                            try {
+                                caseNo = temp.substring(start + 1);
+
+                                caseNo = caseNo.replace("（以下简称一审法院）", "");
+                                caseNo = caseNo.replace("的", "");
+                                caseNo = caseNo.replace("以", "");
+                                log.info(caseNo);
+                                entity.setTId(caseNo);
+                                    documentXsMapper.insert(entity);
+                            } catch (Exception e) {
+                                log.info("诉讼记录={}", temp);
+                                e.printStackTrace();
+                            }
+                            break;
+
                         } else {
                             log.info("诉讼记录={}", temp);
                         }

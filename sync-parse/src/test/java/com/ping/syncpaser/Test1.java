@@ -505,13 +505,10 @@ public class Test1 {
 
     @Test
     public void test04() {
-        String str = "原告襄阳金照普惠网络科技有限公司向本院提出诉讼请求：1、判令被告给付原告分润手续费156783.03元及利息（以156783.03元为基数，按全国银行间同业拆借中心公布的贷款市场报价利率为标准，自起诉之日起计算至清偿之日止）；2、诉讼费由被告承担。事实和理由：2018年9月25日，原、被告经协商一致签订《中汇支付移动支付业务推广合作协议》《中汇电子支付移动支付业务即时付补充协议》和《关于的补充协议》，约定原告在全国开展和推广被告移动支付业务，被告按照原告所拓展商户使用机具的交易量向原告支付交易手续费分润，被告于每个月前10个工作日内通过中汇支付统一平台向原告提供分润明细，原告在收到对账单后开具正式发票并送至被告请款，被告在收到发票后15日内将相应款项支付至原告指定账户。自2018年10月开始，原告将相应发票寄至被告处后，被告推脱拒不付款。截至2019年6月，被告共拖欠原告手续费分润156783.03元，为此诉至法院";
+        String str = "原告襄阳金照普惠网络科技有限公司向本院提出诉讼请求";
+        String[] split = str.split("。");
+        System.out.println(split[0]);
 
-        int index = str.indexOf("诉讼请求：");
-        int index1 = str.indexOf("。");
-
-        String substring = str.substring(index + 5, index1);
-        System.out.println(substring);
 
     }
 
@@ -542,7 +539,7 @@ public class Test1 {
     @Test
     public void test7() {
         StringBuilder county = new StringBuilder();
-        for (Term term : ToAnalysis.parse("被告冯甲某、冯乙某在本判决生效后十日内酌情返还原告陈某某彩礼款贰万肆仟圆整")) {
+        for (Term term : ToAnalysis.parse("一、被告刘某于本判决生效之日起5日内返还原告张某彩礼77046.2元；")) {
             System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
         System.out.println(county.toString());

@@ -90,7 +90,7 @@ public class ExportTempService {
 
             Criteria criteria = Criteria.where("caseNo").is(compile);
             System.out.println("-----------" + pageNum.get() + "---------------");
-            List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, criteria);
+            List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
             if (vos.size() == 0) {
                 log.info("查询数据={}", vos.size());
                 return;

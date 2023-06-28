@@ -25,7 +25,7 @@ import java.util.*;
 @HeadRowHeight(25)
 @HeadStyle
 @HeadFontStyle(fontHeightInPoints = 12)
-@Document(value = "document_qiangzhi_result")
+@Document(value = "document_jiekuanjiufen_result_2")
 public class CaseVo {
 
     @Id

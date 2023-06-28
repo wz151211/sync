@@ -123,6 +123,9 @@ public class DivorceVo {
     private String marriageRegistrationDateContent;
 
     //是否举办婚礼
+    private String hostingWeddingDate;
+    private String hostingWeddingDateContent;
+
     private String hostingWedding;
     private String hostingWeddingContent;
 
@@ -147,10 +150,10 @@ public class DivorceVo {
 
     //彩礼是否包含首饰三金
     private String bridePriceCar;
-    private String bridePriceCarContent;
+    private Set<String> bridePriceCarContent = new LinkedHashSet<>();
     //彩礼是否包含房子
     private String bridePriceHouse;
-    private String bridePriceHouseContent;
+    private Set<String> bridePriceHouseContent = new LinkedHashSet<>();
 
     //彩礼来源
     private Set<String> bridePriceFrom = new LinkedHashSet<>();

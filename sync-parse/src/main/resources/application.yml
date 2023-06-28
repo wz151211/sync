@@ -2,4 +2,4 @@ spring:
   profiles:
     active: local
 server:
-  port: 8812
+  port: 8813

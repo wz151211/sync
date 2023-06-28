@@ -1,6 +1,8 @@
 package com.ping.syncparse.task;
 
 import com.ping.syncparse.service.*;
+import com.ping.syncparse.service.contract.ContractStatisticsService;
+import com.ping.syncparse.service.contract.ParseContractService;
 import com.ping.syncparse.service.divorce.ParseDivorceService;
 import com.ping.syncparse.service.gamble.ParseGambleService;
 import lombok.extern.slf4j.Slf4j;
@@ -93,7 +95,7 @@ public class Task {
     }
 
 
-    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60*300L)
+    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60*300L)
     public void easyExport() {
         exportService.export();
     }
@@ -113,12 +115,12 @@ public class Task {
         }
     }
 
-    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
     public void export() {
         exportTempService.export();
     }
 
-    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
     public void parse() {
         parsePartyEasyService.parse();
     }
@@ -132,12 +134,12 @@ public class Task {
     }
 
 
-    // @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    //    @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
     public void update() {
         upadteTidService.update();
     }
 
-    //  @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    //   @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
     public void updateCaseNo() {
         upadteTidService.updateCaseNo();
     }
@@ -145,7 +147,7 @@ public class Task {
     @Autowired
     private ExportResultService exportResultService;
 
-    // @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 60L)
+    @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 60L)
     public void test12() {
         exportResultService.export();
     }
@@ -153,14 +155,30 @@ public class Task {
     @Autowired
     private ParseDivorceService parseDivorceService;
 
-    //  @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    // @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
     public void divorce() {
         parseDivorceService.parse();
     }
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
+    //@Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
     public void divorceExport() {
         exportMsService.export();
+    }
+
+    @Autowired
+    private ParseContractService contractService;
+
+   //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    public void contract() {
+        contractService.parse();
+    }
+
+    @Autowired
+    private ContractStatisticsService statisticsService;
+
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    public void statistics() {
+        statisticsService.statistics();
     }
 
 }

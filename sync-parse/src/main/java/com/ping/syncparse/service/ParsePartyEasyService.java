@@ -137,7 +137,7 @@ public class ParsePartyEasyService {
     public void parse() {
         Pattern compile = Pattern.compile("^((?!解).)*$", Pattern.CASE_INSENSITIVE);
 
-    //    Criteria criteria = Criteria.where("caseNo").is(compile);
+        //    Criteria criteria = Criteria.where("caseNo").is(compile);
         //Criteria criteria = Criteria.where("caseNo").regex("解");
 
         List<DocumentXsLhEntity> entities = documentXsMapper.findList(pageNum.get(), pageSize, null);
@@ -342,26 +342,55 @@ public class ParsePartyEasyService {
                             }
                         }
                     }
-                } else {
-                    for (int i = 0; i < 20; i++) {
-                        if (i > elements.size() - 1) {
-                            continue;
+                }
+
+                for (int i = 0; i < 7; i++) {
+                    if (i > elements.size() - 1) {
+                        continue;
+                    }
+                    Element element = elements.get(i);
+                    String text = element.text().trim();
+                    if (StringUtils.isEmpty(text)) {
+                        continue;
+                    }
+                    if (text.contains("异议")) {
+                        break;
+                    }
+
+                    String records = vo.getLitigationRecords();
+                    if (StringUtils.hasLength(records)) {
+                        String[] split = records.split("，");
+                        if (text.contains(split[0])) {
+                            break;
                         }
-                        Element element = elements.get(i);
-                        String text = element.text();
-                        text = text.replace(",", "，");
-                        if (text.contains("被申请人") || text.startsWith("申请机关") || text.startsWith("原申请机关") || text.startsWith("被强制医疗人") || text.startsWith("申请人") || text.startsWith("申请复议人")) {
-                            //   log.info("当事人信息={}", text);
-                            try {
-                                party = parseText(text, null);
-                                vo.getParty().add(party);
-                                break;
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                    }
+
+                    text = text.split("。")[0];
+                    boolean exits = false;
+                    if (array != null && array.size() > 0) {
+                        for (Object o : array) {
+                            if (text.contains(o.toString())) {
+                                exits = true;
                             }
                         }
                     }
+                    if (exits) {
+                        continue;
+                    }
+                    if (text.startsWith("被申请人") || text.startsWith("申请机关") || text.startsWith("原申请机关") || text.startsWith("被强制医疗人") || text.startsWith("申请人") || text.startsWith("申请复议人") || text.contains("法定代理人")) {
+                        if (text.startsWith("被强制医疗人")) {
+                            log.info("当事人信息={}", text);
+                        }
+
+                        try {
+                            party = parseText(text, null);
+                            vo.getParty().add(party);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
+
 
                 if (StringUtils.isEmpty(vo.getApplicant())) {
                     for (int i = 0; i < 20; i++) {
@@ -578,14 +607,22 @@ public class ParsePartyEasyService {
                         int index1 = temp.indexOf("法定代理");
                         try {
                             if (index > index1) {
-                                temp = temp.substring(index1, index1);
+                                try {
+                                    temp = temp.substring(index1, index1);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
 
                             if (index < index1) {
-                                temp = temp.substring(index1);
+                                try {
+                                    temp = temp.substring(index1);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            //   e.printStackTrace();
                         }
                         if (temp.contains("代理人") && (temp.contains("未") || temp.contains("没有")) && temp.contains("到庭")) {
                             vo.setJoinHearing("否");
@@ -773,8 +810,13 @@ public class ParsePartyEasyService {
                                         end = sentence.lastIndexOf("病");
                                     }
                                     try {
-                                        String temp = sentence.substring(start, end + 1);
-                                        if (!temp.contains("发病")
+                                        String temp = null;
+                                        try {
+                                            temp = sentence.substring(start, end + 1);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        if (temp != null && !temp.contains("发病")
                                                 && !temp.contains("疾病")
                                                 && !temp.contains("证明")
                                                 && !temp.contains("评估报告")
@@ -1033,69 +1075,73 @@ public class ParsePartyEasyService {
 
 
                 String considered = entity.getCourtConsidered();
-                considered = considered.replace("。", "，");
-                for (String sentence : considered.split("，")) {
-                    if (StringUtils.isEmpty(vo.getRisk())) {
-                        if (sentence.contains("人身危险性") || sentence.contains("危险行为") || sentence.contains("危险性")) {
-                            vo.setRisk(sentence);
+                if (StringUtils.hasLength(considered)) {
+                    considered = considered.replace("。", "，");
+                    for (String sentence : considered.split("，")) {
+                        if (StringUtils.isEmpty(vo.getRisk())) {
+                            if (sentence.contains("人身危险性") || sentence.contains("危险行为") || sentence.contains("危险性")) {
+                                vo.setRisk(sentence);
+                            }
                         }
                     }
                 }
 
 
-            }               /* if ("刑事案件".equals(entity.getCaseType())) {
-                    String s27 = object.getString("s27");
-                    //    vo.setJudgmenResultContent(s27);
-                    if (StringUtils.hasLength(s27)) {
-                        String replace = s27.replace("；", "。");
-                        replace = replace.replace("\n", "。");
-                        String[] split = replace.split("。");
-                        if (array != null && array.size() > 0) {
-                            for (Object o : array) {
-                                for (String s : split) {
-                                    if (s.contains(o.toString()) && s.contains("犯") && s.contains("罪")) {
-                                        CrimeVO crimeVO = new CrimeVO();
-                                        crimeVO.setName(o.toString());
-                                        for (String cause : causeSet) {
-                                            if (s.contains(cause)) {
-                                                if (StringUtils.hasLength(crimeVO.getCrime())) {
-                                                    crimeVO.setCrime(crimeVO.getCrime() + "、" + cause);
-                                                } else {
-                                                    crimeVO.setCrime(cause);
-                                                }
+            }
+            if ("刑事案件".equals(entity.getCaseType())) {
+                String s27 = entity.getJudgmentResult();
+                //    vo.setJudgmenResultContent(s27);
+                if (StringUtils.hasLength(s27)) {
+                    String replace = s27.replace("；", "。");
+                    replace = replace.replace("\n", "。");
+                    String[] split = replace.split("。");
+                    JSONArray array = entity.getParty();
+                    if (array != null && array.size() > 0) {
+                        for (Object o : array) {
+                            for (String s : split) {
+                                if (s.contains(o.toString()) && s.contains("犯") && s.contains("罪")) {
+                                    CrimeVO crimeVO = new CrimeVO();
+                                    crimeVO.setName(o.toString());
+                                    for (String cause : causeSet) {
+                                        if (s.contains(cause)) {
+                                            if (StringUtils.hasLength(crimeVO.getCrime())) {
+                                                crimeVO.setCrime(crimeVO.getCrime() + "、" + cause + "罪");
+                                            } else {
+                                                crimeVO.setCrime(cause + "罪");
                                             }
                                         }
-                                        try {
-                                            if (s.contains("有期徒刑") && s.contains("月")) {
-                                                int start = s.indexOf("有期徒刑");
-                                                int end = s.indexOf("月") + 1;
-                                                String s1 = s.substring(start, end);
-                                                crimeVO.setImprisonmentTerm(s1);
-                                            } else if (s.contains("有期徒刑") && s.contains("年")) {
-                                                String s1 = s.substring(s.indexOf("有期徒刑"), s.lastIndexOf("年") + 1);
-                                                crimeVO.setImprisonmentTerm(s1);
-                                            } else if (s.contains("死刑")) {
-                                                crimeVO.setImprisonmentTerm("死刑");
-                                            } else if (s.contains("无期徒刑")) {
-                                                crimeVO.setImprisonmentTerm("无期徒刑");
-                                            } else if (s.contains("拘役") && s.contains("月")) {
-                                                String s1 = s.substring(s.indexOf("拘役"), s.lastIndexOf("月") + 1);
-                                                crimeVO.setImprisonmentTerm(s1);
-                                            } else if (s.contains("免予刑事处罚")) {
-                                                crimeVO.setImprisonmentTerm("免予刑事处罚");
-                                            }
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        vo.getCrimes().add(crimeVO);
-                                        break;
                                     }
+                                    try {
+                                        if (s.contains("有期徒刑") && s.contains("月")) {
+                                            int start = s.indexOf("有期徒刑");
+                                            int end = s.indexOf("月") + 1;
+                                            String s1 = s.substring(start, end);
+                                            crimeVO.setImprisonmentTerm(s1);
+                                        } else if (s.contains("有期徒刑") && s.contains("年")) {
+                                            String s1 = s.substring(s.indexOf("有期徒刑"), s.lastIndexOf("年") + 1);
+                                            crimeVO.setImprisonmentTerm(s1);
+                                        } else if (s.contains("死刑")) {
+                                            crimeVO.setImprisonmentTerm("死刑");
+                                        } else if (s.contains("无期徒刑")) {
+                                            crimeVO.setImprisonmentTerm("无期徒刑");
+                                        } else if (s.contains("拘役") && s.contains("月")) {
+                                            String s1 = s.substring(s.indexOf("拘役"), s.lastIndexOf("月") + 1);
+                                            crimeVO.setImprisonmentTerm(s1);
+                                        } else if (s.contains("免予刑事处罚")) {
+                                            crimeVO.setImprisonmentTerm("免予刑事处罚");
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    vo.getCrimes().add(crimeVO);
+                                    break;
                                 }
-
                             }
+
                         }
                     }
-                }*/
+                }
+            }
 
             if ("民事案件".equals(entity.getCaseType())) {
                 String judgmentResult = entity.getJudgmentResult();
@@ -1451,6 +1497,19 @@ public class ParsePartyEasyService {
                         }
                     }
 
+                    if (s.contains("申请机关")) {
+                        if (!StringUtils.hasLength(party.getName())) {
+                            try {
+                                int index = s.indexOf("申请机关");
+                                party.setName(s.substring(index + 4));
+                            } catch (Exception e) {
+                                log.info("party={}", s);
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+
                     if (s.contains("申请人")) {
                         if (!StringUtils.hasLength(party.getName())) {
                             try {
@@ -1486,6 +1545,18 @@ public class ParsePartyEasyService {
                             }
                         }
                     }
+                    if (s.contains("被强制医疗人")) {
+                        if (!StringUtils.hasLength(party.getName())) {
+                            try {
+                                s = s.replace("暨", "");
+                                int index = s.indexOf("被强制医疗人");
+                                party.setName(s.substring(index + 6));
+                            } catch (Exception e) {
+                                log.info("party={}", s);
+                                e.printStackTrace();
+                            }
+                        }
+                    }
 
                     if (s.contains("原告")) {
                         if (!StringUtils.hasLength(party.getName())) {
@@ -1513,7 +1584,7 @@ public class ParsePartyEasyService {
                 }
 
             }
-            if (s.contains("年") && s.contains("月") && s.contains("日") && s.contains("生")) {
+            if (s.contains("年") && s.contains("月") && s.contains("日") && s.contains("生") && StringUtils.isEmpty(party.getBirthday())) {
 
                 party.setBirthday(s);
                 try {
@@ -1600,6 +1671,7 @@ public class ParsePartyEasyService {
                     for (String s1 : eduLevel) {
                         if (s1.contains(s) || s.contains(s1)) {
                             party.setEduLevel(s1);
+                            break;
                         }
                     }
                 }
@@ -1843,6 +1915,8 @@ public class ParsePartyEasyService {
         eduLevel.add("小学毕业");
         eduLevel.add("初中毕业");
         eduLevel.add("本科毕业");
+        eduLevel.add("教师");
+        eduLevel.add("老师");
         eduLevel.add("专科毕业");
         eduLevel.add("专科文化");
         eduLevel.add("大学专科");

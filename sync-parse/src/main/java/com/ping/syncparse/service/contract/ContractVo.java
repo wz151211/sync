@@ -1,4 +1,4 @@
-package com.ping.syncparse.sync.c34;
+package com.ping.syncparse.service.contract;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -8,14 +8,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-/**
- * @Author: W.Z
- * @Date: 2022/8/21 22:27
- */
 @Data
-@Document(value = "document_chuanxiao")
-public class DocumentXsLhEntity {
-
+@Document(value = "document_jiekuanjiufen_copy1")
+public class ContractVo {
     @Id
     private String id;
 
@@ -60,4 +55,5 @@ public class DocumentXsLhEntity {
     private String city;
 
     private String county;
+
 }

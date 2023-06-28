@@ -38,7 +38,7 @@ public class ExportService {
 
     @Autowired
     private CaseXsMapper caseMapper;
-    private int pageSize = 10000;
+    private int pageSize = 30000;
     private AtomicInteger pageNum = new AtomicInteger(-1);
 
     @Autowired

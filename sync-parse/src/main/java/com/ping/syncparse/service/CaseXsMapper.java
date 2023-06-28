@@ -36,7 +36,7 @@ public class CaseXsMapper {
         Sort sort = Sort.by(Sort.Direction.DESC, "refereeDate");
         PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
         query.with(pageRequest);
-        query.with(sort);
+       // query.with(sort);
         return mongoTemplate.find(query, CaseVo.class);
     }
 

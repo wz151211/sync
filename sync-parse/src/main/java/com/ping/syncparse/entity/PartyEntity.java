@@ -4,6 +4,8 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.*;
 import com.alibaba.excel.enums.poi.HorizontalAlignmentEnum;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
@@ -18,7 +20,13 @@ import java.util.Date;
 @HeadRowHeight(25)
 @HeadStyle
 @HeadFontStyle(fontHeightInPoints = 12)
+@Document(value = "party")
 public class PartyEntity {
+
+    @Id
+    private String id;
+
+    private String caseId;
 
     @ExcelProperty(value = "案号", index = 0)
     private String caseNo;

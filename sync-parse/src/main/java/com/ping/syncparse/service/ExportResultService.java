@@ -33,7 +33,7 @@ public class ExportResultService {
 
     @Autowired
     private CaseXsMapper caseMapper;
-    private int pageSize = 30000;
+    private int pageSize = 5000;
     private AtomicInteger pageNum = new AtomicInteger(-1);
 
     @Autowired
@@ -44,12 +44,12 @@ public class ExportResultService {
         List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
         Workbook wb = new XSSFWorkbook();
         String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县",
-                "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容", "涉案金额", "涉案金额内容"};
+                "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容"};
         Sheet sheet = wb.createSheet("案件信息");
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
         try {
-            File file = new File("E:\\导出\\刑事案件.xlsx");
+            File file = new File("E:\\导出\\刑事案件-12.xlsx");
             if (file.exists()) {
                 file.delete();
             } else {
@@ -88,8 +88,37 @@ public class ExportResultService {
             partyHead.addAll(temp);
             partyHead.addAll(temp);
             partyHead.addAll(temp);
+
+            List<String> crimeHead = new ArrayList<>();
+            List<String> crimeHead2 = new ArrayList<>();
+            crimeHead.add("判决结果");
+            crimeHead.add("序号");
+            crimeHead.add("案号");
+            crimeHead2.add("判决结果");
+            crimeHead2.add("序号");
+            crimeHead2.add("案号");
+            crimeHead2.add("姓名");
+            crimeHead2.add("罪名");
+            crimeHead2.add("刑期");
+            List<String> t = new ArrayList<>();
+            t.add("姓名");
+            t.add("罪名");
+            t.add("刑期");
+            crimeHead.addAll(t);
+            crimeHead.addAll(t);
+            crimeHead.addAll(t);
+            crimeHead.addAll(t);
+            crimeHead.addAll(t);
+            crimeHead.addAll(t);
+            crimeHead.addAll(t);
+            crimeHead.addAll(t);
+            crimeHead.addAll(t);
+            crimeHead.addAll(t);
             List<Map<Integer, Object>> partyList = new ArrayList<>();
             List<Map<Integer, Object>> partyList2 = new ArrayList<>();
+            List<Map<Integer, Object>> crimeList = new ArrayList<>();
+            List<Map<Integer, Object>> crimeList2 = new ArrayList<>();
+
             for (CaseVo vo : vos) {
                 List<PartyEntity> party = vo.getParty();
                 if (party != null) {
@@ -103,14 +132,14 @@ public class ExportResultService {
                     if (entities != null && entities.size() > 0) {
                         for (int i = 0; i < entities.size(); i++) {
                             PartyEntity entity = entities.get(i);
-                            entity.setAge("");
+                        /*    entity.setAge("");
                             try {
                                 if (StringUtils.isNotEmpty(entity.getAgeContent())) {
                                     entity.setAge(DateUtil.age(DateUtil.parse(entity.getAgeContent()), vo.getRefereeDate()) + "");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                            }
+                            }*/
                             toParty(start, partyMap, entity);
                             Map<Integer, Object> partyMap2 = new HashMap<>();
                             partyMap2.put(1, vo.getCaseNo());
@@ -128,14 +157,14 @@ public class ExportResultService {
                                 break;
                             }
                             PartyEntity entity = bList.get(i);
-                            entity.setAge("");
+                     /*       entity.setAge("");
                             try {
                                 if (StringUtils.isNotEmpty(entity.getAgeContent())) {
                                     entity.setAge(DateUtil.age(DateUtil.parse(entity.getAgeContent()), vo.getRefereeDate()) + "");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                            }
+                            }*/
                             toParty(start, partyMap, entity);
                             Map<Integer, Object> partyMap2 = new HashMap<>();
                             partyMap2.put(1, vo.getCaseNo());
@@ -152,12 +181,38 @@ public class ExportResultService {
                     partyList.add(new HashMap<>());
                     partyList2.add(new HashMap<>());
                 }
+
+                List<CrimeVO> crimes = vo.getCrimes();
+                if (crimes != null) {
+                    Map<Integer, Object> crimeMap = new HashMap<>();
+                    crimeMap.put(1, vo.getCaseNo());
+                    crimeList.add(crimeMap);
+
+                    int start = 0;
+                    for (int i = 0; i < crimes.size(); i++) {
+                        if (i >= 10) {
+                            break;
+                        }
+                        Map<Integer, Object> crimeMap2 = new HashMap<>();
+                        CrimeVO crimeVO = crimes.get(i);
+                        toCrime(start, crimeMap, crimeVO);
+                        crimeMap2.put(1, vo.getCaseNo());
+                        toCrime(crimeMap2, crimeVO);
+                        crimeList2.add(crimeMap2);
+                        start += 3;
+                    }
+                } else {
+                    crimeList.add(new HashMap<>());
+                }
             }
     /*        Sheet partySheet = wb.createSheet("当事人信息");
             ExcelUtils.export(wb, partySheet, partyList, partyHead.toArray());*/
 
             Sheet partySheet2 = wb.createSheet("当事人信息");
             ExcelUtils.export(wb, partySheet2, partyList2, partyHead2.toArray());
+
+         //   Sheet crimeSheet = wb.createSheet("判决结果");
+         //   ExcelUtils.export(wb, crimeSheet, crimeList2, crimeHead2.toArray());
             wb.write(out);
             System.out.println("导出完成");
         } catch (FileNotFoundException e) {
@@ -212,6 +267,14 @@ public class ExportResultService {
         map.put(start + 2, vo.getName());
         map.put(start + 3, vo.getCrime());
         map.put(start + 4, vo.getImprisonmentTerm());
+        return map;
+
+    }
+
+    private Map<Integer, Object> toCrime(Map<Integer, Object> map, CrimeVO vo) {
+        map.put(2, vo.getName());
+        map.put(3, vo.getCrime());
+        map.put(4, vo.getImprisonmentTerm());
         return map;
 
     }
@@ -280,20 +343,6 @@ public class ExportResultService {
             map.put(18, vo.getJsonContent());
         } else {
             map.put(18, "");
-        }
-        if (vo.getMoney().size() > 0) {
-            StringBuilder money = new StringBuilder();
-            int index = 1;
-            for (String s : vo.getMoney()) {
-                money.append(index).append("、").append(s).append("\r\n");
-                index++;
-            }
-            StringBuilder moneyContent = new StringBuilder();
-            for (int i = 0; i < vo.getMoneyString().size(); i++) {
-                moneyContent.append(i + 1).append("、").append(vo.getMoneyString().get(i)).append("\r\n");
-            }
-            map.put(19, money);
-            map.put(20, moneyContent);
         }
 
         return map;

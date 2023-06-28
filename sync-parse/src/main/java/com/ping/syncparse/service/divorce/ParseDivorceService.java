@@ -395,7 +395,46 @@ public class ParseDivorceService {
                                 } else if (temp.contains("打工相识")) {
                                     vo.setKnowWay("打工相识");
                                     vo.setKnowWayContent(temp);
+                                } else if (temp.contains("征婚")) {
+                                    vo.setKnowWay("征婚");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("同学")) {
+                                    vo.setKnowWay("同学");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("网络聊天")) {
+                                    vo.setKnowWay("网络聊天");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("自由恋爱")) {
+                                    vo.setKnowWay("自由恋爱");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("自行认识")) {
+                                    vo.setKnowWay("自行认识");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("上网聊天")) {
+                                    vo.setKnowWay("上网聊天");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("网上认识")) {
+                                    vo.setKnowWay("网上认识");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("工作时认识")) {
+                                    vo.setKnowWay("工作时认识");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("人介绍") || temp.contains("介绍认识")) {
+                                    vo.setKnowWay("经人介绍相识");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("工作时结识")) {
+                                    vo.setKnowWay("工作时结识");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("工作关系")) {
+                                    vo.setKnowWay("工作关系");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("工作相识")) {
+                                    vo.setKnowWay("工作相识");
+                                    vo.setKnowWayContent(temp);
                                 } else if (temp.contains("公司认识")) {
+                                    vo.setKnowWay("同事");
+                                    vo.setKnowWayContent(temp);
+                                } else if (temp.contains("同事")) {
                                     vo.setKnowWay("同事");
                                     vo.setKnowWayContent(temp);
                                 } else if ((temp.contains("经") || temp.contains("通过") || temp.contains("在") || temp.contains("于")) && (temp.contains("相识") || temp.contains("认识") || temp.contains("介绍") || temp.contains("撮合"))) {
@@ -422,9 +461,15 @@ public class ParseDivorceService {
                                     if (end > start) {
                                         try {
                                             String knowDay = temp.substring(start, end + 2);
-                                            if (!knowDay.contains("年") && !knowDay.contains("月")) {
+                                            if (StringUtils.hasLength(knowDay)) {
+                                                //if (!knowDay.contains("年") && !knowDay.contains("月")) {
                                                 vo.setKnowWay(knowDay);
                                                 vo.setKnowWayContent(temp);
+                                            } else if (temp.contains("介绍相识")) {
+                                                vo.setKnowWay("介绍认识");
+                                                vo.setKnowWayContent(temp);
+                                            } else {
+                                                log.info("-----认识方式={}", temp);
                                             }
                                         } catch (Exception e) {
                                             log.info("认识方式={}", temp);
@@ -432,6 +477,9 @@ public class ParseDivorceService {
                                         }
 
                                     }
+                                } else if (temp.contains("介绍认识")) {
+                                    vo.setKnowWay("介绍认识");
+                                    vo.setKnowWayContent(temp);
                                 }
                                 String knowDate = "";
                                 String t = "";
@@ -579,7 +627,8 @@ public class ParseDivorceService {
                                                     if (term.getRealName().length() == 4 && to != null && (to.getRealName().contains("农历") || to.getRealName().contains("月")))
                                                         knowDate += term.getRealName() + "年";
                                                 }
-                                                if (term.getNatureStr().equals("t") && (t.contains("年") || t.contains("月") || t.contains("日"))) {
+                                                String realName = term.getRealName();
+                                                if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
                                                     knowDate += term.getRealName();
                                                 }
                                             }
@@ -593,23 +642,38 @@ public class ParseDivorceService {
                                 }
                             }
                             if (StringUtils.isEmpty(vo.getEngagedDate())) {
-                                if (temp.contains("订婚") || temp.contains("定亲") || temp.contains("建立婚约") || temp.contains("确立婚约") || temp.contains("缔结婚约") || temp.contains("订立婚约") || (temp.contains("确定") && temp.contains("婚约关系"))) {
+                                if (temp.contains("订婚")
+                                        || temp.contains("存在婚约关系")
+                                        || temp.contains("订亲")
+                                        || temp.contains("送婚")
+                                        || temp.contains("定亲")
+                                        || temp.contains("建立婚约")
+                                        || temp.contains("确立婚约")
+                                        || temp.contains("缔结婚约")
+                                        || temp.contains("缔结婚姻")
+                                        || temp.contains("订立婚约")
+                                        || temp.contains("订下婚约")
+                                        || (temp.contains("约定") && temp.contains("结婚"))
+                                        || ((temp.contains("订") || temp.contains("定")) && temp.contains("婚约"))
+                                        || (temp.contains("确定") && temp.contains("婚约关系"))) {
                                     vo.setEngaged("是");
                                     vo.setEngagedContent(sentence);
                                     String engagedDate = "";
-                                    if (temp.contains("×") || temp.contains("二0") || temp.contains("Ｘ") || temp.contains("二Ｏ") || temp.contains("二○") || temp.contains("二〇")) {
-                                        int year = temp.indexOf("年");
-                                        int month = temp.indexOf("月");
+                                    String t = "";
+                                    if (i > 0) {
+                                        t = split[i - 1] + temp;
+                                    }
+                                    if (t.contains("×") || t.contains("二0") || t.contains("Ｘ") || t.contains("二Ｏ") || t.contains("二○") || t.contains("二〇")) {
+                                        int year = t.indexOf("年");
+                                        int month = t.indexOf("月");
                                         if (year >= 4 && month == -1) {
-                                            engagedDate = temp.substring(year - 4, year + 1);
+                                            engagedDate = t.substring(year - 4, year + 1);
                                         } else if (year >= 4 && month > year) {
-                                            engagedDate = temp.substring(year - 4, month + 1);
+                                            engagedDate = t.substring(year - 4, month + 1);
                                         }
                                     } else {
-                                        if ((temp.contains("年") && temp.contains("月")) || (temp.contains("月") && temp.contains("日")) || temp.contains("年")) {
-
-                                            for (Term term : ToAnalysis.parse(temp)) {
-
+                                        if ((t.contains("年") && t.contains("月")) || (t.contains("月") && t.contains("日")) || t.contains("年")) {
+                                            for (Term term : ToAnalysis.parse(t)) {
                                                 if (engagedDate.contains("年") && term.getRealName().contains("年")) {
                                                     break;
                                                 }
@@ -624,7 +688,8 @@ public class ParseDivorceService {
                                                     if (term.getRealName().length() == 4 && to != null && (to.getRealName().contains("农历") || to.getRealName().contains("月")))
                                                         engagedDate += term.getRealName() + "年";
                                                 }
-                                                if (term.getNatureStr().equals("t") && (temp.contains("年") || temp.contains("月") || temp.contains("日"))) {
+                                                String realName = term.getRealName();
+                                                if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
                                                     engagedDate += term.getRealName();
                                                 }
                                             }
@@ -638,67 +703,177 @@ public class ParseDivorceService {
                                                         } else {
                                                             engagedDate = year + engagedDate;
                                                         }
-
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
                                                 }
-                                                vo.setEngagedDate(engagedDate);
-                                                vo.setEngagedDateContent(sentence);
                                             }
-                                        } else {
-                                            vo.setEngaged("否");
                                         }
+                                    }
+                                    if (StringUtils.hasLength(engagedDate) && StringUtils.isEmpty(vo.getEngagedDate())) {
+                                        vo.setEngagedDate(engagedDate);
+                                        vo.setEngagedDateContent(sentence);
                                     }
                                 }
                             }
 
-                            if (StringUtils.isEmpty(vo.getLiveTogether())) {
-                                if ((temp.contains("同居期间") || temp.contains("租房同居") || temp.contains("同居生活") || temp.contains("共同生活")) && (!temp.contains("未") || !temp.contains("没有") || !temp.contains("拒绝")) || !temp.contains("不与")) {
+                            if (StringUtils.isEmpty(vo.getLiveTogether()) && !temp.contains("原则上")) {
+                                if ((temp.contains("同居期间") || temp.contains("租房同居") || temp.contains("同居生活") || temp.contains("共同生活"))
+                                        && (!temp.contains("未在一起") && !temp.contains("没有") && !temp.contains("拒绝") && !temp.contains("不与"))) {
                                     vo.setLiveTogether("是");
                                     vo.setLiveTogetherContent(sentence);
-                                } else if ((temp.contains("同居期间") || temp.contains("租房同居") || temp.contains("同居生活") || temp.contains("共同生活")) && (temp.contains("未") || temp.contains("没有") || temp.contains("拒绝")) || temp.contains("不与")) {
+                                } else if ((temp.contains("同居期间") || temp.contains("租房同居") || temp.contains("同居生活") || temp.contains("共同生活"))
+                                        && (temp.contains("未在一起") || temp.contains("没有") || temp.contains("拒绝") || temp.contains("不与"))) {
                                     vo.setLiveTogether("否");
                                     vo.setLiveTogetherContent(sentence);
                                 }
                             }
 
                             if (StringUtils.isEmpty(vo.getDissolveRelationshipDate())) {
-                                if (temp.contains("分手") || temp.contains("解除") || temp.contains("分居") || temp.contains("分开") || temp.contains("感情破裂") || temp.contains("结束同居生活") || temp.contains("终止恋爱关系") || temp.contains("离婚")) {
-                                    vo.setDissolveRelationshipDateContent(sentence);
+                                if (temp.contains("分手")
+                                        || temp.contains("解除")
+                                        || temp.contains("分居")
+                                        || temp.contains("分开")
+                                        || temp.contains("感情破裂")
+                                        || temp.contains("结束同居生活")
+                                        || ((temp.contains("无法") || temp.contains("不能")) && temp.contains("继续生活"))
+                                        || temp.contains("离家出走")
+                                        || temp.contains("失去联系")
+                                        || (temp.contains("回") && temp.contains("娘家"))
+                                        || (temp.contains("终止") && temp.contains("恋爱"))
+                                        || temp.contains("离婚")) {
                                     String dissolveRelationshipDate = "";
                                     String t = "";
-                                    if (i > 0) {
-                                        t = split[i - 1];
+                                    if ((temp.contains("年") && temp.contains("月")) || (temp.contains("月") && temp.contains("日"))) {
+                                        t = temp;
+                                    } else {
+                                        if (i > 0) {
+                                            t = split[i - 1] + temp;
+                                        }
                                     }
-                                    for (Term term : ToAnalysis.parse(t)) {
-                                        if (dissolveRelationshipDate.contains("年") && term.getRealName().contains("年")) {
-                                            break;
-                                        }
-                                        if (dissolveRelationshipDate.contains("月") && term.getRealName().contains("月")) {
-                                            break;
-                                        }
-                                        if (term.getRealName().contains("个")) {
-                                            continue;
-                                        }
-                                        if (term.getNatureStr().equals("m")) {
-                                            Term to = term.to();
-                                            if (term.getRealName().length() == 4 && to != null && (to.getRealName().contains("农历") || to.getRealName().contains("月")))
-                                                dissolveRelationshipDate += term.getRealName() + "年";
-                                        }
-                                        if (term.getNatureStr().equals("t") && (temp.contains("年") || temp.contains("月") || temp.contains("日"))) {
-                                            dissolveRelationshipDate += term.getRealName();
-                                        }
 
+                                    if (t.contains("×") || t.contains("二0") || t.contains("Ｘ") || t.contains("二Ｏ") || t.contains("二○") || t.contains("二〇")) {
+                                        int year = t.indexOf("年");
+                                        int month = t.indexOf("月");
+                                        if (year >= 4 && month == -1) {
+                                            dissolveRelationshipDate = t.substring(year - 4, year + 1);
+                                        } else if (year >= 4 && month > year) {
+                                            dissolveRelationshipDate = t.substring(year - 4, month + 1);
+                                        }
+                                    } else {
+                                        for (Term term : ToAnalysis.parse(t)) {
+                                            if (dissolveRelationshipDate.contains("年") && term.getRealName().contains("年")) {
+                                                break;
+                                            }
+                                            if (dissolveRelationshipDate.contains("月") && term.getRealName().contains("月")) {
+                                                break;
+                                            }
+                                            if (term.getRealName().contains("个")) {
+                                                continue;
+                                            }
+                                            if (term.getNatureStr().equals("m")) {
+                                                Term to = term.to();
+                                                if (term.getRealName().length() == 4 && to != null && (to.getRealName().contains("农历") || to.getRealName().contains("月")))
+                                                    dissolveRelationshipDate += term.getRealName() + "年";
+                                            }
+                                            String realName = term.getRealName();
+                                            if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
+                                                dissolveRelationshipDate += term.getRealName();
+                                            }
+
+                                        }
                                     }
-                                    if (StringUtils.hasLength(dissolveRelationshipDate) && StringUtils.isEmpty(vo.getDissolveRelationshipDate())) {
+                                    if (StringUtils.hasLength(dissolveRelationshipDate) && StringUtils.isEmpty(vo.getDissolveRelationshipDate()) && (dissolveRelationshipDate.contains("年") || dissolveRelationshipDate.contains("月") || dissolveRelationshipDate.contains("日"))) {
+                                        dissolveRelationshipDate = dissolveRelationshipDate.replace("婚后", "");
+                                        dissolveRelationshipDate = dissolveRelationshipDate.replace("春节", "");
+                                        dissolveRelationshipDate = dissolveRelationshipDate.replace("当时", "");
+                                        dissolveRelationshipDate = dissolveRelationshipDate.replace("当日", "");
+                                        dissolveRelationshipDate = dissolveRelationshipDate.replace("当日", "");
+                                        dissolveRelationshipDate = dissolveRelationshipDate.replace("1.", "");
+                                        dissolveRelationshipDate = dissolveRelationshipDate.replace("从前", "");
+                                        dissolveRelationshipDate = dissolveRelationshipDate.replace("次日", "");
+                                        dissolveRelationshipDate = dissolveRelationshipDate.replace("后来", "");
                                         vo.setDissolveRelationshipDate(dissolveRelationshipDate);
                                         vo.setDissolveRelationshipDateContent(sentence);
                                     }
 
                                 }
                             }
+                            if (StringUtils.isEmpty(vo.getHostingWedding())) {
+                                if (temp.contains("未举办婚礼") || temp.contains("没有举办婚礼") || (temp.contains("未") && temp.contains("举办婚礼"))) {
+                                    vo.setHostingWedding("否");
+                                    vo.setHostingWeddingContent(sentence);
+                                } else if (temp.contains("未举行婚礼") || temp.contains("没有举行婚礼") || (temp.contains("未") && temp.contains("举行婚礼"))) {
+                                    vo.setHostingWedding("否");
+                                    vo.setHostingWeddingContent(sentence);
+                                } else if ((temp.contains("举办婚礼") || temp.contains("举行婚礼") || temp.contains("结婚仪式") || temp.contains("举办酒席") || temp.contains("结婚酒席") || temp.contains("举办结婚典礼") || temp.contains("典礼仪式") || (temp.contains("举办") && temp.contains("婚礼")) || (temp.contains("举行") && temp.contains("婚礼")) || temp.contains("按民间习俗结婚") || temp.contains("举行结婚仪式")) && (temp.contains("没有") || temp.contains("未"))) {
 
+                                } else if ((temp.contains("年") || temp.contains("月") || temp.contains("日")) && (temp.contains("举办婚礼") || temp.contains("举行婚礼") || temp.contains("结婚仪式") || temp.contains("举办酒席") || temp.contains("结婚酒席") || temp.contains("举办结婚典礼") || temp.contains("典礼仪式") || (temp.contains("举办") && temp.contains("婚礼")) || (temp.contains("举行") && temp.contains("婚礼")) || temp.contains("按民间习俗结婚") || temp.contains("举行结婚仪式"))) {
+                                    vo.setHostingWedding("是");
+                                    vo.setHostingWeddingContent(sentence);
+                                    String hostingWeddingDate = "";
+                                    if (temp.contains("×") || temp.contains("二0") || temp.contains("Ｘ") || temp.contains("二Ｏ") || temp.contains("二○") || temp.contains("二〇")) {
+                                        int year = temp.indexOf("年");
+                                        int month = temp.indexOf("月");
+                                        if (year >= 4 && month == -1) {
+                                            hostingWeddingDate = temp.substring(year - 4, year + 1);
+                                        } else if (year >= 4 && month > year) {
+                                            hostingWeddingDate = temp.substring(year - 4, month + 1);
+                                        }
+                                    } else {
+                                        if ((temp.contains("年") && temp.contains("月")) || (temp.contains("月") && temp.contains("日")) || temp.contains("年")) {
+
+                                            for (Term term : ToAnalysis.parse(temp)) {
+
+                                                if (hostingWeddingDate.contains("年") && term.getRealName().contains("年")) {
+                                                    break;
+                                                }
+                                                if (hostingWeddingDate.contains("月") && term.getRealName().contains("月")) {
+                                                    break;
+                                                }
+                                                if (term.getRealName().contains("当年") || term.getRealName().contains("同年") || term.getRealName().contains("今年") || term.getRealName().contains("个")) {
+                                                    continue;
+                                                }
+                                                if (term.getNatureStr().equals("m")) {
+                                                    Term to = term.to();
+                                                    if (term.getRealName().length() == 4 && to != null && (to.getRealName().contains("农历") || to.getRealName().contains("月")))
+                                                        hostingWeddingDate += term.getRealName() + "年";
+                                                }
+                                                String realName = term.getRealName();
+                                                if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
+                                                    hostingWeddingDate += term.getRealName();
+                                                }
+                                            }
+                                            if (StringUtils.isEmpty(vo.getHostingWeddingDate()) && StringUtils.hasLength(hostingWeddingDate)) {
+                                                String date = "";
+                                                if (StringUtils.hasLength(vo.getEngagedDate())) {
+                                                    date = vo.getEngagedDate();
+                                                } else if (StringUtils.hasLength(vo.getKnowDate())) {
+                                                    date = vo.getKnowDate();
+                                                }
+                                                if (!hostingWeddingDate.contains("年") && StringUtils.hasLength(date) && date.contains("年")) {
+                                                    int index = date.indexOf("年");
+                                                    try {
+                                                        String year = date.substring(0, index + 1);
+                                                        if (hostingWeddingDate.contains("次年")) {
+                                                            hostingWeddingDate = (Integer.parseInt(year.replace("年", "")) + 1) + "年" + hostingWeddingDate.replace("次年", "");
+                                                        } else {
+                                                            hostingWeddingDate = year + hostingWeddingDate;
+                                                        }
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                    if (StringUtils.isEmpty(vo.getHostingWeddingDate()) && StringUtils.hasLength(hostingWeddingDate)) {
+                                        vo.setHostingWeddingDate(hostingWeddingDate);
+                                        vo.setHostingWeddingDateContent(temp);
+                                    }
+                                }
+                            }
                             if ((temp.contains("结婚登记") || temp.contains("登记结婚") || temp.contains("结婚证"))
                                     && (temp.contains("没有") || temp.contains("未") || temp.contains("没") || temp.contains("尽量")
                                     || temp.contains("不") || temp.contains("无法") || temp.contains("要求")
@@ -711,46 +886,99 @@ public class ParseDivorceService {
                                     vo.setMarriageRegistrationContent(sentence);
                                 }
 
+                            } else if (temp.contains("未领结婚证")
+                                    || temp.contains("拒绝办理结婚登记")
+                                    || temp.contains("未办理婚姻登记")
+                                    || temp.contains("无结婚可能")
+                                    || temp.contains("结婚不能实现")
+                                    || temp.contains("解除婚约")
+                                    || temp.contains("未经登记")
+                                    || temp.contains("未及时办理")
+                                    || temp.contains("拒绝结婚")) {
+                                if ((temp.contains("双方未办理结婚登记手续的") || temp.contains("男女双方未办理结婚登记手续") || temp.contains("双方没有办理结婚登记手续的")) || (temp.contains("第") && (temp.contains("条") || temp.contains("款") || temp.contains("规定")))) {
+
+                                } else {
+                                    vo.setMarriageRegistration("否");
+                                    vo.setMarriageRegistrationContent(sentence);
+                                }
+
                             } else if ((temp.contains("结婚登记") || temp.contains("登记结婚") || temp.contains("结婚证")) && !temp.contains("曾")) {
                                 String marriageRegistrationDate = "";
-                                if ((temp.contains("年") && temp.contains("月")) || (temp.contains("月") && temp.contains("日"))) {
-
-                                    for (Term term : ToAnalysis.parse(temp)) {
-
-                                        if (marriageRegistrationDate.contains("年") && term.getRealName().contains("年")) {
-                                            break;
-                                        }
-                                        if (marriageRegistrationDate.contains("月") && term.getRealName().contains("月")) {
-                                            break;
-                                        }
-                                        if (term.getRealName().contains("个")) {
-                                            continue;
-                                        }
-                                        if (term.getNatureStr().equals("m")) {
-                                            Term to = term.to();
-                                            if (term.getRealName().length() == 4 && to != null && (to.getRealName().contains("农历") || to.getRealName().contains("月")))
-                                                marriageRegistrationDate += term.getRealName() + "年";
-                                        }
-                                        if (term.getNatureStr().equals("t") && (temp.contains("年") || temp.contains("月") || temp.contains("日"))) {
-                                            marriageRegistrationDate += term.getRealName();
-                                        }
+                                if (temp.contains("×") || temp.contains("二0") || temp.contains("Ｘ") || temp.contains("二Ｏ") || temp.contains("二○") || temp.contains("二〇")) {
+                                    int year = temp.indexOf("年");
+                                    int month = temp.indexOf("月");
+                                    if (year >= 4 && month == -1) {
+                                        marriageRegistrationDate = temp.substring(year - 4, year + 1);
+                                    } else if (year >= 4 && month > year) {
+                                        marriageRegistrationDate = temp.substring(year - 4, month + 1);
                                     }
-                                    if (StringUtils.isEmpty(marriageRegistrationDate)) {
-                                        int length = 4;
-                                        int start = temp.indexOf("年");
-                                        if (start < 4) {
-                                            length = 2;
+                                } else {
+                                    if ((temp.contains("年") && temp.contains("月")) || (temp.contains("月") && temp.contains("日"))) {
+
+                                        for (Term term : ToAnalysis.parse(temp)) {
+
+                                            if (marriageRegistrationDate.contains("年") && term.getRealName().contains("年")) {
+                                                break;
+                                            }
+                                            if (marriageRegistrationDate.contains("月") && term.getRealName().contains("月")) {
+                                                break;
+                                            }
+                                            if (term.getRealName().contains("个")) {
+                                                continue;
+                                            }
+                                            if (term.getRealName().contains("当年") || term.getRealName().contains("同年") || term.getRealName().contains("今年") || term.getRealName().contains("个")) {
+                                                continue;
+                                            }
+                                            if (term.getNatureStr().equals("m")) {
+                                                Term to = term.to();
+                                                if (term.getRealName().length() == 4 && to != null && (to.getRealName().contains("农历") || to.getRealName().contains("月")))
+                                                    marriageRegistrationDate += term.getRealName() + "年";
+                                            }
+                                            String realName = term.getRealName();
+                                            if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
+                                                marriageRegistrationDate += term.getRealName();
+                                            }
                                         }
-                                        int end = temp.indexOf("日");
-                                        if (end == -1) {
-                                            end = temp.indexOf("月");
+
+                                        if (StringUtils.isEmpty(vo.getMarriageRegistrationDate()) && StringUtils.hasLength(marriageRegistrationDate)) {
+                                            String date = "";
+                                            if (StringUtils.hasLength(vo.getHostingWeddingDate())) {
+                                                date = vo.getHostingWeddingDate();
+                                            } else if (StringUtils.hasLength(vo.getEngagedDate())) {
+                                                date = vo.getEngagedDate();
+                                            }
+                                            if (!marriageRegistrationDate.contains("年") && StringUtils.hasLength(date) && date.contains("年")) {
+                                                int index = date.indexOf("年");
+                                                try {
+                                                    String year = date.substring(0, index + 1);
+                                                    if (marriageRegistrationDate.contains("次年")) {
+                                                        marriageRegistrationDate = (Integer.parseInt(year.replace("年", "")) + 1) + "年" + marriageRegistrationDate.replace("次年", "");
+                                                    } else {
+                                                        marriageRegistrationDate = year + marriageRegistrationDate;
+                                                    }
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+
                                         }
-                                        if (end > start) {
-                                            try {
-                                                marriageRegistrationDate = temp.substring(start - length, end + 1);
-                                            } catch (Exception e) {
-                                                log.info("登记日期={}", temp);
-                                                e.printStackTrace();
+                                        if (StringUtils.isEmpty(marriageRegistrationDate)) {
+                                            int length = 4;
+                                            int start = temp.indexOf("年");
+                                            if (start < 4) {
+                                                length = 2;
+                                            }
+                                            int end = temp.indexOf("日");
+                                            if (end == -1) {
+                                                end = temp.indexOf("月");
+                                            }
+                                            if (end > start) {
+                                                try {
+                                                    marriageRegistrationDate = temp.substring(start - length, end + 1);
+                                                } catch (Exception e) {
+                                                    log.info("登记日期={}", temp);
+                                                    e.printStackTrace();
+                                                }
                                             }
                                         }
                                     }
@@ -772,31 +1000,29 @@ public class ParseDivorceService {
                                 }
                             }
 
-                            if (StringUtils.isEmpty(vo.getHostingWedding())) {
-                                if (temp.contains("未举办婚礼") || temp.contains("没有举办婚礼") || (temp.contains("未") && temp.contains("举办婚礼"))) {
-                                    vo.setHostingWedding("否");
-                                    vo.setHostingWeddingContent(temp);
-                                } else if (temp.contains("未举行婚礼") || temp.contains("没有举行婚礼") || (temp.contains("未") && temp.contains("举行婚礼"))) {
-                                    vo.setHostingWedding("否");
-                                    vo.setHostingWeddingContent(temp);
-                                } else if ((temp.contains("年") || temp.contains("月") || temp.contains("日")) && (temp.contains("举办婚礼") || temp.contains("举行婚礼") || temp.contains("结婚仪式")) || temp.contains("举办酒席") || temp.contains("结婚酒席") || temp.contains("举办结婚典礼") || temp.contains("典礼仪式") || (temp.contains("举办") && temp.contains("婚礼")) || (temp.contains("举行") && temp.contains("婚礼")) || temp.contains("按民间习俗结婚")) {
-                                    vo.setHostingWedding("是");
-                                    vo.setHostingWeddingContent(temp);
-                                }
-                            }
-
                             if (StringUtils.isEmpty(vo.getAbort())) {
-                                if (temp.contains("流产") || temp.contains("引产") || temp.contains("流掉") || temp.contains("堕胎")) {
+                                if (temp.contains("流产")
+                                        || temp.contains("引产")
+                                        || temp.contains("流掉")
+                                        || temp.contains("堕胎")
+                                        || temp.contains("清宫手术")
+                                        || temp.contains("打掉")
+                                        || temp.contains("堕胎")
+                                        || temp.contains("剖宫")
+                                        || temp.contains("人流")) {
                                     vo.setAbort("是");
                                     vo.setAbortContent(sentence);
                                 }
                             }
 
                             if (StringUtils.isEmpty(vo.getChild())) {
-                                if ((!temp.contains("未") && !temp.contains("不能") && !temp.contains("没有") && !temp.contains("无生育") && !temp.contains("未有生育")) && (temp.contains("生育") || temp.contains("生下") || temp.contains("育有") || temp.contains("分娩"))) {
+                                if ((temp.contains("未") || temp.contains("不会") || temp.contains("不能") || temp.contains("没有") || temp.contains("无生育") || temp.contains("未有生育")) && (temp.contains("生育") || temp.contains("生下") || temp.contains("育有") || temp.contains("分娩") || temp.contains("非婚生") || temp.contains("诞下") || temp.contains("产下") || temp.contains("生产"))) {
+                                    vo.setChild("否");
+                                    vo.setChildContent(sentence);
+                                } else if ((!temp.contains("未") || !temp.contains("不会") && !temp.contains("不能") && !temp.contains("没有") && !temp.contains("无生育") && !temp.contains("未有生育")) && (temp.contains("生育") || temp.contains("生下") || temp.contains("育有") || temp.contains("分娩") || temp.contains("非婚生") || temp.contains("诞下") || temp.contains("产下") || temp.contains("生产") && (temp.contains("子") || temp.contains("女") || temp.contains("男")))) {
                                     vo.setChild("是");
                                     vo.setChildContent(sentence);
-                                } else if (temp.contains("男婴") || temp.contains("女婴") || temp.contains("男孩") || temp.contains("女孩")) {
+                                } else if (temp.contains("男婴") || temp.contains("女婴") || temp.contains("非婚生") || temp.contains("剖腹") || temp.contains("剖宫")) {
                                     vo.setChild("是");
                                     vo.setChildContent(sentence);
                                 }
@@ -828,26 +1054,32 @@ public class ParseDivorceService {
                                     }
                                 }
                             }
-                            if (StringUtils.isEmpty(vo.getBridePriceCar())) {
-                                if (temp.contains("汽车") && (temp.contains("买") || temp.contains("购置") || temp.contains("首付"))) {
-                                    vo.setBridePriceCar("是");
-                                    vo.setBridePriceCarContent(sentence);
-                                } else if (temp.contains("订车款") || temp.contains("购车款")) {
-                                    vo.setBridePriceCar("是");
-                                    vo.setBridePriceCarContent(sentence);
-                                }
+
+                            if (temp.contains("购车")
+                                    || temp.contains("轿车")
+                                    || temp.contains("五菱")
+                                    || temp.contains("汽车")
+                                    || temp.contains("订车款")
+                                    || temp.contains("购车款")) {
+                                vo.setBridePriceCar("是");
+                                vo.getBridePriceCarContent().add(sentence);
                             }
 
-                            if (StringUtils.isEmpty(vo.getBridePriceHouse())) {
-                                if ((temp.contains("楼房") || temp.contains("房屋") || temp.contains("房子") || temp.contains("住房") || temp.contains("房产")) && (temp.contains("购买") || temp.contains("买") || temp.contains("首付"))) {
-                                    if (!temp.contains("没有用")) {
-                                        vo.setBridePriceHouse("是");
-                                        vo.setBridePriceHouseContent(sentence);
-                                    }
-
+                            if (temp.contains("楼房")
+                                    || temp.contains("房屋")
+                                    || temp.contains("婚房")
+                                    || temp.contains("房子")
+                                    || temp.contains("住宅")
+                                    || temp.contains("住房")
+                                    || temp.contains("房产")
+                                    || temp.contains("房贷")
+                                    || temp.contains("首付")
+                                    || temp.contains("购房")) {
+                                if (StringUtils.isEmpty(vo.getBridePriceHouse())) {
+                                    vo.setBridePriceHouse("是");
+                                    vo.getBridePriceHouseContent().add(sentence);
                                 }
                             }
-
                             if ((temp.contains("父母") || temp.contains("母亲") || temp.contains("父亲") || temp.contains("爸爸") || temp.contains("妈妈")) && (temp.contains("支付") || temp.contains("给付") || temp.contains("取款") || temp.contains("转账") || temp.contains("汇款"))) {
                                 vo.getBridePriceFrom().add(sentence);
                             }
@@ -857,16 +1089,34 @@ public class ParseDivorceService {
 
 
                             if (StringUtils.isEmpty(vo.getBridePricePoverty())) {
-                                if (temp.contains("生活困难") || temp.contains("普通农村")) {
+                                if (temp.contains("生活困难")
+                                        || temp.contains("普通农村")
+                                        || temp.contains("困难证明")
+                                        || temp.contains("经济负担")
+                                        || temp.contains("低保")
+                                        || temp.contains("低保户")
+                                        || (temp.contains("生活") && temp.contains("困难"))
+                                        || temp.contains("经济压力")) {
                                     vo.setBridePricePoverty("是");
                                     vo.setBridePricePovertyContent(sentence);
                                 }
                             }
 
                             if (StringUtils.isEmpty(vo.getBridePriceIndebted())) {
-                                if ((temp.contains("借款") || temp.contains("贷款") || temp.contains("举债") || temp.contains("借外债") || temp.contains("借债") || temp.contains("欠钱")) && (!temp.contains("未") || !temp.contains("没有") || !temp.contains("无"))) {
+                                if (temp.contains("借款")
+                                        || temp.contains("贷款")
+                                        || temp.contains("举债")
+                                        || temp.contains("借外债")
+                                        || temp.contains("借债")
+                                        || temp.contains("负债")
+                                        || temp.contains("债台高筑")
+                                        || temp.contains("借亲友的钱")
+                                        || temp.contains("借钱")
+                                        || temp.contains("借的")
+                                        || (temp.contains("借") && temp.contains("钱"))
+                                        || temp.contains("欠钱")) {
                                     vo.setBridePriceIndebted("是");
-                                    vo.setBridePriceIndebtedContent(temp);
+                                    vo.setBridePriceIndebtedContent(sentence);
                                 }
 
                             }
@@ -885,7 +1135,7 @@ public class ParseDivorceService {
                             if (result.contains("维持原判")) {
                                 vo.setBridePriceReturn("维持原判");
                                 vo.setBridePriceReturnContent(result);
-                            } else if ((result.contains("退还")
+                            } else if (result.contains("退还")
                                     || result.contains("返还")
                                     || result.contains("给付")
                                     || result.contains("归还")
@@ -899,7 +1149,7 @@ public class ParseDivorceService {
                                     || result.contains("偿付")
                                     || result.contains("退于")
                                     || result.contains("退")
-                                    || result.contains("支付"))) {
+                                    || result.contains("支付")) {
                                 for (Term term : ToAnalysis.parse(result)) {
                                     if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
                                         if (StringUtils.isEmpty(vo.getBridePriceReturn())) {
