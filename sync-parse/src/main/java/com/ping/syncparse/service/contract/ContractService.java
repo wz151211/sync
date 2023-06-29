@@ -141,7 +141,6 @@ public class ContractService {
         entities.parallelStream().forEach(entity -> {
             ContractResultVo vo = new ContractResultVo();
             vo.setId(entity.getId());
-            vo.setTId(entity.getTId());
             vo.setName(entity.getName());
             vo.setCaseNo(entity.getCaseNo());
             vo.setCourtName(entity.getCourtName());
@@ -196,20 +195,8 @@ public class ContractService {
                     return aa.getString("fgmc") + aa.getString("tkx");
                 }).collect(joining(",")));
             }
-            vo.setLegalBasisCount(entity.getLegalBasis().size() + "");
-/*            if ("民事一审".equals(entity.getTrialProceedings())) {
-                List<DocumentMsJtblEntity> byCaseNo = documentMsMapper.find(vo.getCaseNo());
-                for (DocumentMsJtblEntity lh : byCaseNo) {
-                    DocumentXsLhEntity xsLhEntity = new DocumentXsLhEntity();
-                    lh.setTId(entity.getId());
-                    BeanUtils.copyProperties(lh, xsLhEntity);
-                    documentXsMapper.insert(xsLhEntity);
-                }
-            }*/
             try {
                 vo.setRefereeDate(entity.getRefereeDate());
-                // vo.setRefereeDate(DateUtil.offsetHour(vo.getRefereeDate(), 8));
-
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -397,40 +384,12 @@ public class ContractService {
                 }
             }
 
+
             try {
                 for (PartyEntity entity1 : vo.getParty()) {
                     parseAddress(entity1);
                 }
-                List<PartyEntity> parties = vo.getParty();
-                if (parties != null && parties.size() > 0) {
-                    boolean bg = false;
-                    boolean yg = false;
-                    for (PartyEntity party : parties) {
-                        if ("被告".equals(party.getType())
-                                && StringUtils.hasLength(party.getName())
-                                && !party.getName().contains("公司") && !party.getName().contains("银行") && !party.getName().contains("信用合作联社")) {
-                            bg = true;
-                        }
-                        if ("原告".equals(party.getType())
-                                && StringUtils.hasLength(party.getName())
-                                && (party.getName().contains("公司") || party.getName().contains("银行") || party.getName().contains("信用合作联社"))) {
-                            yg = true;
-                        }
-                    }
-                    if (yg && bg) {
-                        log.info("{}", entity.getName());
-                        contractResultMapper.insert(vo);
-                    } else {
-
-                    }
-                }
-
-                try {
-                    //  contractMapper.delete(entity);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
+                contractResultMapper.insert(vo);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -20,8 +20,6 @@ public class ContractResultVo {
     @Id
     @ExcelIgnore
     private String id;
-    @ExcelIgnore
-    private String tId;
 
     @ExcelProperty(value = "案件名称", index = 0)
     private String name;
@@ -59,8 +57,6 @@ public class ContractResultVo {
 
     @ExcelIgnore
     private List<PartyEntity> party = new ArrayList<>();
-    @ExcelIgnore
-    private CaseSummaryVO summaryVO = null;
 
     @ExcelProperty(value = "判决结果", index = 11)
     private String judgmentResult;
@@ -73,8 +69,6 @@ public class ContractResultVo {
 
     @ExcelProperty(value = "法律依据", index = 14)
     private String legalBasis;
-    @ExcelIgnore
-    private String legalBasisCount;
 
     @ExcelProperty(value = "事实", index = 15)
     private String fact;
@@ -85,5 +79,29 @@ public class ContractResultVo {
 
     @ExcelIgnore
     private JSONObject jsonContent;
+
+    //合同名称
+    private String contractName;
+    //借款金额
+    private String loanAmount;
+    //借款金额开始时间
+    private String loanAmountStartDate;
+    //借款金额结束时间
+    private String loanAmountEndDate;
+
+    //借款利率
+    private String loanRate;
+    //逾期利率
+    private String overdueRate;
+
+    //抵押条件
+    private String mortgage;
+
+    //违约日期
+    private String defaultDate;
+
+    //违约金额
+    private String defaultAmount;
+
 
 }
