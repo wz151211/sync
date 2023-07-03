@@ -539,7 +539,7 @@ public class Test1 {
     @Test
     public void test7() {
         StringBuilder county = new StringBuilder();
-        for (Term term : ToAnalysis.parse("一、被告刘某于本判决生效之日起5日内返还原告张某彩礼77046.2元；")) {
+        for (Term term : ToAnalysis.parse("约定贷款金额39960元，贷款利率为月利率10.88‰，贷款期限为24个月")) {
             System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
         System.out.println(county.toString());

@@ -1,6 +1,7 @@
 package com.ping.syncparse.task;
 
 import com.ping.syncparse.service.*;
+import com.ping.syncparse.service.contract.ContractService;
 import com.ping.syncparse.service.contract.ContractStatisticsService;
 import com.ping.syncparse.service.contract.ParseContractService;
 import com.ping.syncparse.service.divorce.ParseDivorceService;
@@ -147,7 +148,7 @@ public class Task {
     @Autowired
     private ExportResultService exportResultService;
 
-    @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 60L)
+    // @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 60L)
     public void test12() {
         exportResultService.export();
     }
@@ -168,7 +169,7 @@ public class Task {
     @Autowired
     private ParseContractService contractService;
 
-   //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    //@Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void contract() {
         contractService.parse();
     }
@@ -179,6 +180,14 @@ public class Task {
     // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void statistics() {
         statisticsService.statistics();
+    }
+
+    @Autowired
+    private ContractService contractService1;
+
+    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    public void ContractService() {
+        contractService1.parse();
     }
 
 }

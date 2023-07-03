@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_jiekuanjiufen_result")
+@Document(value = "document_jiekuanjiufen_data")
 public class ContractResultVo {
     @Id
     @ExcelIgnore
@@ -82,26 +82,38 @@ public class ContractResultVo {
 
     //合同名称
     private String contractName;
+    private String contractNameContent;
+    //
+    private String contractSigningDate;
+    private String contractSigningDateContent;
     //借款金额
     private String loanAmount;
-    //借款金额开始时间
-    private String loanAmountStartDate;
-    //借款金额结束时间
-    private String loanAmountEndDate;
+    private String loanAmountContent;
+    //借款开始时间
+    private String contractStartDate;
+    private String contractStartDateContent;
+    //借款结束时间
+    private String contractEndDate;
+    private String contractEndDateContent;
 
     //借款利率
     private String loanRate;
+    private String loanRateContent;
     //逾期利率
     private String overdueRate;
+    private String overdueRateContent;
 
     //抵押条件
     private String mortgage;
+    private String mortgageContent;
 
     //违约日期
     private String defaultDate;
+    private String defaultDateContent;
 
     //违约金额
     private String defaultAmount;
+    private String defaultAmountContent;
 
 
 }

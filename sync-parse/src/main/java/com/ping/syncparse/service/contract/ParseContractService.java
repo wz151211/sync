@@ -133,7 +133,7 @@ public class ParseContractService {
         //    Criteria criteria = Criteria.where("caseNo").is(compile);
         //Criteria criteria = Criteria.where("caseNo").regex("解");
 
-        List<ContractVo> entities = contractMapper.findList(0, pageSize, null);
+        List<ContractVo> entities = contractMapper.findList(pageNum.get(), pageSize, null);
         if (entities == null || entities.size() == 0) {
             return;
         }
@@ -141,7 +141,6 @@ public class ParseContractService {
         entities.parallelStream().forEach(entity -> {
             ContractResultVo vo = new ContractResultVo();
             vo.setId(entity.getId());
-            vo.setTId(entity.getTId());
             vo.setName(entity.getName());
             vo.setCaseNo(entity.getCaseNo());
             vo.setCourtName(entity.getCourtName());
@@ -196,7 +195,6 @@ public class ParseContractService {
                     return aa.getString("fgmc") + aa.getString("tkx");
                 }).collect(joining(",")));
             }
-            vo.setLegalBasisCount(entity.getLegalBasis().size() + "");
 /*            if ("民事一审".equals(entity.getTrialProceedings())) {
                 List<DocumentMsJtblEntity> byCaseNo = documentMsMapper.find(vo.getCaseNo());
                 for (DocumentMsJtblEntity lh : byCaseNo) {
@@ -406,6 +404,11 @@ public class ParseContractService {
                     boolean bg = false;
                     boolean yg = false;
                     for (PartyEntity party : parties) {
+                        if ("被告".equals(party.getType())
+                                && StringUtils.hasLength(party.getName())
+                                && (party.getName().contains("公司") || party.getName().contains("银行") || party.getName().contains("信用合作联社"))) {
+                            break;
+                        }
                         if ("被告".equals(party.getType())
                                 && StringUtils.hasLength(party.getName())
                                 && !party.getName().contains("公司") && !party.getName().contains("银行") && !party.getName().contains("信用合作联社")) {

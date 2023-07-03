@@ -806,7 +806,7 @@ public class ParseDivorceService {
                                 } else if (temp.contains("未举行婚礼") || temp.contains("没有举行婚礼") || (temp.contains("未") && temp.contains("举行婚礼"))) {
                                     vo.setHostingWedding("否");
                                     vo.setHostingWeddingContent(sentence);
-                                } else if ((temp.contains("举办婚礼") || temp.contains("举行婚礼") || temp.contains("结婚仪式") || temp.contains("举办酒席") || temp.contains("结婚酒席") || temp.contains("举办结婚典礼") || temp.contains("典礼仪式") || (temp.contains("举办") && temp.contains("婚礼")) || (temp.contains("举行") && temp.contains("婚礼")) || temp.contains("按民间习俗结婚") || temp.contains("举行结婚仪式")) && (temp.contains("没有") || temp.contains("未"))) {
+                                    } else if ((temp.contains("举办婚礼") || temp.contains("举行婚礼") || temp.contains("结婚仪式") || temp.contains("举办酒席") || temp.contains("结婚酒席") || temp.contains("举办结婚典礼") || temp.contains("典礼仪式") || (temp.contains("举办") && temp.contains("婚礼")) || (temp.contains("举行") && temp.contains("婚礼")) || temp.contains("按民间习俗结婚") || temp.contains("举行结婚仪式")) && (temp.contains("没有") || temp.contains("未"))) {
 
                                 } else if ((temp.contains("年") || temp.contains("月") || temp.contains("日")) && (temp.contains("举办婚礼") || temp.contains("举行婚礼") || temp.contains("结婚仪式") || temp.contains("举办酒席") || temp.contains("结婚酒席") || temp.contains("举办结婚典礼") || temp.contains("典礼仪式") || (temp.contains("举办") && temp.contains("婚礼")) || (temp.contains("举行") && temp.contains("婚礼")) || temp.contains("按民间习俗结婚") || temp.contains("举行结婚仪式"))) {
                                     vo.setHostingWedding("是");
@@ -1022,7 +1022,7 @@ public class ParseDivorceService {
                                 } else if ((!temp.contains("未") || !temp.contains("不会") && !temp.contains("不能") && !temp.contains("没有") && !temp.contains("无生育") && !temp.contains("未有生育")) && (temp.contains("生育") || temp.contains("生下") || temp.contains("育有") || temp.contains("分娩") || temp.contains("非婚生") || temp.contains("诞下") || temp.contains("产下") || temp.contains("生产") && (temp.contains("子") || temp.contains("女") || temp.contains("男")))) {
                                     vo.setChild("是");
                                     vo.setChildContent(sentence);
-                                } else if (temp.contains("男婴") || temp.contains("女婴") || temp.contains("非婚生") || temp.contains("剖腹") || temp.contains("剖宫")) {
+                                    } else if (temp.contains("男婴") || temp.contains("女婴") || temp.contains("非婚生") || temp.contains("剖腹") || temp.contains("剖宫")) {
                                     vo.setChild("是");
                                     vo.setChildContent(sentence);
                                 }

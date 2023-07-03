@@ -30,14 +30,15 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 @Slf4j
 public class ContractService {
 
     @Autowired
-    private ContractMapper contractMapper;
+    private ContractTempMapper contractTempMapper;
     @Autowired
     private ContractResultMapper contractResultMapper;
     @Autowired
@@ -128,12 +129,7 @@ public class ContractService {
     AtomicInteger count = new AtomicInteger();
 
     public void parse() {
-        Pattern compile = Pattern.compile("^((?!解).)*$", Pattern.CASE_INSENSITIVE);
-
-        //    Criteria criteria = Criteria.where("caseNo").is(compile);
-        //Criteria criteria = Criteria.where("caseNo").regex("解");
-
-        List<ContractVo> entities = contractMapper.findList(0, pageSize, null);
+        List<ContractTempVo> entities = contractTempMapper.findList(pageNum.get(), pageSize, null);
         if (entities == null || entities.size() == 0) {
             return;
         }
@@ -184,17 +180,8 @@ public class ContractService {
             vo.setCourtConsidered(entity.getCourtConsidered());
             vo.setLitigationRecords(entity.getLitigationRecords());
             vo.setFact(entity.getFact());
-            if (entity.getCause() != null && entity.getCause().size() > 0) {
-                vo.setCause(entity.getCause().stream().map(Object::toString).collect(joining(",")));
-            }
-            if (entity.getLegalBasis() != null && entity.getLegalBasis().size() > 0) {
-                for (int i = 0; i < entity.getLegalBasis().size(); i++) {
-                }
-                vo.setLegalBasis(entity.getLegalBasis().stream().map(c -> {
-                    JSONObject aa = JSONObject.parseObject(JSON.toJSONString(c));
-                    return aa.getString("fgmc") + aa.getString("tkx");
-                }).collect(joining(",")));
-            }
+            vo.setCause(entity.getCause());
+            vo.setLegalBasis(entity.getLegalBasis());
             try {
                 vo.setRefereeDate(entity.getRefereeDate());
             } catch (Exception ex) {
@@ -215,15 +202,18 @@ public class ContractService {
                 elements.addAll(div);
                 elements.addAll(p);
 
-                JSONArray array = entity.getParty();
+                List<PartyEntity> array = entity.getParty();
                 if (array != null && array.size() > 0) {
-                    for (Object o : array) {
+                    for (PartyEntity party1 : array) {
                         boolean isExist = false;
                         for (int i = 0; i < elements.size(); i++) {
                             Element element = elements.get(i);
                             String text = element.text();
-                            if (text.contains(o.toString())) {
-                                party = parseText(text, o.toString());
+                            if (StringUtils.isEmpty(text) || StringUtils.isEmpty(party1.getName())) {
+                                continue;
+                            }
+                            if (text.contains(party1.getName())) {
+                                party = parseText(text, party1.getName());
                                 party.setCaseId(vo.getId());
                                 party.setCaseNo(vo.getCaseNo());
                                 vo.getParty().add(party);
@@ -234,12 +224,15 @@ public class ContractService {
 
                         if (!isExist) {
                             String name = "";
-                            String s = o.toString();
+                            String s = party1.getName();
                             if (s.length() == 2) {
                                 name = s.substring(0, 1) + "某";
                                 for (int i = 0; i < elements.size(); i++) {
                                     Element element = elements.get(i);
                                     String text = element.text();
+                                    if (StringUtils.isEmpty(text) || StringUtils.isEmpty(party1.getName())) {
+                                        continue;
+                                    }
                                     if (text.contains(name)) {
                                         party = parseText(text, name);
                                         party.setCaseId(vo.getId());
@@ -255,12 +248,15 @@ public class ContractService {
 
                         if (!isExist) {
                             String name = "";
-                            String s = o.toString();
+                            String s = party1.getName();
                             if (s.length() == 2) {
                                 name = s.substring(0, 1) + "*";
                                 for (int i = 0; i < elements.size(); i++) {
                                     Element element = elements.get(i);
                                     String text = element.text();
+                                    if (StringUtils.isEmpty(text) || StringUtils.isEmpty(party1.getName())) {
+                                        continue;
+                                    }
                                     if (text.contains(name)) {
                                         party = parseText(text, name);
                                         party.setCaseId(vo.getId());
@@ -277,13 +273,16 @@ public class ContractService {
 
                         if (!isExist) {
                             String name = "";
-                            String s = o.toString();
+                            String s = party1.getName();
                             if (s.length() == 3) {
                                 name = s.substring(0, 1) + "某" + s.substring(2);
                             }
                             for (int i = 0; i < elements.size(); i++) {
                                 Element element = elements.get(i);
                                 String text = element.text();
+                                if (StringUtils.isEmpty(text) || StringUtils.isEmpty(party1.getName())) {
+                                    continue;
+                                }
                                 if (text.contains(name)) {
                                     party = parseText(text, name);
                                     party.setCaseId(vo.getId());
@@ -297,13 +296,16 @@ public class ContractService {
                         }
                         if (!isExist) {
                             String name = "";
-                            String s = o.toString();
+                            String s = party1.getName();
                             if (s.length() == 3) {
                                 name = s.substring(0, 1) + "某某";
                             }
                             for (int i = 0; i < elements.size(); i++) {
                                 Element element = elements.get(i);
                                 String text = element.text();
+                                if (StringUtils.isEmpty(text) || StringUtils.isEmpty(party1.getName())) {
+                                    continue;
+                                }
                                 if (text.contains(name)) {
                                     party = parseText(text, name);
                                     party.setCaseId(vo.getId());
@@ -316,13 +318,16 @@ public class ContractService {
                         }
                         if (!isExist) {
                             String name = "";
-                            String s = o.toString();
+                            String s = party1.getName();
                             if (s.length() == 3) {
                                 name = s.substring(0, 1) + "**";
                             }
                             for (int i = 0; i < elements.size(); i++) {
                                 Element element = elements.get(i);
                                 String text = element.text();
+                                if (StringUtils.isEmpty(text) || StringUtils.isEmpty(party1.getName())) {
+                                    continue;
+                                }
                                 if (text.contains(name)) {
                                     party = parseText(text, name);
                                     party.setCaseId(vo.getId());
@@ -383,8 +388,167 @@ public class ContractService {
                     }
                 }
             }
+            String fact = entity.getFact();
+            if (StringUtils.hasLength(fact)) {
+                int index = fact.indexOf("事实和理由");
+                if (index > 0) {
+                    fact = fact.substring(index);
+                }
+                for (String sentence : fact.split("。")) {
+                    sentence = sentence.replace(";", "，");
+                    sentence = sentence.replace("；", "，");
+                    sentence = sentence.replace("；", "，");
+                    String[] split = sentence.split("，");
+                    for (int i = 0; i < split.length; i++) {
+                        String comma = split[i];
+                        if (comma.contains("签订") && comma.contains("合同")) {
+                            String temp = "";
+                            if (i > 0) {
+                                temp = split[i - 1] + comma;
+                            }
+                            String contractSigningDate = "";
+                            for (Term term : ToAnalysis.parse(temp)) {
+                                if (contractSigningDate.contains("年") && term.getRealName().contains("年")) {
+                                    break;
+                                }
+                                if (contractSigningDate.contains("月") && term.getRealName().contains("月")) {
+                                    break;
+                                }
+                                if (contractSigningDate.contains("日") && term.getRealName().contains("日")) {
+                                    break;
+                                }
+                                String realName = term.getRealName();
+                                if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
+                                    contractSigningDate += term.getRealName();
+                                }
+                            }
+                            if (StringUtils.isEmpty(vo.getContractSigningDate())) {
+                                vo.setContractSigningDate(contractSigningDate);
+                                vo.setContractSigningDateContent(temp);
+                            }
+                            int start = comma.indexOf("《");
+                            int end = comma.indexOf("》");
+                            if (comma.contains("《") && comma.contains("》") && end > start) {
+                                String name = comma.substring(start, end);
+                                name = name.replace("了", "");
+                                log.info("合同名称={}", name);
+                                if (StringUtils.isEmpty(vo.getContractName())) {
+                                    vo.setContractName(name);
+                                    vo.setContractNameContent(sentence);
+                                }
+                            } else {
+                                start = comma.indexOf("签订");
+                                end = comma.indexOf("合同");
+                                if (end > start) {
+                                    String name = comma.substring(start, end);
+                                    name = name.replace("了", "");
+                                    log.info("合同名称={}", name);
+                                    if (StringUtils.isEmpty(vo.getContractName())) {
+                                        vo.setContractName(name);
+                                        vo.setContractNameContent(sentence);
+                                    }
+                                }
 
+                            }
+                        }
+                        if ((comma.contains("授信额度") || comma.contains("贷款金额")) && StringUtils.isEmpty(vo.getLoanAmount())) {
+                            Result parse = ToAnalysis.parse(comma);
+                            for (Term term : parse.getTerms()) {
+                                if (term.getRealName().contains("元") && term.getNatureStr().equals("mq")) {
+                                    if (StringUtils.isEmpty(vo.getLoanAmount())) {
+                                        vo.setLoanAmount(term.getRealName());
+                                        vo.setLoanAmountContent(comma);
+                                    }
 
+                                }
+                            }
+                        }
+
+                        if (comma.contains("至") && comma.contains("年") && comma.contains("月") && comma.contains("日")) {
+                            String[] data = comma.split("至");
+                            String contractStartDate = "";
+                            for (Term term : ToAnalysis.parse(data[0])) {
+                                String realName = term.getRealName();
+                                if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
+                                    contractStartDate += term.getRealName();
+                                }
+                            }
+                            String contractEndDate = "";
+                            for (Term term : ToAnalysis.parse(data[1])) {
+                                String realName = term.getRealName();
+                                if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
+                                    contractEndDate += term.getRealName();
+                                }
+                            }
+                            if (StringUtils.isEmpty(vo.getContractStartDate()) && StringUtils.hasLength(contractStartDate)) {
+                                vo.setContractStartDate(contractStartDate);
+                                vo.setContractStartDateContent(comma);
+                            }
+                            if (StringUtils.isEmpty(vo.getContractEndDate()) && StringUtils.hasLength(contractEndDate)) {
+                                vo.setContractEndDate(contractEndDate);
+                                vo.setContractEndDateContent(comma);
+                            }
+                        }
+                        if (comma.contains("利率")) {
+                            if ((comma.contains("基准利率") || comma.contains("贷款利率") || comma.contains("月利率")) && (comma.contains("%") || comma.contains("‰"))) {
+                                vo.setLoanRate(comma);
+                                vo.setLoanRateContent(comma);
+                            }
+                            if (comma.contains("逾期利率") && (comma.contains("%") || comma.contains("‰"))) {
+                                vo.setOverdueRate(comma);
+                                vo.setOverdueRateContent(comma);
+                            }
+                        }
+                        if (comma.contains("抵押")) {
+                            vo.setMortgage(comma);
+                            vo.setMortgageContent(comma);
+                        }
+
+                        if (comma.contains("未还款") && comma.contains("年") && comma.contains("月") && comma.contains("日")) {
+                            String defaultDate = "";
+                            for (Term term : ToAnalysis.parse(comma)) {
+                                if (defaultDate.contains("年") && term.getRealName().contains("年")) {
+                                    break;
+                                }
+                                if (defaultDate.contains("月") && term.getRealName().contains("月")) {
+                                    break;
+                                }
+                                if (defaultDate.contains("日") && term.getRealName().contains("日")) {
+                                    break;
+                                }
+                                String realName = term.getRealName();
+                                if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
+                                    defaultDate += term.getRealName();
+                                }
+                            }
+                            if (StringUtils.isEmpty(vo.getDefaultDate())) {
+                                vo.setDefaultDate(defaultDate);
+                                vo.setDefaultAmountContent(comma);
+                            }
+                        }
+                    }
+                }
+            }
+            String judgmentResult = entity.getJudgmentResult();
+            if (StringUtils.hasLength(judgmentResult)) {
+                judgmentResult = judgmentResult.replace(";", "。");
+                judgmentResult = judgmentResult.replace("；", "。");
+                for (String judgment : judgmentResult.split("。")) {
+                    if (judgment.contains("偿还") && judgment.contains("元")) {
+                        for (Term term : ToAnalysis.parse(judgment)) {
+                            if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
+                                vo.setDefaultAmount(term.getRealName());
+                                vo.setDefaultAmountContent(judgment);
+                            } else if (term.getNatureStr().equals("m") && term.from() != null && (term.from().getRealName().contains("人民币"))) {
+                                if (StringUtils.isEmpty(vo.getDefaultAmount())) {
+                                    vo.setDefaultAmount(term.getRealName());
+                                    vo.setDefaultAmountContent(judgment);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             try {
                 for (PartyEntity entity1 : vo.getParty()) {
                     parseAddress(entity1);
@@ -393,7 +557,6 @@ public class ContractService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         });
     }
 
@@ -954,7 +1117,7 @@ public class ContractService {
     }
 
 
-    public void address(ContractVo entity, ContractResultVo vo) {
+    public void address(ContractTempVo entity, ContractResultVo vo) {
         if (StringUtils.hasLength(entity.getCourtName())) {
             if (entity.getCourtName().contains("省")) {
 

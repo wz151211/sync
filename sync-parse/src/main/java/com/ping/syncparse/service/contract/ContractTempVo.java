@@ -15,14 +15,11 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_jiekuanjiufen_data")
+@Document(value = "document_jiekuanjiufen_result")
 public class ContractTempVo {
     @Id
     @ExcelIgnore
     private String id;
-    @ExcelIgnore
-    private String tId;
-
     @ExcelProperty(value = "案件名称", index = 0)
     private String name;
 
