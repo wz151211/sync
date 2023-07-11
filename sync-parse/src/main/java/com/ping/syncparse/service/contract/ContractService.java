@@ -195,8 +195,8 @@ public class ContractService {
                     index = fact.indexOf("查明的事实");
                 }
                 if (index > 0) {
-                    fact = fact.substring(index);
                     startFact = fact.substring(0, index);
+                    fact = fact.substring(index);
                 }
                 for (String sentence : fact.split("。")) {
                     sentence = sentence.replace(";", "，");
