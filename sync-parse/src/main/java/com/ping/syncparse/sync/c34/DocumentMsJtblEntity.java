@@ -13,7 +13,7 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_hunyue")
+@Document(value = "document_quanshujiufen")
 public class DocumentMsJtblEntity {
 
     @Id

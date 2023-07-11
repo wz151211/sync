@@ -63,7 +63,7 @@ public class ParsePartyEasyService {
     private String[] temp = {"汉族", "满族", "回族", "藏族", "苗族", "彝族", "壮族", "侗族", "瑶族", "白族", "傣族", "黎族", "佤族", "畲族", "水族", "土族", "蒙古族", "布依族", "土家族", "哈尼族", "傈僳族", "高山族", "拉祜族", "东乡族", "纳西族", "景颇族", "哈萨克族", "维吾尔族", "达斡尔族", "柯尔克孜族", "羌族", "怒族", "京族", "德昂族", "保安族", "裕固族", "仫佬族", "布朗族", "撒拉族", "毛南族", "仡佬族", "锡伯族", "阿昌族", "普米族", "朝鲜族", "赫哲族", "门巴族", "珞巴族", "独龙族", "基诺族", "塔吉克族", "俄罗斯族", "鄂温克族", "塔塔尔族", "鄂伦春族", "乌孜别克族"};
 
     private Set<String> eduLevel = new HashSet<>();
-    private int pageSize = 30000;
+    private int pageSize = 10000;
     private Set<String> nations = new HashSet<>();
 
     private Set<String> professionSet = new HashSet<>();
@@ -235,9 +235,9 @@ public class ParsePartyEasyService {
                 JSONArray array = entity.getParty();
                 if (array != null && array.size() > 0) {
                     for (Object o : array) {
-                        if (o.toString().contains("检察院") || o.toString().contains("医院") || o.toString().contains("医疗所") || o.toString().contains("医疗中心")) {
+                     /*   if (o.toString().contains("检察院") || o.toString().contains("医院") || o.toString().contains("医疗所") || o.toString().contains("医疗中心")) {
                             vo.setApplicant(o.toString());
-                        }
+                        }*/
                         boolean isExist = false;
                         for (int i = 0; i < elements.size(); i++) {
                             Element element = elements.get(i);
@@ -392,7 +392,7 @@ public class ParsePartyEasyService {
                 }
 
 
-                if (StringUtils.isEmpty(vo.getApplicant())) {
+            /*    if (StringUtils.isEmpty(vo.getApplicant())) {
                     for (int i = 0; i < 20; i++) {
                         if (i > elements.size() - 1) {
                             continue;
@@ -468,18 +468,18 @@ public class ParsePartyEasyService {
                             }
                         }
                     }
-                }
+                }*/
 
-                for (int i = 0; i < elements.size(); i++) {
+                /*for (int i = 0; i < elements.size(); i++) {
                     Element element = elements.get(i);
                     String temp = element.text();
                     if (StringUtils.isEmpty(vo.getCharge())) {
                         String finalTemp = temp;
-                        causeSet.parallelStream().filter(temp::contains).forEach(c ->
+                      *//*  causeSet.parallelStream().filter(temp::contains).forEach(c ->
                         {
                             vo.setCharge(c + "罪");
                             vo.setChargeContent(finalTemp);
-                        });
+                        });*//*
                     }
                     if (temp.contains("检察院申请称")
                             || temp.contains("经查")
@@ -511,13 +511,13 @@ public class ParsePartyEasyService {
                                 //   if (StringUtils.isEmpty(vo.getCharge())) {
                                 if (end > start) {
                                     try {
-                                        if (StringUtils.isEmpty(vo.getCharge())) {
+                                    *//*    if (StringUtils.isEmpty(vo.getCharge())) {
                                             vo.setChargeContent(temp);
                                             String charge = text.substring(start + 2, end + 1);
                                             if (charge.length() > 2) {
                                                 vo.setCharge(charge);
                                             }
-                                        }
+                                        }*//*
                                     } catch (Exception e) {
                                         log.info("罪名={}", text);
                                         e.printStackTrace();
@@ -577,10 +577,10 @@ public class ParsePartyEasyService {
                     }
 
 
-                }
+                }*/
             }
 
-            if (StringUtils.hasLength(vo.getCharge())) {
+/*            if (StringUtils.hasLength(vo.getCharge())) {
                 String charge = vo.getCharge();
                 charge = charge.replace("了", "");
                 vo.setCharge(charge);
@@ -590,7 +590,7 @@ public class ParsePartyEasyService {
                     vo.setCharge(vo.getCause() + "罪");
                 }
 
-            }
+            }*/
 
             if ("刑事案件".equals(entity.getCaseType())) {
                 String litigationRecords = entity.getLitigationRecords();
@@ -1074,7 +1074,7 @@ public class ParsePartyEasyService {
                 }
 
 
-                String considered = entity.getCourtConsidered();
+        /*        String considered = entity.getCourtConsidered();
                 if (StringUtils.hasLength(considered)) {
                     considered = considered.replace("。", "，");
                     for (String sentence : considered.split("，")) {
@@ -1084,11 +1084,11 @@ public class ParsePartyEasyService {
                             }
                         }
                     }
-                }
+                }*/
 
 
             }
-            if ("刑事案件".equals(entity.getCaseType())) {
+ /*           if ("刑事案件".equals(entity.getCaseType())) {
                 String s27 = entity.getJudgmentResult();
                 //    vo.setJudgmenResultContent(s27);
                 if (StringUtils.hasLength(s27)) {
@@ -1141,7 +1141,7 @@ public class ParsePartyEasyService {
                         }
                     }
                 }
-            }
+            }*/
 
             if ("民事案件".equals(entity.getCaseType())) {
                 String judgmentResult = entity.getJudgmentResult();
@@ -1328,21 +1328,25 @@ public class ParsePartyEasyService {
                     String records = entity.getLitigationRecords();
                     if (StringUtils.hasLength(records)) {
                         for (String s : records.split("，")) {
-                            if (s.contains("立案")) {
+                            if (s.contains("立案") || s.contains("受理")) {
                                 log.info("立案信息：{}", s);
                                 String registerCaseDate = "";
                                 for (Term term : ToAnalysis.parse(s)) {
-                                    if (term.getRealName().contains("年")) {
+                                    if (term.getRealName().contains("同") || term.getRealName().contains("当")) {
+                                        continue;
+
+                                    }
+                                    if (term.getRealName().contains("年") && !registerCaseDate.contains("年")) {
                                         registerCaseDate = term.getRealName().replace("年", "-");
                                     }
-                                    if (term.getRealName().contains("月")) {
+                                    if (term.getRealName().contains("月") && !registerCaseDate.contains("月")) {
                                         String temp = term.getRealName().replace("月", "-");
                                         if (temp.length() == 2) {
                                             temp = "0" + temp;
                                         }
                                         registerCaseDate += temp;
                                     }
-                                    if (term.getRealName().contains("日")) {
+                                    if (term.getRealName().contains("日") && !registerCaseDate.contains("日")) {
                                         String temp = term.getRealName().replace("日", "");
                                         if (temp.length() == 1) {
                                             temp = "0" + temp;
@@ -1359,7 +1363,52 @@ public class ParsePartyEasyService {
                     }
 
                     judgmentResult = entity.getJudgmentResult();
-                    if (judgmentResult.contains("维持原判")) {
+                    if (StringUtils.hasLength(judgmentResult)) {
+                        String result = judgmentResult;
+                        result = result.replace(";", "。");
+                        result = result.replace("；", "。");
+                        for (String temp : result.split("。")) {
+                            if ((temp.contains("经济")) && StringUtils.isEmpty(vo.getEconomicLosses())) {
+                                for (Term term : ToAnalysis.parse(temp)) {
+                                    if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
+                                        if (StringUtils.isEmpty(vo.getEconomicLosses())) {
+                                            vo.setEconomicLosses(term.getRealName());
+                                            Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                            if (matcher.find()) {
+                                                vo.setEconomicLosses(term.getRealName());
+                                            } else {
+                                                try {
+                                                    vo.setEconomicLosses(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                                } catch (Exception e) {
+                                                    vo.setEconomicLosses(term.getRealName());
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (temp.contains("合理") && !temp.contains("已含") && !temp.contains("共计") && !temp.contains("总计") && !temp.contains("合计") && !temp.contains("经济损失") && StringUtils.isEmpty(vo.getReasonableExpenses())) {
+                                for (Term term : ToAnalysis.parse(temp)) {
+                                    if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
+                                        if (StringUtils.isEmpty(vo.getReasonableExpenses())) {
+                                            vo.setReasonableExpenses(term.getRealName());
+                                            Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                            if (matcher.find()) {
+                                                vo.setReasonableExpenses(term.getRealName());
+                                            } else {
+                                                try {
+                                                    vo.setReasonableExpenses(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                                } catch (Exception e) {
+                                                    vo.setReasonableExpenses(term.getRealName());
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (StringUtils.hasLength(judgmentResult) && judgmentResult.contains("维持原判")) {
                         if (StringUtils.hasLength(entity.getTId())) {
                             List<DocumentXsLhEntity> list = documentXsMapper.find(entity.getTId());
                             if (list != null && list.size() > 0) {

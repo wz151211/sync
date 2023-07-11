@@ -3,6 +3,7 @@ package com.ping.syncparse.task;
 import com.ping.syncparse.service.*;
 import com.ping.syncparse.service.contract.ContractService;
 import com.ping.syncparse.service.contract.ContractStatisticsService;
+import com.ping.syncparse.service.contract.ExportContractService;
 import com.ping.syncparse.service.contract.ParseContractService;
 import com.ping.syncparse.service.divorce.ParseDivorceService;
 import com.ping.syncparse.service.gamble.ParseGambleService;
@@ -121,7 +122,7 @@ public class Task {
         exportTempService.export();
     }
 
-    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
     public void parse() {
         parsePartyEasyService.parse();
     }
@@ -135,12 +136,12 @@ public class Task {
     }
 
 
-    //    @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    // @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
     public void update() {
         upadteTidService.update();
     }
 
-    //   @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
+    //  @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 3L)
     public void updateCaseNo() {
         upadteTidService.updateCaseNo();
     }
@@ -188,6 +189,14 @@ public class Task {
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void ContractService() {
         contractService1.parse();
+    }
+
+    @Autowired
+    private ExportContractService exportContractService;
+
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    public void exportContractService() {
+        exportContractService.export();
     }
 
 }

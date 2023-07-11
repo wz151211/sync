@@ -1,8 +1,11 @@
-package com.ping.syncparse.service;
+package com.ping.syncparse.service.contract;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import com.ping.syncparse.entity.PartyEntity;
+import com.ping.syncparse.service.CaseVo;
+import com.ping.syncparse.service.CaseXsMapper;
+import com.ping.syncparse.service.CrimeVO;
 import com.ping.syncparse.sync.c34.DocumentXsMapper;
 import com.ping.syncparse.utils.ExcelUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,27 +32,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
-public class ExportResultService {
+public class ExportContractService {
 
     @Autowired
-    private CaseXsMapper caseMapper;
-    private int pageSize = 500;
+    private ContractResultMapper contractResultMapper;
+
+    private int pageSize = 1000;
     private AtomicInteger pageNum = new AtomicInteger(-1);
-
-    @Autowired
-    private DocumentXsMapper documentXsMapper;
 
     public void export() {
         pageNum.getAndIncrement();
-        List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
+        List<ContractResultVo> vos = contractResultMapper.findList(pageNum.get(), pageSize, null);
         Workbook wb = new XSSFWorkbook();
         String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县",
-                "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容"};
+                "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容",
+                "合同名称", "合同名称内容", "合同签订日期", "合同签订日期内容", "合同约定借款金额", "合同约定借款金额内容", "合同约定借款开始日期", "合同约定借款开始日期内容", "合同约定借款结束日期", "合同约定借款结束日期内容", "合同约定借款利率", "合同约定借款利率内容",
+                "合同约定逾期利率", "合同约定逾期利率内容", "合同约定抵押条件", "合同约定抵押条件内容", "违约日期", "违约日期内容", "违约金额", "违约金额内容"};
         Sheet sheet = wb.createSheet("案件信息");
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
         try {
-            File file = new File("E:\\导出\\刑事案件-12.xlsx");
+            File file = new File("E:\\导出\\刑事案件-" + (pageNum.get() + 1) + ".xlsx");
             if (file.exists()) {
                 file.delete();
             } else {
@@ -119,7 +122,7 @@ public class ExportResultService {
             List<Map<Integer, Object>> crimeList = new ArrayList<>();
             List<Map<Integer, Object>> crimeList2 = new ArrayList<>();
 
-            for (CaseVo vo : vos) {
+            for (ContractResultVo vo : vos) {
                 List<PartyEntity> party = vo.getParty();
                 if (party != null) {
                     Map<String, List<PartyEntity>> listMap = party.stream().filter(c -> org.springframework.util.StringUtils.hasLength(c.getType())).collect(Collectors.groupingBy(PartyEntity::getType));
@@ -132,14 +135,14 @@ public class ExportResultService {
                     if (entities != null && entities.size() > 0) {
                         for (int i = 0; i < entities.size(); i++) {
                             PartyEntity entity = entities.get(i);
-                        /*    entity.setAge("");
+                            entity.setAge("");
                             try {
                                 if (StringUtils.isNotEmpty(entity.getAgeContent())) {
                                     entity.setAge(DateUtil.age(DateUtil.parse(entity.getAgeContent()), vo.getRefereeDate()) + "");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                            }*/
+                            }
                             toParty(start, partyMap, entity);
                             Map<Integer, Object> partyMap2 = new HashMap<>();
                             partyMap2.put(1, vo.getCaseNo());
@@ -157,14 +160,14 @@ public class ExportResultService {
                                 break;
                             }
                             PartyEntity entity = bList.get(i);
-                     /*       entity.setAge("");
+                            entity.setAge("");
                             try {
                                 if (StringUtils.isNotEmpty(entity.getAgeContent())) {
                                     entity.setAge(DateUtil.age(DateUtil.parse(entity.getAgeContent()), vo.getRefereeDate()) + "");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                            }*/
+                            }
                             toParty(start, partyMap, entity);
                             Map<Integer, Object> partyMap2 = new HashMap<>();
                             partyMap2.put(1, vo.getCaseNo());
@@ -182,7 +185,8 @@ public class ExportResultService {
                     partyList2.add(new HashMap<>());
                 }
 
-                List<CrimeVO> crimes = vo.getCrimes();
+                //   List<CrimeVO> crimes = vo.getCrimes();
+                List<CrimeVO> crimes = null;
                 if (crimes != null) {
                     Map<Integer, Object> crimeMap = new HashMap<>();
                     crimeMap.put(1, vo.getCaseNo());
@@ -211,8 +215,8 @@ public class ExportResultService {
             Sheet partySheet2 = wb.createSheet("当事人信息");
             ExcelUtils.export(wb, partySheet2, partyList2, partyHead2.toArray());
 
-         //   Sheet crimeSheet = wb.createSheet("判决结果");
-         //   ExcelUtils.export(wb, crimeSheet, crimeList2, crimeHead2.toArray());
+            //   Sheet crimeSheet = wb.createSheet("判决结果");
+            //   ExcelUtils.export(wb, crimeSheet, crimeList2, crimeHead2.toArray());
             wb.write(out);
             System.out.println("导出完成");
         } catch (FileNotFoundException e) {
@@ -316,7 +320,7 @@ public class ExportResultService {
 
     }
 
-    private Map<Integer, Object> toMap(CaseVo vo) {
+    private Map<Integer, Object> toMap(ContractResultVo vo) {
         Map<Integer, Object> map = new HashMap<>();
         map.put(1, vo.getName());
         map.put(2, vo.getCaseNo());
@@ -344,7 +348,26 @@ public class ExportResultService {
         } else {
             map.put(18, "");
         }
-
+        map.put(19, vo.getContractName());
+        map.put(20, vo.getContractNameContent());
+        map.put(21, vo.getContractSigningDate());
+        map.put(22, vo.getContractSigningDateContent());
+        map.put(23, vo.getLoanAmount());
+        map.put(24, vo.getLoanAmountContent());
+        map.put(25, vo.getContractStartDate());
+        map.put(26, vo.getContractStartDateContent());
+        map.put(27, vo.getContractEndDate());
+        map.put(28, vo.getContractEndDateContent());
+        map.put(29, vo.getLoanRate());
+        map.put(30, vo.getLoanRateContent());
+        map.put(31, vo.getOverdueRate());
+        map.put(32, vo.getOverdueRateContent());
+        map.put(33, vo.getMortgage());
+        map.put(34, vo.getMortgageContent());
+        map.put(35, vo.getDefaultDate());
+        map.put(36, vo.getDefaultDateContent());
+        map.put(37, vo.getDefaultAmount());
+        map.put(38, vo.getDefaultAmountContent());
         return map;
 
     }

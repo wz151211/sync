@@ -18,7 +18,7 @@ public class Task11 {
     @Autowired
     private QueryService queryService;
     //  Criteria criteria = Criteria.where("s6").is("01").and("s11").in(CauseUtils.getCauseList("9300"));//知识产权合同纠纷
-    //  Criteria criteria = Criteria.where("s6").is("01").and("s11").in(CauseUtils.getCauseList("9363")); //知识产权权属、侵权纠纷
+  //  Criteria criteria = Criteria.where("s6").is("01").and("s11").in(CauseUtils.getCauseList("9396")); //知识产权权属、侵权纠纷
     //   Criteria criteria = Criteria.where("s6").is("01").and("s11").is("保险诈骗");
     // Criteria criteria = Criteria.where("s8").is("刑事案件").and("fyTree").is("浙江省").and("s6").is("01").and("s9").is("刑事一审").and("qwContent").regex("电信网络诈骗");
     //Criteria criteria = Criteria.where("s8").is("刑事案件").and("s6").is("04").and("qwContent").regex("强制医疗");
@@ -71,7 +71,7 @@ public class Task11 {
         }
     }
 
-   @Scheduled(initialDelay = 12 * 1000L, fixedRate = 1000 * 60)
+    @Scheduled(initialDelay = 12 * 1000L, fixedRate = 1000 * 60)
     public void save2019() {
         try {
             queryService.sync2019(criteria);

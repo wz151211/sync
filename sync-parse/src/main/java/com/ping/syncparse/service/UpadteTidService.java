@@ -25,7 +25,7 @@ public class UpadteTidService {
 
     @Autowired
     private DocumentXsMapper documentXsMapper;
-    private int pageSize = 20000;
+    private int pageSize = 10000;
     private AtomicInteger pageNum = new AtomicInteger(0);
     AtomicInteger count = new AtomicInteger();
 
@@ -115,7 +115,7 @@ public class UpadteTidService {
                                 caseNo = caseNo.replace("以", "");
                                 log.info(caseNo);
                                 entity.setTId(caseNo);
-                                    documentXsMapper.insert(entity);
+                                documentXsMapper.insert(entity);
                             } catch (Exception e) {
                                 log.info("诉讼记录={}", temp);
                                 e.printStackTrace();
@@ -132,7 +132,7 @@ public class UpadteTidService {
                                 caseNo = caseNo.replace("以", "");
                                 log.info(caseNo);
                                 entity.setTId(caseNo);
-                                    documentXsMapper.insert(entity);
+                                documentXsMapper.insert(entity);
                             } catch (Exception e) {
                                 log.info("诉讼记录={}", temp);
                                 e.printStackTrace();

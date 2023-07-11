@@ -129,10 +129,6 @@ public class ParseContractService {
 
     public void parse() {
         Pattern compile = Pattern.compile("^((?!解).)*$", Pattern.CASE_INSENSITIVE);
-
-        //    Criteria criteria = Criteria.where("caseNo").is(compile);
-        //Criteria criteria = Criteria.where("caseNo").regex("解");
-
         List<ContractVo> entities = contractMapper.findList(pageNum.get(), pageSize, null);
         if (entities == null || entities.size() == 0) {
             return;
@@ -195,19 +191,8 @@ public class ParseContractService {
                     return aa.getString("fgmc") + aa.getString("tkx");
                 }).collect(joining(",")));
             }
-/*            if ("民事一审".equals(entity.getTrialProceedings())) {
-                List<DocumentMsJtblEntity> byCaseNo = documentMsMapper.find(vo.getCaseNo());
-                for (DocumentMsJtblEntity lh : byCaseNo) {
-                    DocumentXsLhEntity xsLhEntity = new DocumentXsLhEntity();
-                    lh.setTId(entity.getId());
-                    BeanUtils.copyProperties(lh, xsLhEntity);
-                    documentXsMapper.insert(xsLhEntity);
-                }
-            }*/
             try {
                 vo.setRefereeDate(entity.getRefereeDate());
-                // vo.setRefereeDate(DateUtil.offsetHour(vo.getRefereeDate(), 8));
-
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -406,25 +391,26 @@ public class ParseContractService {
                     for (PartyEntity party : parties) {
                         if ("被告".equals(party.getType())
                                 && StringUtils.hasLength(party.getName())
-                                && (party.getName().contains("公司") || party.getName().contains("银行") || party.getName().contains("信用合作联社"))) {
+                                && (party.getName().contains("公司") || party.getName().contains("银行") || party.getName().contains("信用合作联社") || party.getName().contains("信用社") || party.getName().length() >= 7 || (party.getName().contains("厂") && party.getName().length() >= 5))) {
+                            bg = false;
+                            yg = false;
                             break;
                         }
                         if ("被告".equals(party.getType())
                                 && StringUtils.hasLength(party.getName())
-                                && !party.getName().contains("公司") && !party.getName().contains("银行") && !party.getName().contains("信用合作联社")) {
+                                && !party.getName().contains("公司") && !party.getName().contains("银行") && !party.getName().contains("信用合作联社") && !party.getName().contains("信用社") && !(party.getName().length() >= 7) && !(party.getName().contains("厂") && party.getName().length() >= 5)) {
                             bg = true;
                         }
                         if ("原告".equals(party.getType())
                                 && StringUtils.hasLength(party.getName())
-                                && (party.getName().contains("公司") || party.getName().contains("银行") || party.getName().contains("信用合作联社"))) {
+                                && (party.getName().contains("公司") || party.getName().contains("银行") || party.getName().contains("信用合作联社") || party.getName().contains("信用社") || party.getName().length() >= 7 || (party.getName().contains("厂") && party.getName().length() >= 5))) {
                             yg = true;
                         }
                     }
                     if (yg && bg) {
                         log.info("{}", entity.getName());
-                        contractResultMapper.insert(vo);
                     } else {
-
+                        contractResultMapper.insert(vo);
                     }
                 }
 
