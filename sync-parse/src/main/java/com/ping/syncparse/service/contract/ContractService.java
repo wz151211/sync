@@ -188,6 +188,18 @@ public class ContractService {
                 ex.printStackTrace();
             }
             String fact = entity.getFact();
+            if ((StringUtils.isEmpty(fact) || (StringUtils.hasLength(fact) && fact.length() < 10)) && StringUtils.hasLength(entity.getHtmlContent())) {
+                Document parse = Jsoup.parse(entity.getHtmlContent());
+                String text = parse.text();
+                int index = text.indexOf("本院认为");
+                if (index > 0) {
+                    text = text.substring(0, index);
+                }
+                fact = text;
+            } else {
+                fact = entity.getLitigationRecords() + fact;
+
+            }
             String startFact = "";
             if (StringUtils.hasLength(fact)) {
                 int index = fact.indexOf("事实和理由");
@@ -270,10 +282,26 @@ public class ContractService {
 
                             }
                         }
-                        if ((comma.contains("授信额度") || comma.contains("贷款") || comma.contains("借款") || comma.contains("累计欠款") || comma.contains("分期资金") || comma.contains("透支款本金") || comma.contains("透支本金") || comma.contains("欠款本金") || comma.contains("本金")) && !comma.contains("不超过") && StringUtils.isEmpty(vo.getLoanAmount())) {
+                        if ((comma.contains("授信额度")
+                                || comma.contains("贷款")
+                                || comma.contains("欠款")
+                                || comma.contains("借款")
+                                || comma.contains("累计欠款")
+                                || comma.contains("分期资金")
+                                || comma.contains("透支款本金")
+                                || comma.contains("透支本金")
+                                || comma.contains("欠款本金")
+                                || comma.contains("垫付车款")
+                                || comma.contains("本金")) && !comma.contains("不超过") && StringUtils.isEmpty(vo.getLoanAmount())) {
                             Result parse = ToAnalysis.parse(comma);
                             for (Term term : parse.getTerms()) {
                                 if (term.getRealName().contains("元") && term.getNatureStr().equals("mq")) {
+                                    if (StringUtils.isEmpty(vo.getLoanAmount())) {
+                                        vo.setLoanAmount(term.getRealName());
+                                        vo.setLoanAmountContent(comma);
+                                    }
+                                }
+                                if (term.from() != null && term.from().getRealName().contains("借款") && term.getNatureStr().equals("m")) {
                                     if (StringUtils.isEmpty(vo.getLoanAmount())) {
                                         vo.setLoanAmount(term.getRealName());
                                         vo.setLoanAmountContent(comma);
@@ -424,6 +452,7 @@ public class ContractService {
                 }
             }
             if (StringUtils.hasLength(startFact) && StringUtils.isEmpty(vo.getLoanAmount())) {
+                startFact = startFact + entity.getJudgmentResult();
                 startFact.replace(";", "，");
                 startFact.replace("；", "，");
                 startFact.replace("。", "，");
@@ -431,12 +460,14 @@ public class ContractService {
                 for (String comma : split) {
                     if ((comma.contains("授信额度")
                             || comma.contains("贷款")
+                            || comma.contains("欠款")
                             || comma.contains("借款")
                             || comma.contains("累计欠款")
                             || comma.contains("分期资金")
                             || comma.contains("透支款本金")
                             || comma.contains("透支本金")
                             || comma.contains("信用卡本金")
+                            || comma.contains("垫付车款")
                             || comma.contains("本金")
                             || comma.contains("欠款本金")) && !comma.contains("不超过") && StringUtils.isEmpty(vo.getLoanAmount())) {
                         Result parse = ToAnalysis.parse(comma);
