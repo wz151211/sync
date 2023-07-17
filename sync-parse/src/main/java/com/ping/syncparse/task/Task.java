@@ -7,6 +7,7 @@ import com.ping.syncparse.service.contract.ExportContractService;
 import com.ping.syncparse.service.contract.ParseContractService;
 import com.ping.syncparse.service.divorce.ParseDivorceService;
 import com.ping.syncparse.service.gamble.ParseGambleService;
+import com.ping.syncparse.service.invoice.InvoiceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -102,21 +103,6 @@ public class Task {
         exportService.export();
     }
 
-    //    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 300L)
-    public void save3() {
-        boolean tryLock = false;
-        try {
-            tryLock = lock1.tryLock(2, TimeUnit.SECONDS);
-            xsService.export();
-        } catch (Exception e) {
-            log.error("", e);
-        } finally {
-            if (tryLock) {
-                lock1.unlock();
-            }
-        }
-    }
-
     //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10L)
     public void export() {
         exportTempService.export();
@@ -186,7 +172,7 @@ public class Task {
     @Autowired
     private ContractService contractService1;
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void ContractService() {
         contractService1.parse();
     }
@@ -194,9 +180,22 @@ public class Task {
     @Autowired
     private ExportContractService exportContractService;
 
-    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void exportContractService() {
         exportContractService.export();
+    }
+
+    @Autowired
+    private InvoiceService invoiceService;
+
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    private void invoiceService() {
+        invoiceService.parse();
+    }
+
+      @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 300L)
+    public void save3() {
+        xsService.export();
     }
 
 }

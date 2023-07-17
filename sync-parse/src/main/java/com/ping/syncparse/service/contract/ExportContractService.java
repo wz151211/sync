@@ -37,7 +37,7 @@ public class ExportContractService {
     @Autowired
     private ContractResultMapper contractResultMapper;
 
-    private int pageSize = 1000;
+    private int pageSize = 3000;
     private AtomicInteger pageNum = new AtomicInteger(-1);
 
     public void export() {

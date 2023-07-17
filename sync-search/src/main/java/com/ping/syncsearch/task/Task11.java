@@ -11,21 +11,24 @@ import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
-@Component
-@Async
+/*@Component
+@Async*/
 @Slf4j
 public class Task11 {
     @Autowired
     private QueryService queryService;
     //  Criteria criteria = Criteria.where("s6").is("01").and("s11").in(CauseUtils.getCauseList("9300"));//知识产权合同纠纷
-  //  Criteria criteria = Criteria.where("s6").is("01").and("s11").in(CauseUtils.getCauseList("9396")); //知识产权权属、侵权纠纷
+    //  Criteria criteria = Criteria.where("s6").is("01").and("s11").in(CauseUtils.getCauseList("9396")); //知识产权权属、侵权纠纷
     //   Criteria criteria = Criteria.where("s6").is("01").and("s11").is("保险诈骗");
     // Criteria criteria = Criteria.where("s8").is("刑事案件").and("fyTree").is("浙江省").and("s6").is("01").and("s9").is("刑事一审").and("qwContent").regex("电信网络诈骗");
     //Criteria criteria = Criteria.where("s8").is("刑事案件").and("s6").is("04").and("qwContent").regex("强制医疗");
-    Criteria criteria = Criteria.where("s6").is("01").and("s9").in("民事一审", "0301").and("s11").in(CauseUtils.getCauseList("9177"));
+    //  Criteria criteria = Criteria.where("s6").is("01").and("s9").in("民事一审", "0301").and("s11").in(CauseUtils.getCauseList("9177"));
+    Criteria criteria = Criteria.where("s6").is("01").and("fyTree").is("北京市").and("s11").is("虚开增值税专用发票、用于骗取出口退税、抵扣税款发票");
+  //  Criteria criteria = Criteria.where("s6").is("01").and("fyTree").is("北京市").and("s11").is("虚开发票");
+
     //  Criteria criteria = Criteria.where("s11").is("婚约财产纠纷").and("s6").is("01").and("s8").is("民事案件");
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)
     public void save2014() {
         try {
             queryService.sync2014(criteria);

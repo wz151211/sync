@@ -9,16 +9,16 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/*@Component
-@Async*/
+@Component
+@Async
 @Slf4j
 public class Task10 {
     @Autowired
     private QueryService queryService;
 
     // Criteria criteria = Criteria.where("s8").is("刑事案件").and("s6").is("04").and("qwContent").regex("强制医疗");
-    //  Criteria criteria = Criteria.where("s11").is("婚约财产纠纷").and("s6").is("01").and("s8").is("民事案件");
-    Criteria criteria = Criteria.where("s6").is("01").and("s9").in("刑事一审", "0201").and("s11").is("组织、领导传销活动");
+    Criteria criteria = Criteria.where("s11").is("婚约财产纠纷").and("s6").is("01").and("s8").is("民事案件");
+    // Criteria criteria = Criteria.where("s6").is("01").and("s9").in("刑事一审", "0201").and("s11").is("组织、领导传销活动");
 
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60)

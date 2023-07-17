@@ -41,19 +41,20 @@ public class QueryService {
     @Autowired
     private DocumentOtherMapper otherMapper;
 
-    private AtomicInteger pageNum2014 = new AtomicInteger(70);
-    private AtomicInteger pageNum2015 = new AtomicInteger(70);
-    private AtomicInteger pageNum2016 = new AtomicInteger(70);
-    private AtomicInteger pageNum2017 = new AtomicInteger(70);
-    private AtomicInteger pageNum2018 = new AtomicInteger(70);
-    private AtomicInteger pageNum2019 = new AtomicInteger(70);
-    private AtomicInteger pageNum2020 = new AtomicInteger(70);
-    private AtomicInteger pageNum2021 = new AtomicInteger(70);
-    private AtomicInteger pageNum2022 = new AtomicInteger(70);
-    private AtomicInteger pageNum2023 = new AtomicInteger(70);
+    private AtomicInteger pageNum2014 = new AtomicInteger(-1);
+    private AtomicInteger pageNum2015 = new AtomicInteger(-1);
+    private AtomicInteger pageNum2016 = new AtomicInteger(-1);
+    private AtomicInteger pageNum2017 = new AtomicInteger(-1);
+    private AtomicInteger pageNum2018 = new AtomicInteger(-1);
+    private AtomicInteger pageNum2019 = new AtomicInteger(-1);
+    private AtomicInteger pageNum2020 = new AtomicInteger(-1);
+    private AtomicInteger pageNum2021 = new AtomicInteger(-1);
+    private AtomicInteger pageNum2022 = new AtomicInteger(-1);
+    private AtomicInteger pageNum2023 = new AtomicInteger(-1);
     private int pageSize = 10000;
     private Date start = DateUtil.parse("2018-01-01 00:00:00").toJdkDate();
-    private Date end = DateUtil.parse("2022-12-31 23:59:59").toJdkDate();;
+    private Date end = DateUtil.parse("2022-12-31 23:59:59").toJdkDate();
+    ;
 
     public void sync2014(Criteria criteria) {
         pageNum2014.getAndIncrement();
