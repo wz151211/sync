@@ -13,7 +13,7 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_4184")
+@Document(value = "document_132")
 public class DocumentXsLhEntity {
 
     @Id

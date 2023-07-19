@@ -172,7 +172,7 @@ public class Task {
     @Autowired
     private ContractService contractService1;
 
-    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void ContractService() {
         contractService1.parse();
     }
@@ -193,7 +193,7 @@ public class Task {
         invoiceService.parse();
     }
 
-      @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 300L)
+    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 300L)
     public void save3() {
         xsService.export();
     }

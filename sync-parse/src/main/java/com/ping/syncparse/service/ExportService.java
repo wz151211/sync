@@ -74,7 +74,8 @@ public class ExportService {
                 e.printStackTrace();
             }
         }*/
-        String target = "G:\\保险诈骗\\";
+        String target = "G:\\虚开增值税专用发票、用于骗取出口退税、抵扣税款发票\\";
+
         for (DocumentXsLhEntity vo : vos) {
             String name = vo.getName();
             name = name.replace("span>","");

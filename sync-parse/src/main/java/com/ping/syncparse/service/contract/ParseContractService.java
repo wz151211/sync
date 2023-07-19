@@ -554,7 +554,9 @@ public class ParseContractService {
                 if (!StringUtils.hasLength(party.getSex())) {
                     party.setSex("女");
                 }
-
+            }
+            if (s.contains("岁")) {
+                party.setAge(s.replace("岁", ""));
             }
             if (s.contains("年") && s.contains("月") && s.contains("日") && s.contains("生") && StringUtils.isEmpty(party.getBirthday())) {
 
@@ -569,8 +571,10 @@ public class ParseContractService {
                     str = str.replace("年", "-");
                     str = str.replace("月", "-");
                     str = str.replace(" ", "");
-                    party.setAge(DateUtil.ageOfNow(DateUtil.parse(str)) + "");
-                    party.setAgeContent(str);
+                    if (StringUtils.isEmpty(party.getAge())) {
+                        party.setAge(DateUtil.ageOfNow(DateUtil.parse(str)) + "");
+                        party.setAgeContent(str);
+                    }
                 } catch (Exception e) {
                     log.error("s={}", s);
                     //  e.printStackTrace();
@@ -588,7 +592,7 @@ public class ParseContractService {
                 }
 
                 if (!StringUtils.hasText(party.getAddress())) {
-                    if (s.contains("住") && (!s.equals("住所地") || !s.equals("住所"))) {
+                    if (s.contains("住") && (!s.equals("住所地") && !s.equals("住所"))) {
                         party.setAddress(s);
                     }
                 }
