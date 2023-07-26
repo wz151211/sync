@@ -209,16 +209,26 @@ public class ContractService {
                 if (index == -1) {
                     index = fact.indexOf("事实与理由");
                 }
+                if (index == -1) {
+                    index = fact.indexOf("审理认定");
+                }
+                if (index == -1) {
+                    index = fact.indexOf("审理查明");
+                }
                 if (index > 0) {
                     startFact = fact.substring(0, index);
                     fact = fact.substring(index);
                 }
                 for (String sentence : fact.split("。")) {
                     sentence = sentence.replace(";", "，");
+                    sentence = sentence.replace("；", "，");
                     String[] split = sentence.split("，");
                     for (int i = 0; i < split.length; i++) {
                         String comma = split[i];
-                        if ((comma.contains("签订") && (comma.contains("合同") || comma.contains("合约") || comma.contains("协议"))) || comma.contains("合同名称") || comma.contains("合同签订时间")) {
+                        comma = comma.replace("Ｏ", "0");
+                        comma = comma.replace("ｌ", "0");
+                        comma = comma.replace(" ", "");
+                        if (((comma.contains("签订") || comma.contains("签署")) && (comma.contains("合同") || comma.contains("合约") || comma.contains("协议"))) || comma.contains("合同名称") || comma.contains("合同签订时间")) {
                             String temp = "";
                             if (i > 0) {
                                 temp = split[i - 1] + comma;
@@ -268,6 +278,9 @@ public class ContractService {
                                 try {
                                     start = comma.indexOf("签订");
                                     end = comma.indexOf("合同");
+                                    if (start == -1) {
+                                        comma.indexOf("签署");
+                                    }
                                     if (end == -1) {
                                         end = comma.indexOf("合约");
                                     }
@@ -292,7 +305,9 @@ public class ContractService {
                         }
                         if ((comma.contains("授信额度")
                                 || comma.contains("贷款")
+                                || comma.contains("额度")
                                 || comma.contains("欠款")
+                                || comma.contains("化肥款")
                                 || comma.contains("借款")
                                 || comma.contains("累计欠款")
                                 || comma.contains("分期资金")
@@ -300,8 +315,18 @@ public class ContractService {
                                 || comma.contains("透支本金")
                                 || comma.contains("欠款本金")
                                 || comma.contains("透支金额")
+                                || comma.contains("货款总额")
+                                || comma.contains("消费共计")
                                 || comma.contains("车款")
-                                || comma.contains("本金")) && !comma.contains("不超过") && StringUtils.isEmpty(vo.getLoanAmount())) {
+                                || comma.contains("支用")
+                                || comma.contains("本金"))
+                                && !comma.contains("不超过")
+                                && !comma.contains("判令")
+                                && !comma.contains("冲抵")
+                                && !comma.contains("归还")
+                                && StringUtils.isEmpty(vo.getLoanAmount())) {
+                            comma = comma.replace("？", "0");
+                            comma = comma.replace(",", "");
                             Result parse = ToAnalysis.parse(comma);
                             for (Term term : parse.getTerms()) {
                                 if (term.getRealName().contains("元") && term.getNatureStr().equals("mq")) {
@@ -319,7 +344,7 @@ public class ContractService {
                             }
                         }
 
-                        if ((comma.contains("至") || (comma.contains("起") && comma.contains("到"))) && comma.contains("年") && comma.contains("月") && comma.contains("日") && !comma.contains("截止")) {
+                        if (comma.contains("期限") && (comma.contains("至") || (comma.contains("起") && comma.contains("到"))) && comma.contains("年") && comma.contains("月") && comma.contains("日") && !comma.contains("截止")) {
                             String[] data = {};
                             if (comma.contains("到")) {
                                 data = comma.split("到");
@@ -454,6 +479,7 @@ public class ContractService {
                                 || comma.contains("年利率")
                                 || comma.contains("月利率")
                                 || comma.contains("月息")
+                                || comma.contains("月利")
                                 || comma.contains("日利率"))
                                 && (comma.contains("%") || comma.contains("‰") || comma.contains("分")) && !comma.contains("不超过") && !comma.contains("罚息") && StringUtils.isEmpty(vo.getLoanRate())) {
                             for (Term term : ToAnalysis.parse(comma)) {
@@ -500,12 +526,12 @@ public class ContractService {
                                 || (comma.contains("办理") && comma.contains("抵押"))
                                 || comma.contains("作为抵押")
                                 || comma.contains("抵押车辆信息"))
-                                && (comma.contains("房") || comma.contains("车") || comma.contains("商铺") || comma.contains("机") ||comma.contains("土地使用证"))
+                                && (comma.contains("房") || comma.contains("车") || comma.contains("商铺") || comma.contains("机") || comma.contains("土地使用证"))
                                 && StringUtils.isEmpty(vo.getMortgage())) {
                             vo.setMortgage(sentence);
                         }
 
-                        if ((comma.contains("未还款") || comma.contains("罚息") || comma.contains("逾期")) && comma.contains("年") && comma.contains("月") && comma.contains("日") && comma.contains("止") && StringUtils.isEmpty(vo.getDefaultDate())) {
+                        if ((comma.contains("未还款") || comma.contains("罚息") || comma.contains("逾期")) && comma.contains("年") && comma.contains("月") && comma.contains("日") && !comma.contains("止") && StringUtils.isEmpty(vo.getDefaultDate())) {
                             String defaultDate = "";
                             for (Term term : ToAnalysis.parse(comma)) {
                                 if (defaultDate.contains("年") && term.getRealName().contains("年")) {
@@ -538,6 +564,7 @@ public class ContractService {
                 String[] split = startFact.split("，");
                 for (String comma : split) {
                     if ((comma.contains("授信额度")
+                            || comma.contains("额度")
                             || comma.contains("贷款")
                             || comma.contains("欠款")
                             || comma.contains("借款")
