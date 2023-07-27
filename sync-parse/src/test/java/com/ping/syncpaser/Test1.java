@@ -539,10 +539,13 @@ public class Test1 {
     @Test
     public void test7() {
         StringBuilder county = new StringBuilder();
-        for (Term term : ToAnalysis.parse(" 合同约定：原告同意向被告杨卫平提供350000元贷款")) {
+        for (Term term : ToAnalysis.parse("贷款金额290.000.00元")) {
             System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
         System.out.println(county.toString());
+        System.out.println(StringUtils.replaceOnce("贷款金额290.000.00元",".",""));
+        System.out.println(org.springframework.util.StringUtils.countOccurrencesOf("贷款金额290.000.00元","."));
+        System.out.println(org.springframework.util.StringUtils.deleteAny("贷款金额290.000.00元","."));
         // System.out.println(new StringBuilder("住所地重庆市永川区双石镇杨家湾").reverse().toString());
 /*        String str = "广州知识产权法院";
         int index = str.indexOf("知识产权法院");

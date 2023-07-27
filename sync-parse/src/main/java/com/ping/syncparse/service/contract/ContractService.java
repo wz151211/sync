@@ -214,6 +214,8 @@ public class ContractService {
                 }
                 if (index == -1) {
                     index = fact.indexOf("审理查明");
+                }if (index == -1) {
+                    index = fact.indexOf("本案相关情况");
                 }
                 if (index > 0) {
                     startFact = fact.substring(0, index);
@@ -327,6 +329,11 @@ public class ContractService {
                                 && StringUtils.isEmpty(vo.getLoanAmount())) {
                             comma = comma.replace("？", "0");
                             comma = comma.replace(",", "");
+                            comma = comma.replace("．", ".");
+                            int occurrencesOf = StringUtils.countOccurrencesOf(comma, ".");
+                            if (occurrencesOf > 1) {
+                                comma = org.apache.commons.lang3.StringUtils.replaceOnce(comma, ".", "");
+                            }
                             Result parse = ToAnalysis.parse(comma);
                             for (Term term : parse.getTerms()) {
                                 if (term.getRealName().contains("元") && term.getNatureStr().equals("mq")) {
@@ -336,7 +343,7 @@ public class ContractService {
                                     }
                                 }
                                 if (term.from() != null && term.from().getRealName().contains("借款") && term.getNatureStr().equals("m")) {
-                                    if (StringUtils.isEmpty(vo.getLoanAmount())) {
+                                    if (StringUtils.isEmpty(vo.getLoanAmount()) && !term.getRealName().equals("1.1")) {
                                         vo.setLoanAmount(term.getRealName());
                                         vo.setLoanAmountContent(comma);
                                     }
@@ -481,7 +488,9 @@ public class ContractService {
                                 || comma.contains("月息")
                                 || comma.contains("月利")
                                 || comma.contains("日利率"))
-                                && (comma.contains("%") || comma.contains("‰") || comma.contains("分")) && !comma.contains("不超过") && !comma.contains("罚息") && StringUtils.isEmpty(vo.getLoanRate())) {
+                                && (comma.contains("%") || comma.contains("‰") || comma.contains("分"))
+                                && !comma.contains("不超过")
+                                && !comma.contains("罚息") && StringUtils.isEmpty(vo.getLoanRate())) {
                             for (Term term : ToAnalysis.parse(comma)) {
                                 if (StringUtils.isEmpty(vo.getLoanRate())) {
                                     if (term.getNatureStr().equals("mq") && !term.getRealName().contains("元")) {
