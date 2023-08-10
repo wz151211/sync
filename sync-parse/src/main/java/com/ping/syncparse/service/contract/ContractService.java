@@ -1,5 +1,7 @@
 package com.ping.syncparse.service.contract;
 
+import cn.hutool.core.convert.NumberChineseFormatter;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -16,8 +18,6 @@ import org.ansj.splitWord.analysis.ToAnalysis;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toMap;
@@ -201,6 +202,7 @@ public class ContractService {
 
             }
             String startFact = "";
+            String monthsContent = "";
             if (StringUtils.hasLength(fact)) {
                 int index = fact.indexOf("事实和理由");
                 if (index == -1) {
@@ -210,17 +212,28 @@ public class ContractService {
                     index = fact.indexOf("事实与理由");
                 }
                 if (index == -1) {
+                    index = fact.indexOf("事实及理由");
+                }
+                if (index == -1) {
                     index = fact.indexOf("审理认定");
                 }
                 if (index == -1) {
                     index = fact.indexOf("审理查明");
-                }if (index == -1) {
+                }
+                if (index == -1) {
                     index = fact.indexOf("本案相关情况");
+                }
+                if (index == -1) {
+                    index = fact.indexOf("案件相关事实");
+                }
+                if (index == -1) {
+                    index = fact.indexOf("案件事实");
                 }
                 if (index > 0) {
                     startFact = fact.substring(0, index);
-                    fact = fact.substring(index);
+                    fact = fact.substring(index) + "，" + startFact;
                 }
+
                 for (String sentence : fact.split("。")) {
                     sentence = sentence.replace(";", "，");
                     sentence = sentence.replace("；", "，");
@@ -230,10 +243,12 @@ public class ContractService {
                         comma = comma.replace("Ｏ", "0");
                         comma = comma.replace("ｌ", "0");
                         comma = comma.replace(" ", "");
-                        if (((comma.contains("签订") || comma.contains("签署")) && (comma.contains("合同") || comma.contains("合约") || comma.contains("协议"))) || comma.contains("合同名称") || comma.contains("合同签订时间")) {
+                        if (((comma.contains("签订") || comma.contains("签署") || comma.contains("填写")) && (comma.contains("合同") || comma.contains("合约") || comma.contains("协议") || comma.contains("请表"))) || comma.contains("合同名称") || comma.contains("合同签订时间")) {
                             String temp = "";
                             if (i > 0) {
                                 temp = split[i - 1] + comma;
+                            } else {
+                                temp = comma;
                             }
                             String contractSigningDate = "";
                             for (Term term : ToAnalysis.parse(temp)) {
@@ -247,14 +262,14 @@ public class ContractService {
                                     break;
                                 }
                                 String realName = term.getRealName();
-                                if (realName.contains("个")) {
+                                if (realName.contains("年") && realName.length() < 4) {
                                     continue;
                                 }
-                                if (realName.contains("年") && realName.length() < 5) {
+                                if (realName.contains("个") || realName.contains("翌日") || realName.contains("当日") || realName.contains("期日") || realName.contains("次月")) {
                                     continue;
                                 }
                                 if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
-                                    contractSigningDate += term.getRealName();
+                                    contractSigningDate += realName;
                                 }
                             }
                             if (StringUtils.isEmpty(vo.getContractSigningDate()) && StringUtils.hasLength(contractSigningDate)) {
@@ -283,11 +298,17 @@ public class ContractService {
                                     if (start == -1) {
                                         comma.indexOf("签署");
                                     }
+                                    if (start == -1) {
+                                        comma.indexOf("填写");
+                                    }
                                     if (end == -1) {
                                         end = comma.indexOf("合约");
                                     }
                                     if (end == -1) {
                                         end = comma.indexOf("协议");
+                                    }
+                                    if (end == -1) {
+                                        end = comma.indexOf("请表");
                                     }
                                     if (end > start) {
                                         String name = comma.substring(start + 2, end + 2);
@@ -296,7 +317,7 @@ public class ContractService {
                                         // log.info("合同名称2={}", name);
                                         if (StringUtils.isEmpty(vo.getContractName())) {
                                             vo.setContractName(name);
-                                            vo.setContractNameContent(sentence);
+                                            vo.setContractNameContent(comma);
                                         }
                                     }
                                 } catch (Exception e) {
@@ -315,6 +336,7 @@ public class ContractService {
                                 || comma.contains("分期资金")
                                 || comma.contains("透支款本金")
                                 || comma.contains("透支本金")
+                                || comma.contains("透支资金")
                                 || comma.contains("欠款本金")
                                 || comma.contains("透支金额")
                                 || comma.contains("货款总额")
@@ -325,10 +347,14 @@ public class ContractService {
                                 && !comma.contains("不超过")
                                 && !comma.contains("判令")
                                 && !comma.contains("冲抵")
+                                && !comma.contains("放款")
                                 && !comma.contains("归还")
+                                && !comma.contains("自动扣划")
                                 && StringUtils.isEmpty(vo.getLoanAmount())) {
                             comma = comma.replace("？", "0");
                             comma = comma.replace(",", "");
+                            comma = comma.replace(" ", "");
+                            comma = comma.replace(" ", "");
                             comma = comma.replace("．", ".");
                             int occurrencesOf = StringUtils.countOccurrencesOf(comma, ".");
                             if (occurrencesOf > 1) {
@@ -336,15 +362,39 @@ public class ContractService {
                             }
                             Result parse = ToAnalysis.parse(comma);
                             for (Term term : parse.getTerms()) {
+                                if (term.getRealName().contains("全部")) {
+                                    continue;
+                                }
                                 if (term.getRealName().contains("元") && term.getNatureStr().equals("mq")) {
                                     if (StringUtils.isEmpty(vo.getLoanAmount())) {
-                                        vo.setLoanAmount(term.getRealName());
+                                        Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                        if (matcher.find()) {
+                                            vo.setLoanAmount(term.getRealName());
+                                        } else {
+                                            try {
+                                                vo.setLoanAmount(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                            } catch (Exception e) {
+                                                vo.setLoanAmount(term.getRealName());
+                                            }
+                                        }
                                         vo.setLoanAmountContent(comma);
                                     }
                                 }
                                 if (term.from() != null && term.from().getRealName().contains("借款") && term.getNatureStr().equals("m")) {
-                                    if (StringUtils.isEmpty(vo.getLoanAmount()) && !term.getRealName().equals("1.1")) {
-                                        vo.setLoanAmount(term.getRealName());
+                                    if (StringUtils.isEmpty(vo.getLoanAmount())) {
+                                        if (term.getRealName().equals("1.1") || term.getRealName().contains("全部")) {
+                                            continue;
+                                        }
+                                        Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                        if (matcher.find()) {
+                                            vo.setLoanAmount(term.getRealName());
+                                        } else {
+                                            try {
+                                                vo.setLoanAmount(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                            } catch (Exception e) {
+                                                vo.setLoanAmount(term.getRealName());
+                                            }
+                                        }
                                         vo.setLoanAmountContent(comma);
                                     }
                                 }
@@ -372,7 +422,7 @@ public class ContractService {
                                             break;
                                         }
                                         String realName = term.getRealName();
-                                        if (realName.contains("个")) {
+                                        if (realName.contains("个") || realName.contains("翌日") || realName.contains("当日") || realName.contains("期日") || realName.contains("次月")) {
                                             continue;
                                         }
                                         if (realName.contains("年") && realName.length() < 5) {
@@ -399,7 +449,7 @@ public class ContractService {
                                             break;
                                         }
                                         String realName = term.getRealName();
-                                        if (realName.contains("个")) {
+                                        if (realName.contains("个") || realName.contains("翌日") || realName.contains("当日") || realName.contains("期日") || realName.contains("次月")) {
                                             continue;
                                         }
                                         if (realName.contains("年") && realName.length() < 5) {
@@ -425,7 +475,12 @@ public class ContractService {
                             }
                         }
 
-                        if (comma.contains("借款") && comma.contains("年") && comma.contains("月") && comma.contains("日") && StringUtils.isEmpty(vo.getContractStartDate())) {
+                        if ((comma.contains("期限") || comma.contains("租赁期")) && comma.contains("个月") && StringUtils.isEmpty(monthsContent)) {
+                            monthsContent = comma;
+                        }
+
+
+                        if ((comma.contains("贷款") || comma.contains("借款")) && comma.contains("发放") && comma.contains("年") && comma.contains("月") && comma.contains("日") && StringUtils.isEmpty(vo.getContractStartDate())) {
                             String contractStartDate = "";
                             for (Term term : ToAnalysis.parse(comma)) {
                                 if (contractStartDate.contains("年") && term.getRealName().contains("年")) {
@@ -438,7 +493,7 @@ public class ContractService {
                                     break;
                                 }
                                 String realName = term.getRealName();
-                                if (realName.contains("个")) {
+                                if (realName.contains("个") || realName.contains("翌日") || realName.contains("当日") || realName.contains("期日") || realName.contains("次月")) {
                                     continue;
                                 }
                                 if (realName.contains("年") && realName.length() < 5) {
@@ -453,7 +508,8 @@ public class ContractService {
                                 vo.setContractStartDateContent(comma);
                             }
                         }
-                        if ((comma.contains("还清") || comma.contains("到期")) && comma.contains("年") && comma.contains("月") && comma.contains("日") && StringUtils.isEmpty(vo.getContractEndDate())) {
+
+                        if ((comma.contains("还清") || comma.contains("到期") || comma.contains("还款期限")) && comma.contains("年") && comma.contains("月") && comma.contains("日") && StringUtils.isEmpty(vo.getContractEndDate())) {
                             String contractEndDate = "";
                             for (Term term : ToAnalysis.parse(comma)) {
                                 if (contractEndDate.contains("年") && term.getRealName().contains("年")) {
@@ -466,7 +522,7 @@ public class ContractService {
                                     break;
                                 }
                                 String realName = term.getRealName();
-                                if (realName.contains("个")) {
+                                if (realName.contains("个") || realName.contains("翌日") || realName.contains("当日") || realName.contains("期日") || realName.contains("次月")) {
                                     continue;
                                 }
                                 if (realName.contains("年") && realName.length() < 5) {
@@ -482,14 +538,20 @@ public class ContractService {
                             }
                         }
                         if ((comma.contains("基准利率")
+                                || comma.contains("执行利率")
                                 || comma.contains("贷款利率")
                                 || comma.contains("年利率")
+                                || comma.contains("年利")
+                                || comma.contains("年息")
                                 || comma.contains("月利率")
                                 || comma.contains("月息")
                                 || comma.contains("月利")
-                                || comma.contains("日利率"))
+                                || comma.contains("日利率")
+                                || comma.contains("日利")
+                                || comma.contains("日息"))
                                 && (comma.contains("%") || comma.contains("‰") || comma.contains("分"))
                                 && !comma.contains("不超过")
+                                && !comma.contains("逾期")
                                 && !comma.contains("罚息") && StringUtils.isEmpty(vo.getLoanRate())) {
                             for (Term term : ToAnalysis.parse(comma)) {
                                 if (StringUtils.isEmpty(vo.getLoanRate())) {
@@ -507,13 +569,27 @@ public class ContractService {
                                 vo.setLoanRate("0.05%");
                                 vo.setLoanRateContent(comma);
                             }
+                            if (StringUtils.hasLength(vo.getLoanRate())) {
+                                if (comma.contains("日利率") || comma.contains("日息") || comma.contains("日利")) {
+                                    vo.setRateType("日利率");
+                                }
+                                if (comma.contains("月利率") || comma.contains("月息") || comma.contains("月利")) {
+                                    vo.setRateType("月利率");
+                                }
+                                if (comma.contains("年利率") || comma.contains("年息") || comma.contains("年利")) {
+                                    vo.setRateType("年利率");
+                                }
+                                if (comma.contains("基准利率") || comma.contains("基准贷款利率") || comma.contains("同期贷款利率")) {
+                                    vo.setRateType("基准利率");
+                                }
+                            }
                         }
                         if ((comma.contains("逾期") || comma.contains("罚息") || comma.contains("违约利率")) && (comma.contains("%") || comma.contains("‰")) && StringUtils.isEmpty(vo.getOverdueRate())) {
                             for (Term term : ToAnalysis.parse(comma)) {
                                 if (term.getNatureStr().equals("mq") && !term.getRealName().contains("元")) {
                                     vo.setOverdueRate(term.getRealName());
                                 }
-                                if (term.getNatureStr().equals("m") && term.to() != null && term.to().getRealName().equals("‰")) {
+                                if (term.getNatureStr().equals("m") && term.to() != null && (term.to().getRealName().equals("‰") || term.to().getRealName().equals("%"))) {
                                     vo.setOverdueRate(term.getRealName() + term.to().getRealName());
                                 }
                             }
@@ -534,13 +610,23 @@ public class ContractService {
                                 || comma.contains("作了抵押")
                                 || (comma.contains("办理") && comma.contains("抵押"))
                                 || comma.contains("作为抵押")
+                                || comma.contains("作为借款抵押")
                                 || comma.contains("抵押车辆信息"))
-                                && (comma.contains("房") || comma.contains("车") || comma.contains("商铺") || comma.contains("机") || comma.contains("土地使用证"))
+                                // && (comma.contains("房") || comma.contains("车") || comma.contains("商铺") || comma.contains("机") || comma.contains("土地使用证"))
                                 && StringUtils.isEmpty(vo.getMortgage())) {
                             vo.setMortgage(sentence);
                         }
 
-                        if ((comma.contains("未还款") || comma.contains("罚息") || comma.contains("逾期")) && comma.contains("年") && comma.contains("月") && comma.contains("日") && !comma.contains("止") && StringUtils.isEmpty(vo.getDefaultDate())) {
+                        if ((comma.contains("未还款")
+                                || comma.contains("罚息")
+                                || comma.contains("正常还款至")
+                                || comma.contains("逾期")
+                                || comma.contains("违约")) && comma.contains("年") && comma.contains("月") && comma.contains("日")
+                                && !comma.contains("止")
+                                && !comma.contains("计算至")
+                                && !comma.contains("截至")
+                                && !comma.contains("暂计至")
+                                && StringUtils.isEmpty(vo.getDefaultDate())) {
                             String defaultDate = "";
                             for (Term term : ToAnalysis.parse(comma)) {
                                 if (defaultDate.contains("年") && term.getRealName().contains("年")) {
@@ -553,6 +639,9 @@ public class ContractService {
                                     break;
                                 }
                                 String realName = term.getRealName();
+                                if (realName.contains("个") || realName.contains("翌日") || realName.contains("当日") || realName.contains("期日") || realName.contains("次月")) {
+                                    continue;
+                                }
                                 if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
                                     defaultDate += term.getRealName();
                                 }
@@ -565,55 +654,264 @@ public class ContractService {
                     }
                 }
             }
-            if (StringUtils.hasLength(startFact) && StringUtils.isEmpty(vo.getLoanAmount())) {
+            if (StringUtils.hasLength(startFact)) {
                 startFact = startFact + entity.getJudgmentResult();
                 startFact.replace(";", "，");
                 startFact.replace("；", "，");
                 startFact.replace("。", "，");
                 String[] split = startFact.split("，");
-                for (String comma : split) {
+                for (int i = 0; i < split.length; i++) {
+                    String comma = split[i];
                     if ((comma.contains("授信额度")
-                            || comma.contains("额度")
                             || comma.contains("贷款")
+                            || comma.contains("额度")
                             || comma.contains("欠款")
+                            || comma.contains("化肥款")
                             || comma.contains("借款")
                             || comma.contains("累计欠款")
                             || comma.contains("分期资金")
                             || comma.contains("透支款本金")
                             || comma.contains("透支本金")
-                            || comma.contains("信用卡本金")
-                            || comma.contains("车款")
+                            || comma.contains("透支资金")
+                            || comma.contains("欠款本金")
                             || comma.contains("透支金额")
-                            || comma.contains("本金")
-                            || comma.contains("欠款本金")) && !comma.contains("不超过") && StringUtils.isEmpty(vo.getLoanAmount())) {
+                            || comma.contains("货款总额")
+                            || comma.contains("消费共计")
+                            || comma.contains("车款")
+                            || comma.contains("支用")
+                            || comma.contains("本金"))
+                            && !comma.contains("不超过")
+                            && !comma.contains("判令")
+                            && !comma.contains("冲抵")
+                            && !comma.contains("归还")
+                            && !comma.contains("自动扣划")
+                            && StringUtils.isEmpty(vo.getLoanAmount())) {
                         Result parse = ToAnalysis.parse(comma);
                         for (Term term : parse.getTerms()) {
                             if (term.getRealName().contains("元") && term.getNatureStr().equals("mq")) {
                                 if (StringUtils.isEmpty(vo.getLoanAmount())) {
-                                    vo.setLoanAmount(term.getRealName());
-                                    vo.setLoanAmountContent(comma);
+                                    if (StringUtils.isEmpty(vo.getLoanAmount())) {
+                                        Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                        if (matcher.find()) {
+                                            vo.setLoanAmount(term.getRealName());
+                                        } else {
+                                            try {
+                                                vo.setLoanAmount(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                            } catch (Exception e) {
+                                                vo.setLoanAmount(term.getRealName());
+                                            }
+                                        }
+                                        vo.setLoanAmountContent(comma);
+                                    }
                                 }
+                            }
+                        }
+                    }
+
+                    if (i > 0) {
+                        comma = split[i - 1] + comma;
+                    }
+                    if (comma.contains("期限") && (comma.contains("至") || (comma.contains("起") && comma.contains("到"))) && comma.contains("年") && comma.contains("月") && comma.contains("日") && !comma.contains("截止")) {
+                        String[] data = {};
+                        if (comma.contains("到")) {
+                            data = comma.split("到");
+                        } else if (comma.contains("至")) {
+                            data = comma.split("至");
+                        }
+                        if (data.length == 2 && data[0].contains("年") && data[1].contains("年")) {
+                            String contractStartDate = "";
+                            try {
+                                for (Term term : ToAnalysis.parse(data[0])) {
+                                    if (contractStartDate.contains("年") && term.getRealName().contains("年")) {
+                                        break;
+                                    }
+                                    if (contractStartDate.contains("月") && term.getRealName().contains("月")) {
+                                        break;
+                                    }
+                                    if (contractStartDate.contains("日") && term.getRealName().contains("日")) {
+                                        break;
+                                    }
+                                    String realName = term.getRealName();
+                                    if (realName.contains("个") || realName.contains("翌日") || realName.contains("当日") || realName.contains("期日") || realName.contains("次月")) {
+                                        continue;
+                                    }
+                                    if (realName.contains("年") && realName.length() < 5) {
+                                        continue;
+                                    }
+                                    if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
+                                        contractStartDate += term.getRealName();
+                                    }
+                                }
+                            } catch (Exception e) {
+                                log.info("起止日期={}", comma);
+                                e.printStackTrace();
+                            }
+                            String contractEndDate = "";
+                            try {
+                                for (Term term : ToAnalysis.parse(data[1])) {
+                                    if (contractEndDate.contains("年") && term.getRealName().contains("年")) {
+                                        break;
+                                    }
+                                    if (contractEndDate.contains("月") && term.getRealName().contains("月")) {
+                                        break;
+                                    }
+                                    if (contractEndDate.contains("日") && term.getRealName().contains("日")) {
+                                        break;
+                                    }
+                                    String realName = term.getRealName();
+                                    if (realName.contains("个") || realName.contains("翌日") || realName.contains("当日") || realName.contains("期日") || realName.contains("次月")) {
+                                        continue;
+                                    }
+                                    if (realName.contains("年") && realName.length() < 5) {
+                                        continue;
+                                    }
+                                    if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
+                                        contractEndDate += term.getRealName();
+                                    }
+                                }
+                            } catch (Exception e) {
+                                log.info("起止日期={}", comma);
+                                e.printStackTrace();
+                            }
+
+                            if (StringUtils.isEmpty(vo.getContractStartDate()) && StringUtils.hasLength(contractStartDate)) {
+                                vo.setContractStartDate(contractStartDate);
+                                vo.setContractStartDateContent(comma);
+                            }
+                            if (StringUtils.isEmpty(vo.getContractEndDate()) && StringUtils.hasLength(contractEndDate)) {
+                                vo.setContractEndDate(contractEndDate);
+                                vo.setContractEndDateContent(comma);
                             }
                         }
                     }
                 }
             }
 
+
+            if (StringUtils.hasLength(monthsContent)) {
+                vo.setTermContent(monthsContent);
+                if (StringUtils.isEmpty(vo.getContractStartDate()) && StringUtils.hasLength(vo.getContractSigningDate())) {
+                    vo.setContractStartDate(vo.getContractSigningDate());
+                    vo.setContractStartDateContent(vo.getContractSigningDateContent());
+                }
+                Integer month = 0;
+                // log.info("月份={}", monthsContent);
+                for (Term term : ToAnalysis.parse(monthsContent)) {
+                    if (term.getNatureStr().equals("t") && term.getRealName().contains("个")) {
+                        String realName = term.getRealName();
+                        realName = realName.replace("个", "");
+                        realName = realName.replace("月", "");
+                        try {
+                            month = Integer.parseInt(realName);
+                        } catch (NumberFormatException e) {
+                            try {
+                                month = NumberChineseFormatter.chineseToNumber(realName);
+                            } catch (Exception ex) {
+                                log.error("月份2={}", monthsContent);
+                                ex.printStackTrace();
+                            }
+                            log.error("月份1={}", monthsContent);
+                        }
+                        vo.setTerm(month);
+                    }
+                }
+                if (StringUtils.hasLength(vo.getContractStartDate()) && StringUtils.isEmpty(vo.getContractEndDate())) {
+                    String startDate = vo.getContractStartDate();
+                    try {
+                        if (startDate.contains("年") && startDate.contains("月") && !startDate.contains("日")) {
+                            int index = startDate.indexOf("月");
+                            if (index > -1) {
+                                startDate = startDate.substring(0, index + 1);
+                                startDate = startDate + "01日";
+                            }
+                        }
+                        DateTime dateTime = DateUtil.parse(startDate);
+                        DateTime endDate = DateUtil.offsetMonth(dateTime, month);
+                        String date = DateUtil.formatChineseDate(endDate, false, false);
+                        vo.setContractEndDate(date);
+                        vo.setContractEndDateContent(vo.getContractStartDateContent() + "，" + monthsContent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else if (StringUtils.hasLength(vo.getContractEndDate()) && StringUtils.isEmpty(vo.getContractStartDate())) {
+                    String endDate = vo.getContractEndDate();
+                    try {
+                        if (endDate.contains("年") && endDate.contains("月") && !endDate.contains("日")) {
+                            int index = endDate.indexOf("月");
+                            if (index > -1) {
+                                endDate = endDate.substring(0, index + 1);
+                                endDate = endDate + "01日";
+                            }
+                        }
+                        DateTime dateTime = DateUtil.parse(endDate);
+                        DateTime startDate = DateUtil.offsetMonth(dateTime, -month);
+                        String date = DateUtil.formatChineseDate(startDate, false, false);
+                        vo.setContractStartDate(date);
+                        vo.setContractStartDateContent(monthsContent + "，" + vo.getContractEndDateContent());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
             String judgmentResult = entity.getJudgmentResult();
             if (StringUtils.hasLength(judgmentResult)) {
                 judgmentResult = judgmentResult.replace(";", "。");
                 judgmentResult = judgmentResult.replace("；", "。");
                 for (String judgment : judgmentResult.split("。")) {
-                    if ((judgment.contains("本金") || judgment.contains("借款") || judgment.contains("贷款") || judgment.contains("车款")) && judgment.contains("元") && StringUtils.isEmpty(vo.getDefaultAmount())) {
+                    if ((judgment.contains("本金")
+                            || judgment.contains("借款")
+                            || judgment.contains("贷款")
+                            || judgment.contains("车款")
+                            || judgment.contains("欠款")
+                            || judgment.contains("本息")
+                            || judgment.contains("偿还")
+                            || judgment.contains("垫付款")
+                            || judgment.contains("支付款")
+                            || judgment.contains("代偿款")
+                            || judgment.contains("返还")
+                            || judgment.contains("退还")
+                            || judgment.contains("返还")
+                            || judgment.contains("给付")
+                            || judgment.contains("归还")
+                            || judgment.contains("返回")
+                            || judgment.contains("退给")
+                            || judgment.contains("偿还")
+                            || judgment.contains("赔偿")
+                            || judgment.contains("返给")
+                            || judgment.contains("清偿")
+                            || judgment.contains("付给")
+                            || judgment.contains("偿付")
+                            || judgment.contains("退于")
+                            || judgment.contains("退")
+                            || judgment.contains("支付")
+                            || judgment.contains("透支款")) && judgment.contains("元") && StringUtils.isEmpty(vo.getDefaultAmount())) {
                         for (Term term : ToAnalysis.parse(judgment)) {
                             if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
                                 if (StringUtils.isEmpty(vo.getDefaultAmount())) {
-                                    vo.setDefaultAmount(term.getRealName());
+                                    Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                    if (matcher.find()) {
+                                        vo.setDefaultAmount(term.getRealName());
+                                    } else {
+                                        try {
+                                            vo.setDefaultAmount(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                        } catch (Exception e) {
+                                            vo.setDefaultAmount(term.getRealName());
+                                        }
+                                    }
                                     vo.setDefaultAmountContent(judgment);
                                 }
                             } else if (term.getNatureStr().equals("m") && term.from() != null && (term.from().getRealName().contains("人民币"))) {
                                 if (StringUtils.isEmpty(vo.getDefaultAmount())) {
-                                    vo.setDefaultAmount(term.getRealName());
+                                    Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                    if (matcher.find()) {
+                                        vo.setDefaultAmount(term.getRealName());
+                                    } else {
+                                        try {
+                                            vo.setDefaultAmount(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                        } catch (Exception e) {
+                                            vo.setDefaultAmount(term.getRealName());
+                                        }
+                                    }
                                     vo.setDefaultAmountContent(judgment);
                                 }
                             }
@@ -634,6 +932,9 @@ public class ContractService {
                                     break;
                                 }
                                 String realName = term.getRealName();
+                                if (realName.contains("个") || realName.contains("翌日") || realName.contains("当日") || realName.contains("期日") || realName.contains("次月")) {
+                                    continue;
+                                }
                                 if (term.getNatureStr().equals("t") && (realName.contains("年") || realName.contains("月") || realName.contains("日"))) {
                                     if (StringUtils.isEmpty(defaultDate) && realName.contains("年")) {
                                         defaultDate += term.getRealName();
@@ -651,6 +952,337 @@ public class ContractService {
 
                 }
             }
+
+
+            judgmentResult = entity.getJudgmentResult();
+            if (StringUtils.hasLength(judgmentResult)) {
+                judgmentResult = judgmentResult.replace("；", "。");
+                String[] split = judgmentResult.split("。");
+                for (String s : split) {
+                    if (!s.contains("受理费") && !s.contains("诉讼费") && !s.contains("案件受理")) {
+                        continue;
+                    }
+                    s = s.replace(",", "，");
+                    s = s.replace("、", "，");
+                    if (s.contains("（") && s.contains("）")) {
+                        try {
+                            int start = s.indexOf("（");
+                            int end = s.indexOf("）");
+                            if (end - start > 5) {
+                                s = s.substring(0, start) + s.substring(end + 1);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    for (String s1 : s.split("，")) {
+                        if (StringUtils.isEmpty(s1)) {
+                            continue;
+                        }
+
+                        if (s1.contains("受理费") || s1.contains("案件受理") || s1.contains("减半") || s1.contains("诉讼费")) {
+                            if ((StringUtils.hasLength(vo.getHearingFees()) && s1.contains("减半")) || StringUtils.isEmpty(vo.getHearingFees())) {
+                                for (Term term : ToAnalysis.parse(s1)) {
+                                    if ((term.getNatureStr().equals("mq") && term.getRealName().contains("元")) || ((term.from() != null && (term.from().getRealName().contains("受理费") || term.from().getRealName().contains("受理") || term.from().getRealName().contains("人民币"))) && (term.getNatureStr().equals("mq") || term.getNatureStr().equals("m")))) {
+                                        Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                        if (matcher.find()) {
+                                            vo.setHearingFees(term.getRealName());
+                                        } else {
+                                            try {
+                                                vo.setHearingFees(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                            } catch (Exception e) {
+                                                vo.setHearingFees(term.getRealName());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (!StringUtils.hasLength(vo.getHearingFees())) {
+                                int start = s1.indexOf("受理费");
+                                if (start == -1) {
+                                    start = s1.indexOf("诉讼费");
+                                }
+                                if (start == -1) {
+                                    start = s1.indexOf("案件受理");
+                                }
+                                int end = s1.indexOf("元");
+                                if (end > start + 3) {
+                                    String s2;
+                                    try {
+                                        s2 = s1.substring(start + 3, end);
+                                    } finally {
+
+                                    }
+                                    Matcher matcher = AMOUNT_PATTERN.matcher(s2);
+                                    if (matcher.find()) {
+                                        vo.setHearingFees(s2 + "元");
+                                    } else {
+                                        try {
+                                            vo.setHearingFees(NumberChineseFormatter.chineseToNumber(s2) + "元");
+                                        } catch (Exception e) {
+                                            vo.setHearingFees(s2 + "元");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (vo.getParty() != null && vo.getParty().size() > 0) {
+                            for (PartyEntity partyEntity : vo.getParty()) {
+                                if (partyEntity.getName() == null) {
+                                    continue;
+                                }
+                                if ((s1.contains("负担") || s1.contains("承担")) && s1.contains("元")) {
+                                    for (Term term : ToAnalysis.parse(s1)) {
+                                        if ((term.getNatureStr().equals("mq") && term.getRealName().contains("元")) || ((term.from() != null && (term.from().getRealName().contains("受理费") || term.from().getRealName().contains("人民币"))) && term.getNatureStr().equals("mq"))) {
+                                            if (("原告".equals(partyEntity.getType()) && s1.contains(partyEntity.getName())) || (s1.contains("原告") || s1.contains("上诉人"))) {
+                                                if (!StringUtils.hasLength(vo.getPlaintiffHearingFees())) {
+                                                    Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                                    if (matcher.find()) {
+                                                        vo.setPlaintiffHearingFees(term.getRealName());
+                                                    } else {
+                                                        try {
+                                                            vo.setPlaintiffHearingFees(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                                        } catch (Exception e) {
+                                                            vo.setPlaintiffHearingFees(term.getRealName());
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            if (("被告".equals(partyEntity.getType()) && s1.contains(partyEntity.getName())) || (s1.contains("被告") || s1.contains("被上诉人"))) {
+                                                if (!StringUtils.hasLength(vo.getDefendantHearingFees())) {
+                                                    Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                                    if (matcher.find()) {
+                                                        vo.setDefendantHearingFees(term.getRealName());
+                                                    } else {
+                                                        try {
+                                                            vo.setDefendantHearingFees(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                                        } catch (Exception e) {
+                                                            vo.setDefendantHearingFees(term.getRealName());
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (s1.contains(partyEntity.getName()) && (s1.contains("负担") || s1.contains("承担"))) {
+                                    if ("原告".equals(partyEntity.getType())) {
+                                        if (!StringUtils.hasLength(vo.getPlaintiffHearingFees())) {
+                                            vo.setPlaintiffHearingFees(vo.getHearingFees());
+                                        }
+                                    }
+                                    if ("被告".equals(partyEntity.getType())) {
+                                        if (!StringUtils.hasLength(vo.getDefendantHearingFees())) {
+                                            vo.setDefendantHearingFees(vo.getHearingFees());
+                                        }
+                                    }
+                                } else if (s1.contains("负担") || s1.contains("承担")) {
+                                    if (s1.contains("原告") || s1.equals("上诉人")) {
+                                        if (!StringUtils.hasLength(vo.getPlaintiffHearingFees())) {
+                                            vo.setPlaintiffHearingFees(vo.getHearingFees());
+                                        }
+                                    }
+                                    if (s1.contains("被告") || s1.contains("被上诉人")) {
+                                        if (!StringUtils.hasLength(vo.getDefendantHearingFees())) {
+                                            vo.setDefendantHearingFees(vo.getHearingFees());
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            if (s1.contains("负担") || s1.contains("承担")) {
+                                for (Term term : ToAnalysis.parse(s1)) {
+                                    if ((term.getNatureStr().equals("mq") && term.getRealName().contains("元")) || ((term.from() != null && (term.from().getRealName().contains("受理费") || term.from().getRealName().contains("人民币"))) && term.getNatureStr().equals("mq"))) {
+                                        if (s1.contains("原告") || s1.equals("上诉人")) {
+                                            if (!StringUtils.hasLength(vo.getPlaintiffHearingFees())) {
+                                                Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                                if (matcher.find()) {
+                                                    vo.setPlaintiffHearingFees(term.getRealName());
+                                                } else {
+                                                    try {
+                                                        vo.setPlaintiffHearingFees(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                                    } catch (Exception e) {
+                                                        vo.setPlaintiffHearingFees(term.getRealName());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (s1.contains("被告") || s1.contains("被上诉人")) {
+                                            if (!StringUtils.hasLength(vo.getDefendantHearingFees())) {
+                                                Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
+                                                if (matcher.find()) {
+                                                    vo.setDefendantHearingFees(term.getRealName());
+                                                } else {
+                                                    try {
+                                                        vo.setDefendantHearingFees(NumberChineseFormatter.chineseToNumber(term.getRealName().replace("元", "")) + "元");
+                                                    } catch (Exception e) {
+                                                        vo.setDefendantHearingFees(term.getRealName());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (s1.contains("原告") || s1.equals("上诉人")) {
+                                if (!StringUtils.hasLength(vo.getPlaintiffHearingFees())) {
+                                    vo.setPlaintiffHearingFees(vo.getHearingFees());
+                                }
+                            }
+                            if (s1.contains("被告") || s1.contains("被上诉人")) {
+                                if (!StringUtils.hasLength(vo.getDefendantHearingFees())) {
+                                    vo.setDefendantHearingFees(vo.getHearingFees());
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (StringUtils.hasLength(judgmentResult)) {
+                    if ((judgmentResult.contains("准许") || judgmentResult.contains("本案按")) && (judgmentResult.contains("撤回起诉") || judgmentResult.contains("撤诉"))) {
+                        vo.setJudgmentDesc("撤回起诉");
+                    } else if ((judgmentResult.contains("驳回") && judgmentResult.contains("全部诉讼请求"))
+                            || (judgmentResult.contains("驳回") && judgmentResult.contains("起诉"))
+                            || (judgmentResult.contains("驳回") && judgmentResult.contains("诉讼请求") && !judgmentResult.contains("其他诉讼请求"))) {
+                        vo.setJudgmentDesc("驳回诉讼请求");
+                    } else {
+                        if (StringUtils.hasLength(vo.getPlaintiffHearingFees()) && !StringUtils.hasLength(vo.getDefendantHearingFees())) {
+                            vo.setJudgmentDesc("被告胜诉");
+                        } else if (!StringUtils.hasLength(vo.getPlaintiffHearingFees()) && StringUtils.hasLength(vo.getDefendantHearingFees())) {
+                            vo.setJudgmentDesc("原告胜诉");
+                        } else if (StringUtils.hasLength(vo.getPlaintiffHearingFees()) && StringUtils.hasLength(vo.getDefendantHearingFees())) {
+
+                            double a = 0;
+                            double b = 0;
+                            try {
+                                a = Double.parseDouble(vo.getPlaintiffHearingFees().replace("元", ""));
+                            } catch (NumberFormatException e) {
+                                try {
+                                    String plaintiffHearingFees = vo.getPlaintiffHearingFees();
+                                    plaintiffHearingFees = plaintiffHearingFees.replace("1", "一");
+                                    plaintiffHearingFees = plaintiffHearingFees.replace("2", "二");
+                                    plaintiffHearingFees = plaintiffHearingFees.replace("3", "三");
+                                    plaintiffHearingFees = plaintiffHearingFees.replace("4", "四");
+                                    plaintiffHearingFees = plaintiffHearingFees.replace("5", "五");
+                                    plaintiffHearingFees = plaintiffHearingFees.replace("6", "六");
+                                    plaintiffHearingFees = plaintiffHearingFees.replace("7", "七");
+                                    plaintiffHearingFees = plaintiffHearingFees.replace("8", "八");
+                                    plaintiffHearingFees = plaintiffHearingFees.replace("9", "九");
+                                    plaintiffHearingFees = plaintiffHearingFees.replace("元", "");
+                                    a = NumberChineseFormatter.chineseToNumber(plaintiffHearingFees);
+                                } catch (Exception ex) {
+                                    log.info("原告={}", vo.getPlaintiffHearingFees());
+                                    ex.printStackTrace();
+                                }
+                            }
+
+                            try {
+                                b = Double.parseDouble(vo.getDefendantHearingFees().replace("元", ""));
+                            } catch (NumberFormatException e) {
+                                try {
+                                    String defendantHearingFees = vo.getDefendantHearingFees();
+                                    defendantHearingFees = defendantHearingFees.replace("1", "一");
+                                    defendantHearingFees = defendantHearingFees.replace("2", "二");
+                                    defendantHearingFees = defendantHearingFees.replace("3", "三");
+                                    defendantHearingFees = defendantHearingFees.replace("4", "四");
+                                    defendantHearingFees = defendantHearingFees.replace("5", "五");
+                                    defendantHearingFees = defendantHearingFees.replace("6", "六");
+                                    defendantHearingFees = defendantHearingFees.replace("7", "七");
+                                    defendantHearingFees = defendantHearingFees.replace("8", "八");
+                                    defendantHearingFees = defendantHearingFees.replace("9", "九");
+                                    defendantHearingFees = defendantHearingFees.replace("元", "");
+                                    b = NumberChineseFormatter.chineseToNumber(defendantHearingFees);
+                                } catch (Exception ex) {
+                                    log.info("被告={}", vo.getDefendantHearingFees());
+                                    ex.printStackTrace();
+                                }
+                            }
+
+                            if (a > b) {
+                                vo.setJudgmentDesc("被告胜诉");
+                            } else {
+                                vo.setJudgmentDesc("原告胜诉");
+                            }
+
+                        }
+                        if (StringUtils.isEmpty(vo.getJudgmentDesc())) {
+                            String name = "";
+                            if (vo.getParty() != null && vo.getParty().size() > 0) {
+                                for (PartyEntity party : vo.getParty()) {
+                                    if ("被告".equals(party.getType())) {
+                                        name = party.getName();
+                                        if ((judgmentResult.contains("被告") || judgmentResult.contains(name)) &&
+                                                (
+                                                        judgmentResult.contains("退还")
+                                                                || judgmentResult.contains("返还")
+                                                                || judgmentResult.contains("给付")
+                                                                || judgmentResult.contains("归还")
+                                                                || judgmentResult.contains("返回")
+                                                                || judgmentResult.contains("退给")
+                                                                || judgmentResult.contains("偿还")
+                                                                || judgmentResult.contains("赔偿")
+                                                                || judgmentResult.contains("返给")
+                                                                || judgmentResult.contains("清偿")
+                                                                || judgmentResult.contains("付给")
+                                                                || judgmentResult.contains("偿付")
+                                                                || judgmentResult.contains("退于")
+                                                                || judgmentResult.contains("退")
+                                                                || judgmentResult.contains("支付")
+                                                )
+                                                && (judgmentResult.contains("本金")
+                                                || judgmentResult.contains("借款")
+                                                || judgmentResult.contains("欠款")
+                                                || judgmentResult.contains("透支")
+                                                || judgmentResult.contains("代偿款")
+                                                || judgmentResult.contains("贷款")
+                                                || judgmentResult.contains("元"))) {
+                                            if (StringUtils.isEmpty(vo.getJudgmentDesc())) {
+                                                vo.setJudgmentDesc("原告胜诉");
+                                            }
+
+                                        }
+                                    }
+                                }
+                            } else {
+                                if ((
+                                        judgmentResult.contains("退还")
+                                                || judgmentResult.contains("返还")
+                                                || judgmentResult.contains("给付")
+                                                || judgmentResult.contains("归还")
+                                                || judgmentResult.contains("返回")
+                                                || judgmentResult.contains("退给")
+                                                || judgmentResult.contains("偿还")
+                                                || judgmentResult.contains("赔偿")
+                                                || judgmentResult.contains("返给")
+                                                || judgmentResult.contains("清偿")
+                                                || judgmentResult.contains("付给")
+                                                || judgmentResult.contains("偿付")
+                                                || judgmentResult.contains("退于")
+                                                || judgmentResult.contains("退")
+                                                || judgmentResult.contains("支付")
+                                )
+                                        && (judgmentResult.contains("本金")
+                                        || judgmentResult.contains("借款")
+                                        || judgmentResult.contains("欠款")
+                                        || judgmentResult.contains("透支")
+                                        || judgmentResult.contains("代偿款")
+                                        || judgmentResult.contains("贷款")
+                                        || judgmentResult.contains("元"))) {
+                                    if (StringUtils.isEmpty(vo.getJudgmentDesc())) {
+                                        vo.setJudgmentDesc("原告胜诉");
+                                    }
+
+                                }
+                            }
+
+                        }
+
+                    }
+
+                }
+            }
+
+
             try {
                 for (PartyEntity entity1 : vo.getParty()) {
                     parseAddress(entity1);

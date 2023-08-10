@@ -1659,12 +1659,12 @@ public class ParsePartyEasyService {
 
 
             if (!StringUtils.hasText(party.getAddress())) {
-                if (s.contains("户籍") || s.contains("籍贯")) {
+                if ((s.contains("户籍") || s.contains("籍贯")) && !s.equals("户籍地")) {
                     party.setAddress(s);
                 }
 
                 if (!StringUtils.hasText(party.getAddress())) {
-                    if (s.contains("住") && (!s.equals("住所地") || !s.equals("住所"))) {
+                    if (s.contains("住") && (!s.equals("住所地") && !s.equals("住所"))) {
                         party.setAddress(s);
                     }
                 }
@@ -1756,30 +1756,6 @@ public class ParsePartyEasyService {
             }*/
         }
         return party;
-    }
-
-    private Set<String> parseMoney(PartyEntity party, String text) {
-        if (!StringUtils.hasLength(text)) {
-            return new HashSet<>();
-        }
-        Set<String> set = new HashSet<>();
-        String content = text.replace("。", "，");
-        content = content.replace("；", "，");
-        content = content.replace(",", "，");
-        for (String temp : content.split("，")) {
-            Result parse = ToAnalysis.parse(temp);
-            for (Term term : parse.getTerms()) {
-                if (term.termNatures().numAttr.isNum()) {
-                    if (term.getNatureStr().equals("mq") && term.getRealName().contains("元") && temp.contains("骗")) {
-                        log.info("文本内容为:{}", temp);
-                        log.info("金额内容为:{}", term.getRealName());
-                        set.add(temp);
-                    }
-                }
-
-            }
-        }
-        return set;
     }
 
     private void parseAddress(PartyEntity party) {

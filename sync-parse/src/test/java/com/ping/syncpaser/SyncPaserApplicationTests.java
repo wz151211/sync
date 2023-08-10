@@ -104,14 +104,14 @@ class SyncPaserApplicationTests {
         List<DocumentTargetEntity> entities = tempMapper.findtargetList(0, 0, null);
         for (DocumentTargetEntity entity : entities) {
             String htmlContent = entity.getString("htmlContent");
-            int year = DateUtil.year(entity.getDate("refereeDate"));
+         //   int year = DateUtil.year(entity.getDate("refereeDate"));
             //String temp = year + "\\" + "滥用职权罪";
             //  String temp = year + "\\" + "虐待被监管人罪";
             //  String temp = year + "\\" + "私放在押人员罪";
             //  String temp = year + "\\" + "玩忽职守罪";
             // String temp = year + "\\" + "刑讯逼供罪";
            // String temp = year + "\\" + "徇私舞弊减刑、假释、暂予监外执行罪";
-            String temp = year + "\\" + "执行判决、裁定失职罪";
+            String temp = "挪用资金";
             String name = entity.getString("name").replace(".", "");
             name = name.replace("*", "");
             name = name.replace(":", "");

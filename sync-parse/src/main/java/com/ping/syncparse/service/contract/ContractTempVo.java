@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_contract_result")
+@Document(value = "document_contract_result_new")
 public class ContractTempVo {
     @Id
     @ExcelIgnore
@@ -35,6 +35,8 @@ public class ContractTempVo {
 
     @ExcelProperty(value = "案由", index = 4)
     private String cause;
+
+    private String keyword;
 
     @ExcelProperty(value = "案件类型", index = 5)
     private String caseType;
@@ -70,8 +72,6 @@ public class ContractTempVo {
 
     @ExcelProperty(value = "法律依据", index = 14)
     private String legalBasis;
-    @ExcelIgnore
-    private String legalBasisCount;
 
     @ExcelProperty(value = "事实", index = 15)
     private String fact;

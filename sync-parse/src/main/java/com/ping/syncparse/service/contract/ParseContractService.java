@@ -45,7 +45,7 @@ public class ParseContractService {
     @Autowired
     private PartyMapper partyMapper;
 
-    private AtomicInteger pageNum = new AtomicInteger(0);
+    private AtomicInteger pageNum = new AtomicInteger(8);
 
     private List<Dict> causeList = new ArrayList<>();
     private List<Dict> areaList = new ArrayList<>();
@@ -129,7 +129,8 @@ public class ParseContractService {
 
     public void parse() {
         Pattern compile = Pattern.compile("^((?!解).)*$", Pattern.CASE_INSENSITIVE);
-        List<ContractVo> entities = contractMapper.findList(pageNum.get(), pageSize, null);
+        log.info("当前页={}", pageNum.get());
+        List<ContractVo> entities = contractMapper.findList(0, pageSize, null);
         if (entities == null || entities.size() == 0) {
             return;
         }
@@ -180,8 +181,14 @@ public class ParseContractService {
             vo.setCourtConsidered(entity.getCourtConsidered());
             vo.setLitigationRecords(entity.getLitigationRecords());
             vo.setFact(entity.getFact());
-            if (entity.getCause() != null && entity.getCause().size() > 0) {
+            vo.setCause(entity.getCause());
+            vo.setLegalBasis(entity.getLegalBasis());
+            vo.setParty(entity.getParty());
+   /*         if (entity.getCause() != null && entity.getCause().size() > 0) {
                 vo.setCause(entity.getCause().stream().map(Object::toString).collect(joining(",")));
+            }
+            if (entity.getKeyword() != null && entity.getKeyword().size() > 0) {
+                vo.setKeyword(entity.getKeyword().stream().map(Object::toString).collect(joining(",")));
             }
             if (entity.getLegalBasis() != null && entity.getLegalBasis().size() > 0) {
                 for (int i = 0; i < entity.getLegalBasis().size(); i++) {
@@ -190,14 +197,14 @@ public class ParseContractService {
                     JSONObject aa = JSONObject.parseObject(JSON.toJSONString(c));
                     return aa.getString("fgmc") + aa.getString("tkx");
                 }).collect(joining(",")));
-            }
+            }*/
             try {
                 vo.setRefereeDate(entity.getRefereeDate());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
             if (entity.getHtmlContent() != null && entity.getJsonContent() != null && entity.getJsonContent().size() > 0) {
-                PartyEntity party = null;
+/*                PartyEntity party = null;
                 Document parse = Jsoup.parse(entity.getHtmlContent());
 
                 Elements elements = new Elements();
@@ -209,9 +216,9 @@ public class ParseContractService {
                 Elements p = parse.getElementsByTag("p");
                 elements.addAll(trs);
                 elements.addAll(div);
-                elements.addAll(p);
+                elements.addAll(p);*/
 
-                JSONArray array = entity.getParty();
+ /*               JSONArray array = entity.getParty();
                 if (array != null && array.size() > 0) {
                     for (Object o : array) {
                         boolean isExist = false;
@@ -330,9 +337,9 @@ public class ParseContractService {
                             }
                         }
                     }
-                }
+                }*/
 
-                for (int i = 0; i < 6; i++) {
+               /* for (int i = 0; i < 6; i++) {
                     if (i > elements.size() - 1) {
                         continue;
                     }
@@ -341,7 +348,7 @@ public class ParseContractService {
                     if (StringUtils.isEmpty(text)) {
                         continue;
                     }
-                    if (text.contains("异议")) {
+                    if (text.contains("异议") || text.contains("诉讼")) {
                         break;
                     }
                     boolean exits = false;
@@ -377,7 +384,7 @@ public class ParseContractService {
                             e.printStackTrace();
                         }
                     }
-                }
+                }*/
             }
 
             try {
@@ -391,31 +398,58 @@ public class ParseContractService {
                     for (PartyEntity party : parties) {
                         if ("被告".equals(party.getType())
                                 && StringUtils.hasLength(party.getName())
-                                && (party.getName().contains("公司") || party.getName().contains("银行") || party.getName().contains("信用合作联社") || party.getName().contains("信用社") || party.getName().length() >= 7 || (party.getName().contains("厂") && party.getName().length() >= 5))) {
+                                && (party.getName().contains("公司")
+                                || party.getName().contains("银行")
+                                || party.getName().contains("信用合作联社")
+                                || party.getName().contains("信用社")
+                                || party.getName().contains("工作室")
+                                || party.getName().contains("批发商")
+                                || party.getName().contains("超市")
+                                || party.getName().contains("百货店")
+                                || party.getName().length() >= 7
+                                || (party.getName().contains("厂") && party.getName().length() >= 5))) {
                             bg = false;
                             yg = false;
                             break;
                         }
                         if ("被告".equals(party.getType())
                                 && StringUtils.hasLength(party.getName())
-                                && !party.getName().contains("公司") && !party.getName().contains("银行") && !party.getName().contains("信用合作联社") && !party.getName().contains("信用社") && !(party.getName().length() >= 7) && !(party.getName().contains("厂") && party.getName().length() >= 5)) {
+                                && ((!party.getName().contains("公司")
+                                && !party.getName().contains("银行")
+                                && !party.getName().contains("信用合作联社")
+                                && !party.getName().contains("信用社")
+                                && !party.getName().contains("工作室")
+                                && !party.getName().contains("批发商")
+                                && !party.getName().contains("超市")
+                                && !party.getName().contains("百货店")
+                                && party.getName().length() <= 5)
+                                || (party.getName().contains("厂") && party.getName().length() <= 3))) {
                             bg = true;
                         }
                         if ("原告".equals(party.getType())
                                 && StringUtils.hasLength(party.getName())
-                                && (party.getName().contains("公司") || party.getName().contains("银行") || party.getName().contains("信用合作联社") || party.getName().contains("信用社") || party.getName().length() >= 7 || (party.getName().contains("厂") && party.getName().length() >= 5))) {
+                                && (party.getName().contains("公司")
+                                || party.getName().contains("银行")
+                                || party.getName().contains("信用合作联社")
+                                || party.getName().contains("信用社")
+                                || party.getName().contains("工作室")
+                                || party.getName().contains("批发商")
+                                || party.getName().contains("超市")
+                                || party.getName().contains("百货店")
+                                || party.getName().length() >= 7
+                                || (party.getName().contains("厂") && party.getName().length() >= 5))) {
                             yg = true;
                         }
                     }
                     if (yg && bg) {
-                        log.info("{}", entity.getName());
-                    } else {
                         contractResultMapper.insert(vo);
+                    } else {
+                        log.info("{}", entity.getName());
                     }
                 }
 
                 try {
-                    //  contractMapper.delete(entity);
+                    contractMapper.delete(entity);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -558,6 +592,9 @@ public class ParseContractService {
             if (s.contains("岁")) {
                 party.setAge(s.replace("岁", ""));
             }
+            if (s.contains("年龄")) {
+                party.setAge(s.replace("年龄", ""));
+            }
             if (s.contains("年") && s.contains("月") && s.contains("日") && s.contains("生") && StringUtils.isEmpty(party.getBirthday())) {
 
                 party.setBirthday(s);
@@ -587,12 +624,12 @@ public class ParseContractService {
 
 
             if (!StringUtils.hasText(party.getAddress())) {
-                if (s.contains("户籍") || s.contains("籍贯")) {
+                if ((s.contains("户籍") || s.contains("籍贯")) && !s.contains("户籍地")) {
                     party.setAddress(s);
                 }
 
                 if (!StringUtils.hasText(party.getAddress())) {
-                    if (s.contains("住") && (!s.equals("住所地") && !s.equals("住所"))) {
+                    if (s.contains("住") && (!s.equals("住所地") && !s.equals("住所") && !s.equals("现住"))) {
                         party.setAddress(s);
                     }
                 }
@@ -618,7 +655,7 @@ public class ParseContractService {
                 if (StringUtils.isEmpty(party.getAddress())) {
                     if ((s.contains("省") || s.contains("自治区") || s.contains("兵团"))
                             || (s.contains("市") || s.contains("自治州") || s.contains("盟"))
-                            && (s.contains("县") || s.contains("区") || s.contains("旗"))) {
+                            || (s.contains("县") || s.contains("区") || s.contains("旗"))) {
                         if (!s.contains("公司") && !s.contains("委员会")) {
                             party.setAddress(s);
                         }
@@ -1104,317 +1141,6 @@ public class ParseContractService {
         if (!StringUtils.hasLength(vo.getProvince())) {
             vo.setProvince(convert(vo.getCaseNo()));
         }
-    }
-
-    private Set<String> illness = new HashSet<>();
-
-    {
-        illness.add("重度抑郁");
-        illness.add("复发性抑郁障碍");
-        illness.add("精神病症状的抑郁症");
-        illness.add("抑郁症");
-        illness.add("酒精所致的精神和行为障碍");
-        illness.add("酒精所致精神障碍");
-        illness.add("复发性抑郁症");
-        illness.add("酒精中毒所致精神障碍");
-        illness.add("未特定的精神障碍");
-        illness.add("酒精中毒性精神障碍");
-        illness.add("特定的精神障碍");
-        illness.add("精神活性物质所致的精神和行为障碍");
-        illness.add("精神分裂症");
-        illness.add("癫痫");
-        illness.add("癔症");
-        illness.add("病理性醉酒");
-        illness.add("甲状腺功能亢进所致精神障碍");
-        illness.add("双向情感障碍");
-        illness.add("中度精神发育迟滞");
-        illness.add("重度精神发育迟滞");
-        illness.add("持久的妄想性障碍");
-
-        illness.add("边缘智力伴精神障碍");
-        illness.add("情感性精神障碍");
-        illness.add("急性而短暂的精神病性障碍");
-        illness.add("急性而短暂的精神病性症");
-        illness.add("急性而短暂的××性障碍");
-        illness.add("急性短暂性精神障碍");
-        illness.add("急性短暂性精神病");
-        illness.add("急性应激性精神病");
-        illness.add("酒精所致精神和行为障碍");
-        illness.add("酒精所致幻觉症");
-        illness.add("脑器质性疾病所致精神障碍");
-        illness.add("待分类的其他精神障碍");
-        illness.add("心境障碍");
-        illness.add("被害妄想症");
-        illness.add("被害妄想");
-        illness.add("待分类的精神病性障碍");
-        illness.add("待分类的××性障碍");
-        illness.add("巫术所致精神障碍");
-        illness.add("妄想、被害妄想等精神病性症");
-        illness.add("复发性躁狂症");
-        illness.add("复发性抑郁障碍");
-        illness.add("复发性抑郁症");
-        illness.add("器质性精神障碍");
-        illness.add("器质性幻觉症");
-        illness.add("器质性妄想症");
-        illness.add("双相障碍");
-        illness.add("双相情感障碍");
-        illness.add("双相情感精神障碍");
-        illness.add("双相障碍-伴××性症");
-        illness.add("双相障碍-伴精神病症");
-        illness.add("双向障碍-伴精神病性症");
-        illness.add("双向障碍-伴精神病性");
-        illness.add("分裂样精神病");
-        illness.add("列表现符合ＣＣＭＤ-3心境");
-        illness.add("分裂情感性精神病");
-        illness.add("其他待分类的精神障碍");
-        illness.add("偏执性精神障碍");
-        illness.add("偏执型精神障碍");
-        illness.add("偏执型分裂症");
-        illness.add("酒精所致精神病障碍");
-        illness.add("酒精所致的精神及行为障碍");
-        illness.add("酒精引起精神和行为障碍");
-        illness.add("伴精神病性症");
-        illness.add("××病");
-
-
-        illness.add("脑变性病所致精神障碍");
-        illness.add("颅内感染所致精神障碍");
-        illness.add("急性病毒脑炎所致精神障碍");
-        illness.add("克—雅病所致精神障碍");
-        illness.add("克—雅病痴呆");
-        illness.add("脑炎后综合征");
-        illness.add("脱髓鞘脑病所致精神障碍");
-        illness.add("急性播散性脑炎和急性出血性白质脑炎所致精神障碍");
-        illness.add("多发性硬化所致精神障碍");
-        illness.add("精神活性物质所致精神障碍");
-        illness.add("酒精所致精神障碍");
-        illness.add("鸦片类物质所致精神障碍");
-        illness.add("大麻类物质所致精神障碍");
-        illness.add("镇静催眠药或抗焦虑药所致精神障碍");
-        illness.add("兴奋剂所致精神障碍");
-        illness.add("烟草所致精神障碍");
-        illness.add("挥发性溶剂所致精神障碍");
-        illness.add("其他或待分类的精神活性物质所致精神障碍");
-        illness.add("癔症");
-        illness.add("癔症性精神障碍");
-        illness.add("癔症性温游");
-        illness.add("癔症性身份识别障碍");
-        illness.add("癔症性精神病");
-        illness.add("癔症性附体障碍");
-        illness.add("癔症性躯体障碍");
-        illness.add("器质性精神障碍");
-        illness.add("急性脑血管病所致精神障碍");
-        illness.add("皮层性血管病所致精神障碍");
-        illness.add("皮层下血管病所致精神障碍");
-        illness.add("皮层和皮层下血管病所致精神障碍");
-        illness.add("其他或待分类血管病所致精神障碍");
-        illness.add("待分类血管性痴呆");
-        illness.add("其他脑部疾病所致精神障碍");
-        illness.add("脑变性病所致精神障碍");
-        illness.add("匹克病所致精神障碍");
-        illness.add("享廷顿病所致精神障碍");
-        illness.add("偏执型精神分裂症");
-        illness.add("癲痫所致精神障碍");
-        illness.add("享廷顿病痴呆");
-        illness.add("匹克病痴呆");
-        illness.add("巴金森病所致精神障碍");
-        illness.add("巴金森病痴呆");
-        illness.add("肝豆状核变性所致精神障碍");
-        illness.add("颅内感染所致精神障碍");
-        illness.add("急性病毒性脑炎所致精神障碍");
-        illness.add("克—雅病所致精神障碍");
-        illness.add("脑炎后综合征");
-        illness.add("脱髓鞘脑病所致精神障碍");
-        illness.add("急性播散性脑脊髓炎和急性出血性白质脑炎所致精神障碍");
-        illness.add("多发性硬化所致精神障碍");
-        illness.add("脑外伤所致精神障碍");
-        illness.add("脑震荡后综合征");
-        illness.add("脑挫裂伤后综合征");
-        illness.add("脑瘤所致精神障碍");
-        illness.add("癫痫所致精神障碍");
-        illness.add("躯体疾病所致精神障碍");
-        illness.add("躯体感染所致精神障碍");
-        illness.add("人类免疫缺陷病毒所致精神障碍");
-        illness.add("内脏器官疾病所致精神障碍");
-        illness.add("内分泌疾病所致精神障碍");
-        illness.add("营养代谢疾病所致精神障碍");
-        illness.add("结缔组织疾病所致精神障碍");
-        illness.add("系统性红斑狼疮所致精神障碍");
-        illness.add("染色体异常所致精神障碍");
-        illness.add("物理因素所致精神障碍");
-        illness.add("围生期精神障碍");
-        illness.add("其他或待分类器质性精神");
-        illness.add("器质性智能损害");
-        illness.add("器质性意识障碍");
-        illness.add("器质性情感障碍");
-        illness.add("器质性癔症样综合征");
-        illness.add("器质性神经症样综合征");
-        illness.add("器质性情绪不稳（脆弱）障碍");
-        illness.add("精神活性物质所致精神障碍");
-        illness.add("酒精所致精神障碍");
-        illness.add("阿片类物质所致精神障碍");
-        illness.add("大麻类物质所致精神障碍");
-        illness.add("镇静催眠药或抗焦虑药所致精神障碍");
-        illness.add("兴奋剂所致精神障碍");
-        illness.add("致幻剂所致精神障碍");
-        illness.add("烟草所致精神障碍");
-        illness.add("挥发性溶剂所致精神障碍");
-        illness.add("其他或待分类的精神活性物质所致精神障碍");
-        illness.add("非成瘾物质所致精神障碍");
-        illness.add("非成瘾药物所致精神障碍");
-        illness.add("一氧化碳所致精神障碍");
-        illness.add("有机化合物所致精神障碍");
-        illness.add("重金属所致精神障碍");
-        illness.add("食物所致精神障碍");
-        illness.add("其他或待分类的非成瘾物质所致精神障碍");
-        illness.add("精神分裂症");
-        //    illness.add("分裂症");
-        illness.add("偏执型分裂症");
-        illness.add("瓦解型分裂症");
-        illness.add("青春型分裂症");
-        illness.add("紧张型分裂症");
-        illness.add("单纯型分裂症");
-        illness.add("未定型分裂症");
-        illness.add("其他型或待分类的精神分裂症");
-        illness.add("精神分裂症后抑郁");
-        illness.add("精神分裂症缓解期");
-        illness.add("精神分裂症残留期");
-        illness.add("慢性精神分裂症");
-        illness.add("慢性精神分裂症");
-        illness.add("精神分裂症衰退期");
-        illness.add("偏执性精神障碍");
-        illness.add("急性短暂性精神病");
-        illness.add("分裂样精神病");
-        illness.add("旅途性精神病");
-        illness.add("妄想阵发（急性妄想发作");
-        illness.add("其他或待分类的急性短暂精神病");
-        illness.add("感应性精神病");
-        illness.add("分裂情感性精神病");
-        illness.add("分裂情感性精神病");
-        illness.add("躁狂型");
-        illness.add("分裂情感性精神病");
-        illness.add("抑郁型");
-        illness.add("分裂情感性精神病");
-        illness.add("其他或待分类的精神病性障碍");
-        illness.add("周期性精神病");
-        illness.add("轻性躁狂症");
-        illness.add("无精神病性症状的躁狂症");
-        illness.add("有精神病性症状的躁狂症");
-        illness.add("复发性躁狂");
-        illness.add("复发性躁狂症");
-        illness.add("复发性躁狂症");
-        illness.add("其他或待分类的躁狂");
-        illness.add("轻性抑郁症");
-        illness.add("无精神病性症状的抑郁症");
-        illness.add("有精神病性症状的抑郁症");
-        illness.add("复发性抑郁症");
-        illness.add("有精神病性症状的抑郁");
-        illness.add("持续性心境障碍");
-        illness.add("恶劣心境");
-        illness.add("其他或待分类的持续性心境障碍");
-        illness.add("其他或待分类的心境障碍");
-        illness.add("意识障碍");
-        illness.add("癔症性精神障碍");
-        illness.add("癔症性遗忘");
-        illness.add("癔症性漫游");
-        illness.add("癔症性身份识别障碍");
-        illness.add("癔症性精神病");
-        illness.add("癔症性附体障碍");
-        illness.add("癔症性木僵");
-        illness.add("癔症性躯体障碍");
-        illness.add("癔症性运动障碍");
-        illness.add("癔症性抽搐发作");
-        illness.add("癔症性感觉障碍");
-        illness.add("混合性癔症躯体—精神障碍");
-        illness.add("其他或待分类癔症");
-        illness.add("Ganser综合征");
-        illness.add("短暂的癔症性障碍");
-        illness.add("应激相关障碍");
-        illness.add("急性应激障碍");
-        illness.add("急性应激性精神病");
-        illness.add("创伤后应激障碍");
-        illness.add("适应障碍");
-        illness.add("偏执性人格障碍");
-        illness.add("分裂样人格障碍");
-        illness.add("反社会性人格障碍");
-        illness.add("冲动性人格障碍");
-        illness.add("攻击性人格障碍");
-        illness.add("表演性人格障碍");
-        illness.add("癔症性人格障碍");
-        illness.add("强迫性人格障碍");
-        illness.add("焦虑性人格障碍");
-        illness.add("依赖性人格障碍");
-        illness.add("其他或待分类的人格障碍");
-        illness.add("习惯与冲动控制障碍");
-        illness.add("病理性赌博");
-        illness.add("病理性纵火");
-        illness.add("病理性偷窃");
-        illness.add("性心理障碍");
-        illness.add("性身份障碍");
-        illness.add("易性症");
-        illness.add("其他或待分类的性身份障碍");
-        illness.add("性偏好障碍");
-        illness.add("恋物症");
-        illness.add("异装症");
-        illness.add("露阴症");
-        illness.add("窥阴症");
-        illness.add("磨擦症");
-        illness.add("性施虐与性受虐症");
-        illness.add("混合型性偏好障碍");
-        illness.add("其他或待分类的性偏好障碍");
-        illness.add("性指向障碍");
-        illness.add("同性恋");
-        illness.add("双性恋");
-        illness.add("其他或待分类的性指向障碍");
-        illness.add("精神发育迟滞");
-        illness.add("轻度精神发育迟滞");
-        illness.add("中度精神发育迟滞");
-        illness.add("重度精神发育迟滞");
-        illness.add("极重度精神发育迟滞");
-        illness.add("其他或待分类的精神发育迟滞");
-        illness.add("无或轻微的行为障碍");
-        illness.add("其他或待分类的行为障碍");
-        illness.add("言语和语言发育障碍");
-        illness.add("特定言语构音障碍");
-        illness.add("表达性语言障碍");
-        illness.add("感受性语言障碍");
-        illness.add("伴发癫痫的获得性失语");
-        illness.add("其他或待分类的言语和语言发育障碍");
-        illness.add("特定学校技能发育障碍");
-        illness.add("特定阅读障碍");
-        illness.add("特定拼写障碍");
-        illness.add("特定计算技能障碍");
-        illness.add("合性学习技能障碍");
-        illness.add("其他或待分类的特定学习技能发育障碍");
-        illness.add("儿童分离性焦虑症");
-        illness.add("儿童恐惧症");
-        illness.add("儿童社交恐惧症");
-        illness.add("儿童社会功能障碍");
-        illness.add("神经性厌食");
-        illness.add("失眠症");
-        illness.add("嗜睡症");
-        illness.add("睡眠—觉醒节律障碍");
-        illness.add("恐惧症");
-        illness.add("场所恐惧症");
-        illness.add("社交恐惧症");
-        illness.add("特定的恐惧症");
-        illness.add("焦虑症");
-        illness.add("惊恐障碍");
-        illness.add("广泛性焦虑");
-        illness.add("强迫症");
-        illness.add("病理性半醒");
-        illness.add("酒精所致××障碍");
-        illness.add("继发性痴呆");
-        illness.add("重度抑郁");
-        illness.add("精神分裂症");
-        illness.add("病理性醉酒");
-        illness.add("癫痫性精神病");
-        illness.add("情感性精神障碍");
-        illness.add("器质性精神障碍");
-        illness.add("癫痫");
-        illness.add("偏执型精神分裂症");
-        illness.add("妄想状态");
-        //    illness.add("精神障碍");
     }
 
 }

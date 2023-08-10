@@ -2,14 +2,17 @@ package com.ping.syncparse.service.contract;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ping.syncparse.entity.PartyEntity;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
-@Document(value = "document_jiekuanjiufen_copy1")
+@Document(value = "document_contract_result")
 public class ContractVo {
     @Id
     private String id;
@@ -26,11 +29,11 @@ public class ContractVo {
 
     private String caseType;
 
-    private JSONArray cause;
+    private String cause;
 
-    private JSONArray party;
+    private List<PartyEntity> party = new ArrayList<>();
 
-    private JSONArray keyword;
+    private String keyword;
 
     private String trialProceedings;
 
@@ -47,7 +50,7 @@ public class ContractVo {
     private String judgmentResult;
 
     private String litigationRecords;
-    private JSONArray legalBasis;
+    private String legalBasis;
     private String fact;
 
     private String province;

@@ -5,7 +5,6 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.entity.PartyEntity;
-import com.ping.syncparse.service.CaseSummaryVO;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -15,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_contract_data")
+@Document(value = "document_contract_result")
 public class ContractResultVo {
     @Id
     @ExcelIgnore
@@ -36,6 +35,8 @@ public class ContractResultVo {
 
     @ExcelProperty(value = "案由", index = 4)
     private String cause;
+
+    private String keyword;
 
     @ExcelProperty(value = "案件类型", index = 5)
     private String caseType;
@@ -99,6 +100,10 @@ public class ContractResultVo {
     //借款利率
     private String loanRate;
     private String loanRateContent;
+
+    //借款利率
+    private String rateType;
+
     //逾期利率
     private String overdueRate;
     private String overdueRateContent;
@@ -114,6 +119,20 @@ public class ContractResultVo {
     //违约金额
     private String defaultAmount;
     private String defaultAmountContent;
+
+
+    private String judgmentDesc;
+    //诉讼费
+    private String hearingFees;
+    //被告受理费
+    private String defendantHearingFees;
+    //原告受理费
+    private String plaintiffHearingFees;
+
+    //期限
+    private Integer term;
+
+    private String termContent;
 
 
 }

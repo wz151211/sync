@@ -13,6 +13,7 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.ping.syncparse.entity.PartyEntity;
 import com.ping.syncparse.service.CaseVo;
 import com.ping.syncparse.service.InternetFraudEntity;
 import org.ansj.domain.Result;
@@ -539,17 +540,9 @@ public class Test1 {
     @Test
     public void test7() {
         StringBuilder county = new StringBuilder();
-        for (Term term : ToAnalysis.parse("贷款金额290.000.00元")) {
+        for (Term term : ToAnalysis.parse("借款金额肆万元")) {
             System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
-        System.out.println(county.toString());
-        System.out.println(StringUtils.replaceOnce("贷款金额290.000.00元",".",""));
-        System.out.println(org.springframework.util.StringUtils.countOccurrencesOf("贷款金额290.000.00元","."));
-        System.out.println(org.springframework.util.StringUtils.deleteAny("贷款金额290.000.00元","."));
-        // System.out.println(new StringBuilder("住所地重庆市永川区双石镇杨家湾").reverse().toString());
-/*        String str = "广州知识产权法院";
-        int index = str.indexOf("知识产权法院");
-        System.out.println(str.substring(0,index));*/
     }
 
     @Test
@@ -599,41 +592,55 @@ public class Test1 {
     }
 
     @Test
-    public void test15() {
-        String temp = "申请机关宁波市强制医疗所";
-        String[] split = temp.split("，");
-        int start = temp.lastIndexOf("年");
-        int end = temp.lastIndexOf("日");
-        if (end == -1) {
-            end = temp.lastIndexOf("月");
-        }
-        if (end > start) {
-            System.out.println(temp.substring(start - 4, end + 1));
-        }
-
-    }
-
-    @Test
-    public void test16() {
-        String sentence = "经海南省安宁医院精神疾病司法鉴定中心鉴定:1、林慧诗在本次作案时患有妄想阵发和人格障碍;2、林慧诗对本次作案无刑事责任能力";
-        int start = sentence.indexOf("患");
-        if (start == -1) {
-            start = sentence.indexOf("系");
-        }
-        int end = sentence.lastIndexOf("症");
-        if (end == -1) {
-            end = sentence.lastIndexOf("碍");
-        }
-        if (end == -1) {
-            end = sentence.lastIndexOf("病");
-        }
-
-        System.out.println(sentence.substring(start, end));
-
-    }
-
-    @Test
     public void testHtml() {
         System.out.println(NumberChineseFormatter.chineseToNumber("贰拾玖万捌仟零肆拾陆"));
+    }
+
+    @Test
+    public void test111() {
+        String startDate = "2012年5月02";
+        if (startDate.contains("年") && startDate.contains("月") && !startDate.contains("日")) {
+            int index = startDate.indexOf("月");
+            if (index > -1) {
+                startDate = startDate.substring(0, index + 1);
+                startDate = startDate + "01日";
+            }
+            System.out.println(startDate);
+            DateTime dateTime = DateUtil.parse(startDate);
+            System.out.println(dateTime);
+        }
+    }
+
+    @Test
+    public void test22() {
+        System.out.println(NumberChineseFormatter.chineseToNumber("十二"));
+    }
+
+    @Test
+    public void test33() {
+        System.out.println(NumberChineseFormatter.chineseToNumber("十二"));
+    }
+
+    @Test
+    public void test44() {
+        PartyEntity party = new PartyEntity();
+        party.setName("车献梁");
+        party.setType("被告");
+        boolean bg = false;
+        if ("被告".equals(party.getType())
+                && org.springframework.util.StringUtils.hasLength(party.getName())
+                && ((!party.getName().contains("公司")
+                && !party.getName().contains("银行")
+                && !party.getName().contains("信用合作联社")
+                && !party.getName().contains("信用社")
+                && !party.getName().contains("工作室")
+                && !party.getName().contains("批发商")
+                && !party.getName().contains("超市")
+                && !party.getName().contains("百货店")
+                && party.getName().length() <= 5)
+                || (party.getName().contains("厂") && party.getName().length() <= 3))) {
+            bg = true;
+            System.out.println("-------------");
+        }
     }
 }
