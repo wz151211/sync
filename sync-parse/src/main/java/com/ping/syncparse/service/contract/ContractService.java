@@ -548,7 +548,7 @@ public class ContractService {
                             }
                         }
 
-                        if ((temp.contains("还清") || temp.contains("到期") || temp.contains("还款期限") || temp.contains("还款时间")) && temp.contains("年") && temp.contains("月") && temp.contains("日") && StringUtils.isEmpty(vo.getContractEndDate())) {
+                        if ((temp.contains("还清") || temp.contains("到期") || temp.contains("还款期限") || temp.contains("还款时间")) && temp.contains("年") && temp.contains("月") && !temp.contains("未能偿还") && !temp.contains("还本付息") && temp.contains("日") && StringUtils.isEmpty(vo.getContractEndDate())) {
                             String contractEndDate = "";
                             for (Term term : ToAnalysis.parse(temp)) {
                                 if (contractEndDate.contains("年") && term.getRealName().contains("年")) {
@@ -661,6 +661,7 @@ public class ContractService {
                                 || comma.contains("抵押车辆信息"))
                                 && !comma.contains("公司")
                                 && !comma.contains("保证人")
+                                && !comma.contains("透支")
                                 && !comma.contains("保证合同")
                                 // && (comma.contains("房") || comma.contains("车") || comma.contains("商铺") || comma.contains("机") || comma.contains("土地使用证"))
                                 && StringUtils.isEmpty(vo.getMortgage())) {
@@ -893,10 +894,9 @@ public class ContractService {
                             log.error("月份1={}", monthsContent);
                         }
                         if (term.getRealName().contains("年")) {
-                            vo.setTerm(month * 12);
-                        } else {
-                            vo.setTerm(month);
+                            month = month * 12;
                         }
+                        vo.setTerm(month);
 
                     }
                 }
