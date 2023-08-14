@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_contract_result")
+@Document(value = "document_contract_data_copy1_data")
 public class ContractResultVo {
     @Id
     @ExcelIgnore

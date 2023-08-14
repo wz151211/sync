@@ -130,7 +130,7 @@ public class ParseContractService {
     public void parse() {
         Pattern compile = Pattern.compile("^((?!解).)*$", Pattern.CASE_INSENSITIVE);
         log.info("当前页={}", pageNum.get());
-        List<ContractVo> entities = contractMapper.findList(0, pageSize, null);
+        List<ContractVo> entities = contractMapper.findList(5, pageSize, null);
         if (entities == null || entities.size() == 0) {
             return;
         }
