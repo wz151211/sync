@@ -1,4 +1,4 @@
-package com.ping.syncparse.service.contract;
+package com.ping.syncparse.service.economic;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
@@ -14,8 +14,8 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_contract_data_1")
-public class ContractResultVo {
+@Document(value = "doc_economic_data")
+public class EconomicResultVo {
     @Id
     @ExcelIgnore
     private String id;
@@ -81,15 +81,10 @@ public class ContractResultVo {
     @ExcelIgnore
     private JSONObject jsonContent;
 
-    //合同名称
-    private String contractName;
-    private String contractNameContent;
     //
     private String contractSigningDate;
     private String contractSigningDateContent;
-    //借款金额
-    private String loanAmount;
-    private String loanAmountContent;
+
     //借款开始时间
     private String contractStartDate;
     private String contractStartDateContent;
@@ -97,42 +92,21 @@ public class ContractResultVo {
     private String contractEndDate;
     private String contractEndDateContent;
 
-    //借款利率
-    private String loanRate;
-    private String loanRateContent;
-
-    //借款利率
-    private String rateType;
-
-    //逾期利率
-    private String overdueRate;
-    private String overdueRateContent;
-
-    //抵押条件
-    private String mortgage;
-    private String mortgageContent;
 
     //违约日期
     private String defaultDate;
     private String defaultDateContent;
 
-    //违约金额
-    private String defaultAmount;
-    private String defaultAmountContent;
-
-
-    private String judgmentDesc;
-    //诉讼费
-    private String hearingFees;
-    //被告受理费
-    private String defendantHearingFees;
-    //原告受理费
-    private String plaintiffHearingFees;
-
     //期限
     private Integer term;
 
     private String termContent;
+
+    private String averageWage;
+    private String averageWageContent;
+
+    private String actualDate;
+    private String actualDateContent;
 
 
 }

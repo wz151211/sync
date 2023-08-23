@@ -198,8 +198,7 @@ public class ContractService {
                 }
                 fact = text;
             } else {
-                fact = entity.getLitigationRecords() + fact;
-
+                fact = entity.getLitigationRecords() + fact + entity.getCourtConsidered();
             }
             String startFact = "";
             String monthsContent = "";
@@ -243,9 +242,10 @@ public class ContractService {
                         comma = comma.replace("Ｏ", "0");
                         comma = comma.replace("ｌ", "0");
                         comma = comma.replace(" ", "");
+                        comma = comma.replace("日前", "日");
                         String temp = "";
                         if (i > 0) {
-                            temp = split[i - 1] + comma;
+                            temp = split[i - 1] + "，" + comma;
                         } else {
                             temp = comma;
                         }
@@ -336,7 +336,7 @@ public class ContractService {
                         }
                         if ((comma.contains("授信额度")
                                 || comma.contains("贷款")
-                                || comma.contains("额度")
+                                || comma.contains("透支借款")
                                 || comma.contains("欠款")
                                 || comma.contains("化肥款")
                                 || comma.contains("借款")
@@ -344,6 +344,7 @@ public class ContractService {
                                 || comma.contains("分期资金")
                                 || comma.contains("透支款本金")
                                 || comma.contains("透支本金")
+                                || comma.contains("透支消费")
                                 || comma.contains("透支资金")
                                 || comma.contains("欠款本金")
                                 || comma.contains("透支金额")
@@ -373,7 +374,7 @@ public class ContractService {
                                     continue;
                                 }
                                 if (term.getRealName().contains("元") && term.getNatureStr().equals("mq")) {
-                                    if (StringUtils.isEmpty(vo.getLoanAmount())) {
+                                    if (StringUtils.isEmpty(vo.getLoanAmount()) || term.from().getRealName().contains("总计")) {
                                         Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
                                         if (matcher.find()) {
                                             vo.setLoanAmount(term.getRealName());
@@ -408,7 +409,7 @@ public class ContractService {
                             }
                         }
 
-                        if ((temp.contains("期限") || temp.contains("授信期间") || temp.contains("借期")) && (temp.contains("至") || (temp.contains("起") && temp.contains("到"))) && temp.contains("年") && temp.contains("月") && temp.contains("日") && !temp.contains("截止")) {
+                        if ((temp.contains("期限") || temp.contains("授信期间") || temp.contains("借期") || temp.contains("借款额度有效期")) && (temp.contains("至") || (temp.contains("起") && temp.contains("到"))) && temp.contains("年") && temp.contains("月") && temp.contains("日") && !temp.contains("截止") && !temp.contains("截至")) {
                             String[] data = {};
                             if (temp.contains("到")) {
                                 data = temp.split("到");
@@ -497,12 +498,13 @@ public class ContractService {
                                 }
                             }
                         }
-                        if ((comma.contains("期限") || comma.contains("租赁期") || comma.contains("借期"))
+                        if ((comma.contains("期限") || comma.contains("租赁期") || comma.contains("借期") || comma.contains("借款时间"))
                                 && (comma.contains("个月") || (comma.contains("年") && !comma.contains("月")) || (comma.contains("借期") && comma.contains("期")))
                                 && !comma.contains("保证")
                                 && !comma.contains("届满")
                                 && !comma.contains("不超过")
                                 && !comma.contains("以下的")
+                                && !comma.contains("以内")
                                 && StringUtils.isEmpty(monthsContent)) {
                             monthsContent = comma;
                         }
@@ -511,7 +513,7 @@ public class ContractService {
                             monthsContent = comma;
                         }
 
-                        if ((temp.contains("贷款") || temp.contains("借款")) && temp.contains("发放") && temp.contains("年") && temp.contains("月") && temp.contains("日") && StringUtils.isEmpty(vo.getContractStartDate())) {
+                        if ((((temp.contains("贷款") || temp.contains("借款")) && temp.contains("发放")) || temp.contains("借款时间")) && temp.contains("年") && temp.contains("月") && temp.contains("日") && StringUtils.isEmpty(vo.getContractStartDate())) {
                             String contractStartDate = "";
                             for (Term term : ToAnalysis.parse(temp)) {
                                 if (contractStartDate.contains("年") && term.getRealName().contains("年")) {
@@ -548,9 +550,9 @@ public class ContractService {
                             }
                         }
 
-                        if ((temp.contains("还清") || temp.contains("到期") || temp.contains("还款期限") || temp.contains("还款时间")) && temp.contains("年") && temp.contains("月") && !temp.contains("未能偿还") && !temp.contains("还本付息") && temp.contains("日") && StringUtils.isEmpty(vo.getContractEndDate())) {
+                        if ((temp.contains("还清") || temp.contains("到期") || temp.contains("还款期限") || temp.contains("还款时间")) && temp.contains("年") && temp.contains("月") && !temp.contains("未能偿还") && !temp.contains("还本付息") && !temp.contains("发放") && !temp.contains("归还") && temp.contains("日") && StringUtils.isEmpty(vo.getContractEndDate())) {
                             String contractEndDate = "";
-                            for (Term term : ToAnalysis.parse(temp)) {
+                            for (Term term : ToAnalysis.parse(comma)) {
                                 if (contractEndDate.contains("年") && term.getRealName().contains("年")) {
                                     break;
                                 }
@@ -586,7 +588,9 @@ public class ContractService {
                         }
                         if ((comma.contains("基准利率")
                                 || comma.contains("执行利率")
+                                || comma.contains("合同利率")
                                 || comma.contains("贷款利率")
+                                || comma.contains("借款利率")
                                 || comma.contains("年利率")
                                 || comma.contains("年利")
                                 || comma.contains("年息")
@@ -598,6 +602,7 @@ public class ContractService {
                                 || comma.contains("日息"))
                                 && (comma.contains("%") || comma.contains("‰") || comma.contains("分"))
                                 && !comma.contains("不超过")
+                                && !comma.contains("逾利率")
                                 && !comma.contains("逾期")
                                 && !comma.contains("罚息") && StringUtils.isEmpty(vo.getLoanRate())) {
                             for (Term term : ToAnalysis.parse(comma)) {
@@ -606,7 +611,7 @@ public class ContractService {
                                         vo.setLoanRate(term.getRealName());
                                         vo.setLoanRateContent(comma);
                                     }
-                                    if ((term.getNatureStr().equals("m") && term.to() != null && term.to().getRealName().equals("‰"))) {
+                                    if ((term.getNatureStr().equals("m") && term.to() != null && (term.to().getRealName().equals("‰") || term.to().getRealName().equals("％")))) {
                                         vo.setLoanRate(term.getRealName() + term.to().getRealName());
                                         vo.setLoanRateContent(comma);
                                     }
@@ -620,52 +625,59 @@ public class ContractService {
                                 if (comma.contains("日利率") || comma.contains("日息") || comma.contains("日利")) {
                                     vo.setRateType("日利率");
                                 }
-                                if (comma.contains("月利率") || comma.contains("月息") || comma.contains("月利")) {
+                                if (comma.contains("月利率") || comma.contains("月息") || comma.contains("月利") || comma.contains("贷款利率为每月")) {
                                     vo.setRateType("月利率");
                                 }
-                                if (comma.contains("年利率") || comma.contains("年息") || comma.contains("年利")) {
+                                if (comma.contains("年利率") || comma.contains("年息") || comma.contains("年利") || comma.contains("贷款利率每年")) {
                                     vo.setRateType("年利率");
                                 }
                                 if (comma.contains("基准利率") || comma.contains("基准贷款利率") || comma.contains("同期贷款利率")) {
                                     vo.setRateType("基准利率");
                                 }
+                                if (sentence.contains("按月付息") && StringUtils.isEmpty(vo.getRateType())) {
+                                    vo.setRateType("月利率");
+                                }
                             }
                         }
-                        if ((comma.contains("逾期") || comma.contains("罚息") || comma.contains("违约利率")) && (comma.contains("%") || comma.contains("‰")) && StringUtils.isEmpty(vo.getOverdueRate())) {
+                        if ((comma.contains("逾期") || comma.contains("罚息") || comma.contains("违约利率") || comma.contains("逾利率")) && (comma.contains("%") || comma.contains("‰")) && StringUtils.isEmpty(vo.getOverdueRate())) {
                             for (Term term : ToAnalysis.parse(comma)) {
                                 if (term.getNatureStr().equals("mq") && term.getRealName().contains("%")) {
                                     vo.setOverdueRate(term.getRealName());
                                 }
-                                if (term.getNatureStr().equals("m") && term.to() != null && (term.to().getRealName().equals("‰"))) {
+                                if (term.getNatureStr().equals("m") && term.to() != null && (term.to().getRealName().equals("‰") || term.to().getRealName().equals("％"))) {
                                     vo.setOverdueRate(term.getRealName() + term.to().getRealName());
                                 }
                             }
                             vo.setOverdueRateContent(comma);
                         }
-                        if ((comma.contains("抵押物")
-                                || comma.contains("为抵押")
-                                || comma.contains("抵押给")
-                                || comma.contains("提供抵押")
-                                || comma.contains("设定抵押")
-                                || comma.contains("保证担保")
-                                || comma.contains("设立抵押")
-                                || comma.contains("抵押担保")
-                                || comma.contains("贷款抵押")
-                                || comma.contains("贷款担保")
-                                || comma.contains("进行抵押")
-                                || comma.contains("作抵押")
-                                || comma.contains("作了抵押")
-                                || (comma.contains("办理") && comma.contains("抵押"))
-                                || comma.contains("作为抵押")
-                                || comma.contains("作为借款抵押")
-                                || comma.contains("抵押车辆信息"))
-                                && !comma.contains("公司")
-                                && !comma.contains("保证人")
-                                && !comma.contains("透支")
-                                && !comma.contains("保证合同")
+                        if ((temp.contains("抵押物")
+                                || temp.contains("为抵押")
+                                || temp.contains("抵押给")
+                                || temp.contains("提供抵押")
+                                || temp.contains("设定抵押")
+                                //  || temp.contains("保证担保")
+                                || temp.contains("设立抵押")
+                                || temp.contains("抵押担保")
+                                || temp.contains("贷款抵押")
+                                || temp.contains("贷款担保")
+                                || temp.contains("进行抵押")
+                                || temp.contains("作抵押")
+                                || temp.contains("作了抵押")
+                                // || (temp.contains("办理") && temp.contains("抵押"))
+                                || temp.contains("作为抵押")
+                                || temp.contains("作为借款抵押")
+                                || temp.contains("抵押车辆信息"))
+                                //&& !comma.contains("公司")
+                                && !temp.contains("保证人")
+                                && !temp.contains("担保人")
+                                && !temp.contains("透支")
+                                && !temp.contains("担保方式")
+                                && !temp.contains("担保范围")
+                                && !temp.contains("贷款担保中心")
+                                && !temp.contains("保证合同")
                                 // && (comma.contains("房") || comma.contains("车") || comma.contains("商铺") || comma.contains("机") || comma.contains("土地使用证"))
                                 && StringUtils.isEmpty(vo.getMortgage())) {
-                            vo.setMortgage(comma);
+                            vo.setMortgage(temp);
                         }
 
                         if ((comma.contains("未还款")
@@ -673,10 +685,15 @@ public class ContractService {
                                 || comma.contains("还款至")
                                 || comma.contains("还款到")
                                 || comma.contains("逾期")
+                                || comma.contains("未按期")
+                                || comma.contains("不能按期")
                                 || comma.contains("违约")) && comma.contains("年") && comma.contains("月") && comma.contains("日")
                                 && !comma.contains("止")
                                 && !comma.contains("计算至")
+                                && !comma.contains("算至")
                                 && !comma.contains("截至")
+                                && !comma.contains("暂算至")
+                                && !comma.contains("计算到")
                                 && !comma.contains("暂计至")
                                 && StringUtils.isEmpty(vo.getDefaultDate())) {
                             String defaultDate = "";
@@ -1021,6 +1038,8 @@ public class ContractService {
                                 && !temp.contains("止")
                                 && !temp.contains("计算至")
                                 && !temp.contains("截至")
+                                && !temp.contains("暂算至")
+                                && !temp.contains("计算到")
                                 && !temp.contains("暂计至")
                                 && StringUtils.isEmpty(vo.getDefaultDate())) {
                             String defaultDate = "";
@@ -1250,11 +1269,14 @@ public class ContractService {
                 }
 
                 if (StringUtils.hasLength(judgmentResult)) {
-                    if ((judgmentResult.contains("准许") || judgmentResult.contains("本案按")) && (judgmentResult.contains("撤回起诉") || judgmentResult.contains("撤诉"))) {
+                    String reject = judgmentResult.replace("；", "。");
+                    reject = judgmentResult.replace(";", "。");
+                    String result = reject.split("。")[0];
+                    if ((result.contains("准许") || result.contains("本案按")) && (result.contains("撤回起诉") || result.contains("撤诉"))) {
                         vo.setJudgmentDesc("撤回起诉");
-                    } else if ((judgmentResult.contains("驳回") && judgmentResult.contains("全部诉讼请求"))
-                            || (judgmentResult.contains("驳回") && judgmentResult.contains("起诉"))
-                            || (judgmentResult.contains("驳回") && judgmentResult.contains("诉讼请求") && !judgmentResult.contains("其他诉讼请求"))) {
+                    } else if ((result.contains("驳回") && result.contains("全部诉讼请求"))
+                            // || (judgmentResult.contains("驳回") && judgmentResult.contains("起诉"))
+                            || (result.contains("驳回") && result.contains("诉讼请求") && !result.contains("其他诉讼请求") && !result.contains("其它诉讼请求") && !result.contains("其余诉讼请求"))) {
                         vo.setJudgmentDesc("驳回诉讼请求");
                     } else {
                         if (StringUtils.hasLength(vo.getPlaintiffHearingFees()) && !StringUtils.hasLength(vo.getDefendantHearingFees())) {

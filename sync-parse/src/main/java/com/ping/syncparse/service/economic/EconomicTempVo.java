@@ -1,10 +1,12 @@
-package com.ping.syncparse.service.contract;
+package com.ping.syncparse.service.economic;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.entity.PartyEntity;
+import com.ping.syncparse.service.CaseSummaryVO;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,12 +16,11 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_contract_data_1")
-public class ContractResultVo {
+@Document(value = "doc_economic")
+public class EconomicTempVo {
     @Id
     @ExcelIgnore
     private String id;
-
     @ExcelProperty(value = "案件名称", index = 0)
     private String name;
 
@@ -34,9 +35,9 @@ public class ContractResultVo {
     private Date refereeDate;
 
     @ExcelProperty(value = "案由", index = 4)
-    private String cause;
+    private JSONArray cause;
 
-    private String keyword;
+    private JSONArray keyword;
 
     @ExcelProperty(value = "案件类型", index = 5)
     private String caseType;
@@ -57,7 +58,9 @@ public class ContractResultVo {
     private String county;
 
     @ExcelIgnore
-    private List<PartyEntity> party = new ArrayList<>();
+    private JSONArray party;
+    @ExcelIgnore
+    private CaseSummaryVO summaryVO = null;
 
     @ExcelProperty(value = "判决结果", index = 11)
     private String judgmentResult;
@@ -69,7 +72,7 @@ public class ContractResultVo {
     private String litigationRecords;
 
     @ExcelProperty(value = "法律依据", index = 14)
-    private String legalBasis;
+    private JSONArray legalBasis;
 
     @ExcelProperty(value = "事实", index = 15)
     private String fact;
@@ -80,59 +83,5 @@ public class ContractResultVo {
 
     @ExcelIgnore
     private JSONObject jsonContent;
-
-    //合同名称
-    private String contractName;
-    private String contractNameContent;
-    //
-    private String contractSigningDate;
-    private String contractSigningDateContent;
-    //借款金额
-    private String loanAmount;
-    private String loanAmountContent;
-    //借款开始时间
-    private String contractStartDate;
-    private String contractStartDateContent;
-    //借款结束时间
-    private String contractEndDate;
-    private String contractEndDateContent;
-
-    //借款利率
-    private String loanRate;
-    private String loanRateContent;
-
-    //借款利率
-    private String rateType;
-
-    //逾期利率
-    private String overdueRate;
-    private String overdueRateContent;
-
-    //抵押条件
-    private String mortgage;
-    private String mortgageContent;
-
-    //违约日期
-    private String defaultDate;
-    private String defaultDateContent;
-
-    //违约金额
-    private String defaultAmount;
-    private String defaultAmountContent;
-
-
-    private String judgmentDesc;
-    //诉讼费
-    private String hearingFees;
-    //被告受理费
-    private String defendantHearingFees;
-    //原告受理费
-    private String plaintiffHearingFees;
-
-    //期限
-    private Integer term;
-
-    private String termContent;
-
 
 }

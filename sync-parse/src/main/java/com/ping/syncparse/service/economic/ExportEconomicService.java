@@ -1,12 +1,11 @@
-package com.ping.syncparse.service.contract;
+package com.ping.syncparse.service.economic;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import com.ping.syncparse.entity.PartyEntity;
-import com.ping.syncparse.service.CaseVo;
-import com.ping.syncparse.service.CaseXsMapper;
 import com.ping.syncparse.service.CrimeVO;
-import com.ping.syncparse.sync.c34.DocumentXsMapper;
+import com.ping.syncparse.service.contract.ContractResultMapper;
+import com.ping.syncparse.service.contract.ContractResultVo;
 import com.ping.syncparse.utils.ExcelUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -32,22 +31,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
-public class ExportContractService {
+public class ExportEconomicService {
 
     @Autowired
-    private ContractResultMapper contractResultMapper;
+    private EconomicResultMapper economicResultMapper;
 
-    private int pageSize = 2000;
+    private int pageSize = 20000;
     private AtomicInteger pageNum = new AtomicInteger(-1);
 
     public void export() {
         pageNum.getAndIncrement();
-        List<ContractResultVo> vos = contractResultMapper.findList(pageNum.get(), pageSize, null);
+        List<EconomicResultVo> vos = economicResultMapper.findList(pageNum.get(), pageSize, null);
         Workbook wb = new XSSFWorkbook();
         String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县",
                 "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容",
-                "合同名称", "合同名称内容", "合同签订日期", "合同签订日期内容", "合同约定借款金额", "合同约定借款金额内容", "合同约定借款开始日期", "合同约定借款开始日期内容", "合同约定借款结束日期", "合同约定借款结束日期内容", "借款期限(单位：月)", "借款期限内容", "合同约定借款利率", "合同约定借款利率内容", "利率类别",
-                "合同约定逾期利率", "合同约定逾期利率内容", "合同约定抵押条件", "违约日期", "违约日期内容", "违约金额", "违约金额内容", "判决结果"};
+                "合同约定的劳动期限开始时间", "合同约定的劳动期限开始时间内容", "合同约定的劳动期限结束时间", "合同约定的劳动期限结束时间内容", "解除劳动合同的时间", "解除劳动合同的时间内容", "合同签订的时间", "合同签订的时间内容", "离职前12个月平均工资", "离职前12个月平均工资内容", "事实劳动时间", "事实劳动时内容"};
         Sheet sheet = wb.createSheet("案件信息");
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
@@ -122,7 +120,7 @@ public class ExportContractService {
             List<Map<Integer, Object>> crimeList = new ArrayList<>();
             List<Map<Integer, Object>> crimeList2 = new ArrayList<>();
 
-            for (ContractResultVo vo : vos) {
+            for (EconomicResultVo vo : vos) {
                 List<PartyEntity> party = vo.getParty();
                 if (party != null) {
                     Map<String, List<PartyEntity>> listMap = party.stream().filter(c -> org.springframework.util.StringUtils.hasLength(c.getType())).collect(Collectors.groupingBy(PartyEntity::getType));
@@ -212,8 +210,8 @@ public class ExportContractService {
     /*        Sheet partySheet = wb.createSheet("当事人信息");
             ExcelUtils.export(wb, partySheet, partyList, partyHead.toArray());*/
 
-            Sheet partySheet2 = wb.createSheet("当事人信息");
-            ExcelUtils.export(wb, partySheet2, partyList2, partyHead2.toArray());
+           /* Sheet partySheet2 = wb.createSheet("当事人信息");
+            ExcelUtils.export(wb, partySheet2, partyList2, partyHead2.toArray());*/
 
             //   Sheet crimeSheet = wb.createSheet("判决结果");
             //   ExcelUtils.export(wb, crimeSheet, crimeList2, crimeHead2.toArray());
@@ -320,7 +318,7 @@ public class ExportContractService {
 
     }
 
-    private Map<Integer, Object> toMap(ContractResultVo vo) {
+    private Map<Integer, Object> toMap(EconomicResultVo vo) {
         Map<Integer, Object> map = new HashMap<>();
         map.put(1, vo.getName());
         map.put(2, vo.getCaseNo());
@@ -348,29 +346,18 @@ public class ExportContractService {
         } else {
             map.put(18, "");
         }
-        map.put(19, vo.getContractName());
-        map.put(20, vo.getContractNameContent());
-        map.put(21, vo.getContractSigningDate());
-        map.put(22, vo.getContractSigningDateContent());
-        map.put(23, vo.getLoanAmount());
-        map.put(24, vo.getLoanAmountContent());
-        map.put(25, vo.getContractStartDate());
-        map.put(26, vo.getContractStartDateContent());
-        map.put(27, vo.getContractEndDate());
-        map.put(28, vo.getContractEndDateContent());
-        map.put(29, vo.getTerm());
-        map.put(30, vo.getTermContent());
-        map.put(31, vo.getLoanRate());
-        map.put(32, vo.getLoanRateContent());
-        map.put(33, vo.getRateType());
-        map.put(34, vo.getOverdueRate());
-        map.put(35, vo.getOverdueRateContent());
-        map.put(36, vo.getMortgage());
-        map.put(37, vo.getDefaultDate());
-        map.put(38, vo.getDefaultDateContent());
-        map.put(39, vo.getDefaultAmount());
-        map.put(40, vo.getDefaultAmountContent());
-        map.put(41, vo.getJudgmentDesc());
+        map.put(19, vo.getContractStartDate());
+        map.put(20, vo.getContractStartDateContent());
+        map.put(21, vo.getContractEndDate());
+        map.put(22, vo.getContractEndDateContent());
+        map.put(23, vo.getDefaultDate());
+        map.put(24, vo.getDefaultDateContent());
+        map.put(25, vo.getContractSigningDate());
+        map.put(26, vo.getContractSigningDateContent());
+        map.put(27, vo.getAverageWage());
+        map.put(28, vo.getAverageWageContent());
+        map.put(29, vo.getActualDate());
+        map.put(30, vo.getActualDateContent());
         return map;
 
     }

@@ -506,9 +506,12 @@ public class Test1 {
 
     @Test
     public void test04() {
-        String str = "原告襄阳金照普惠网络科技有限公司向本院提出诉讼请求";
-        String[] split = str.split("。");
-        System.out.println(split[0]);
+        String realName = "3.2018年";
+        if (realName.contains(".")) {
+            int index1 = realName.indexOf(".");
+            realName = realName.substring(index1 + 1);
+            System.out.println(realName);
+        }
 
 
     }
@@ -530,7 +533,7 @@ public class Test1 {
     public void test6() {
         Pattern AMOUNT_PATTERN =
                 Pattern.compile("^(0|[1-9]\\d{0,11})\\.(\\d\\d)$"); // 不考虑分隔符的正确性
-        String amount = "七千三六十四";
+        String amount = "叁佰叁拾陆";
         Matcher matcher = AMOUNT_PATTERN.matcher(amount);
         System.out.println(matcher.find());
         int i = NumberChineseFormatter.chineseToNumber(amount);
@@ -539,8 +542,8 @@ public class Test1 {
 
     @Test
     public void test7() {
-        StringBuilder county = new StringBuilder();
-        for (Term term : ToAnalysis.parse("借款金额肆万元")) {
+
+        for (Term term : ToAnalysis.parse("共叁佰叁拾陆个月")) {
             System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
     }

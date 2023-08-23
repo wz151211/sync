@@ -6,6 +6,8 @@ import com.ping.syncparse.service.contract.ContractStatisticsService;
 import com.ping.syncparse.service.contract.ExportContractService;
 import com.ping.syncparse.service.contract.ParseContractService;
 import com.ping.syncparse.service.divorce.ParseDivorceService;
+import com.ping.syncparse.service.economic.EconomicService;
+import com.ping.syncparse.service.economic.ExportEconomicService;
 import com.ping.syncparse.service.gamble.ParseGambleService;
 import com.ping.syncparse.service.invoice.InvoiceService;
 import lombok.extern.slf4j.Slf4j;
@@ -108,7 +110,7 @@ public class Task {
         exportTempService.export();
     }
 
-    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
     public void parse() {
         parsePartyEasyService.parse();
     }
@@ -156,7 +158,7 @@ public class Task {
     @Autowired
     private ParseContractService contractService;
 
-    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    //@Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void contract() {
         contractService.parse();
     }
@@ -180,7 +182,7 @@ public class Task {
     @Autowired
     private ExportContractService exportContractService;
 
-    //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    //@Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void exportContractService() {
         exportContractService.export();
     }
@@ -196,6 +198,22 @@ public class Task {
     //   @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 300L)
     public void save3() {
         xsService.export();
+    }
+
+    @Autowired
+    private EconomicService economicService;
+
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    public void economicParse() {
+        economicService.parse();
+    }
+
+    @Autowired
+    private ExportEconomicService exportEconomicService;
+
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    public void exportEconomic() {
+        exportEconomicService.export();
     }
 
 }

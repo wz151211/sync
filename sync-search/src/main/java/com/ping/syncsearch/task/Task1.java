@@ -24,11 +24,11 @@ public class Task1 {
     // Criteria criteria = Criteria.where("s8").is("刑事案件").and("s9").in("刑事一审", "0201").and("s11").is("私放在押人员");
     // Criteria criteria = Criteria.where("s8").is("刑事案件").and("s9").in("刑事一审", "0201").and("s11").is("失职致使在押人员脱逃");
     // Criteria criteria = Criteria.where("s8").is("刑事案件").and("s9").in("刑事一审", "0201").and("s6").is("01").and("s11").is("拐骗儿童");
-    // Criteria criteria = Criteria.where("s8").is("民事案件").and("s9").in("民事一审", "0301").and("s6").is("01").and("s11").is("经济补偿金纠纷");
+    Criteria criteria = Criteria.where("s8").is("民事案件").and("s9").in("民事一审", "0301").and("s6").is("01").and("s11").is("经济补偿金纠纷");
 
     //   Criteria criteria = Criteria.where("s8").is("刑事案件").and("s9").in("刑事一审", "0201").and("s6").is("01").and("s11").is("非国家工作人员受贿").and("s31").gte("2014-01-01");
     //  Criteria criteria = Criteria.where("s8").is("刑事案件").and("s9").in("刑事一审", "0201").and("s6").is("01").and("s11").is("职务侵占").and("s31").gte("2014-01-01");
-    Criteria criteria = Criteria.where("s8").is("刑事案件").and("s9").in("刑事一审", "0201").and("s6").is("01").and("s11").is("挪用资金").and("s31").gte("2014-01-01");
+    // Criteria criteria = Criteria.where("s8").is("刑事案件").and("s9").in("刑事一审", "0201").and("s6").is("01").and("s11").is("挪用资金").and("s31").gte("2014-01-01");
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2014() {

@@ -25,7 +25,7 @@ import java.util.*;
 @HeadRowHeight(25)
 @HeadStyle
 @HeadFontStyle(fontHeightInPoints = 12)
-@Document(value = "document_132_result")
+@Document(value = "document_quanshujiufen_result_data")
 public class CaseVo {
 
     @Id
@@ -128,10 +128,13 @@ public class CaseVo {
     private String plaintiffHearingFees;
     @ExcelIgnore
     private String registerCaseDate;
+    private String registerCaseDateContent;
 
     private String economicLosses;
+    private String economicLossesContent;
 
     private String reasonableExpenses;
+    private String reasonableExpensesContent;
 
     //申请主体
     private String applicant;

@@ -664,7 +664,7 @@ public class ParsePartyEasyService {
                         }
                     }
 
-                    fact = fact.replace(",", "，");
+           /*         fact = fact.replace(",", "，");
                     fact = fact.replace("；", "，");
                     fact = fact.replace("：", "，");
                     for (String paragraph : fact.split("。")) {
@@ -1057,7 +1057,7 @@ public class ParsePartyEasyService {
                                     e.printStackTrace();
                                 }
                             }
-                        /*    if (StringUtils.isEmpty(vo.getTrialCourt())) {
+                        *//*    if (StringUtils.isEmpty(vo.getTrialCourt())) {
                                 if (sentence.contains("不开庭审理") || sentence.contains("不公开审理")) {
                                     vo.setTrialCourt("否");
                                     vo.setTrialCourtContent(paragraph);
@@ -1065,12 +1065,12 @@ public class ParsePartyEasyService {
                                     vo.setTrialCourt("是");
                                     vo.setTrialCourtContent(paragraph);
                                 }
-                            }*/
+                            }*//*
 
                         }
 
 
-                    }
+                    }*/
                 }
 
 
@@ -1354,10 +1354,46 @@ public class ParsePartyEasyService {
                                         registerCaseDate += temp;
                                     }
                                 }
-                                if (!StringUtils.hasLength(vo.getRegisterCaseDate())) {
+                                if (StringUtils.isEmpty(vo.getRegisterCaseDate()) && StringUtils.hasLength(registerCaseDate)) {
                                     vo.setRegisterCaseDate(registerCaseDate);
+                                    vo.setRegisterCaseDateContent(s);
                                 }
 
+                            }
+                        }
+                    }
+                    if (StringUtils.isEmpty(vo.getRegisterCaseDate()) && StringUtils.hasLength(entity.getFact())) {
+                        for (String s : entity.getFact().split("，")) {
+                            if ((s.contains("立案") || s.contains("受理")) && s.contains("年") && s.contains("月")) {
+                                log.info("立案信息：{}", s);
+                                String registerCaseDate = "";
+                                for (Term term : ToAnalysis.parse(s)) {
+                                    if (term.getRealName().contains("同") || term.getRealName().contains("当")) {
+                                        continue;
+
+                                    }
+                                    if (term.getRealName().contains("年") && !registerCaseDate.contains("年")) {
+                                        registerCaseDate = term.getRealName().replace("年", "-");
+                                    }
+                                    if (term.getRealName().contains("月") && !registerCaseDate.contains("月")) {
+                                        String temp = term.getRealName().replace("月", "-");
+                                        if (temp.length() == 2) {
+                                            temp = "0" + temp;
+                                        }
+                                        registerCaseDate += temp;
+                                    }
+                                    if (term.getRealName().contains("日") && !registerCaseDate.contains("日")) {
+                                        String temp = term.getRealName().replace("日", "");
+                                        if (temp.length() == 1) {
+                                            temp = "0" + temp;
+                                        }
+                                        registerCaseDate += temp;
+                                    }
+                                }
+                                if (StringUtils.isEmpty(vo.getRegisterCaseDate()) && StringUtils.hasLength(registerCaseDate)) {
+                                    vo.setRegisterCaseDate(registerCaseDate);
+                                    vo.setRegisterCaseDateContent(s);
+                                }
                             }
                         }
                     }
@@ -1383,6 +1419,7 @@ public class ParsePartyEasyService {
                                                     vo.setEconomicLosses(term.getRealName());
                                                 }
                                             }
+                                            vo.setEconomicLossesContent(temp);
                                         }
                                     }
                                 }
@@ -1402,6 +1439,7 @@ public class ParsePartyEasyService {
                                                     vo.setReasonableExpenses(term.getRealName());
                                                 }
                                             }
+                                            vo.setReasonableExpensesContent(temp);
                                         }
                                     }
                                 }
