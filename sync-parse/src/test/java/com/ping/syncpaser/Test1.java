@@ -542,8 +542,7 @@ public class Test1 {
 
     @Test
     public void test7() {
-
-        for (Term term : ToAnalysis.parse("共叁佰叁拾陆个月")) {
+        for (Term term : ToAnalysis.parse("平均每月实领工资2273.59元，2273.59×11%＝250.09元（每月扣缴保险费）")) {
             System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
     }

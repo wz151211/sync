@@ -236,7 +236,7 @@ public class EconomicService {
                                 || (comma.contains("合同签订时间") || comma.contains("办理入职"))) {*/
                         if (((comma.contains("签订") || comma.contains("签署") || comma.contains("填写") || comma.contains("订立"))
                                 && (comma.contains("合同") || comma.contains("合约") || comma.contains("协议") || comma.contains("请表")))
-                                && !comma.contains("未") && !comma.contains("没有") && !comma.contains("不签订") && !temp.contains("年满")
+                                && !comma.contains("未") && !comma.contains("没有") && !comma.contains("不签订") && !temp.contains("年满") && !temp.contains("职至")
                                 || (comma.contains("合同签订时间") || comma.contains("办理入职"))) {
                             String contractSigningDate = "";
                             for (Term term : ToAnalysis.parse(temp)) {
@@ -275,7 +275,7 @@ public class EconomicService {
                         }
 
 
-                        if ((temp.contains("期限") || temp.contains("最后一期")) && (temp.contains("至") || (temp.contains("起") && temp.contains("到"))) && temp.contains("年") && temp.contains("月") && temp.contains("日") && !temp.contains("截止") && !temp.contains("截至") && !temp.contains("延长")) {
+                        if ((temp.contains("期限") || temp.contains("最后一期")) && (temp.contains("至") || (temp.contains("起") && temp.contains("到"))) && temp.contains("年") && temp.contains("月") && temp.contains("日") && !temp.contains("截止") && !temp.contains("截至") && !temp.contains("证明") && !temp.contains("延长")) {
                             String[] data = {};
                             if (temp.contains("到")) {
                                 data = temp.split("到");
@@ -381,7 +381,7 @@ public class EconomicService {
                             monthsContent = comma;
                         }
 
-                        if ((temp.contains("期限") || temp.contains("起始时间")) && temp.contains("年") && temp.contains("月") && temp.contains("日") && !temp.contains("期限至") && !temp.contains("延长") && StringUtils.isEmpty(vo.getContractStartDate())) {
+                        if ((temp.contains("期限") || temp.contains("起始时间")) && temp.contains("年") && temp.contains("月") && temp.contains("日") && !temp.contains("期限至") && !temp.contains("延长")) {
                             String contractStartDate = "";
                             for (Term term : ToAnalysis.parse(temp)) {
                                 if (contractStartDate.contains("年") && term.getRealName().contains("年")) {
@@ -418,7 +418,7 @@ public class EconomicService {
                             }
                         }
 
-                        if ((temp.contains("平均工资") || temp.contains("每月基本工资") || (temp.contains("平均") && temp.contains("工资")) || temp.contains("每月应发工资")) && !temp.contains("至") && !temp.contains("部分工资")) {
+                        if ((temp.contains("平均工资") || temp.contains("每月基本工资") || (temp.contains("平均") && temp.contains("工资")) || temp.contains("每月应发工资") || temp.contains("同意按月工资") || temp.contains("工资标准") || temp.contains("基本工资")) && (!temp.contains("至") || temp.contains("计算依据")) && !temp.contains("部分工资")) {
                             for (Term term : ToAnalysis.parse(comma)) {
                                 if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
                                     if (StringUtils.isEmpty(vo.getAverageWage())) {
@@ -452,7 +452,7 @@ public class EconomicService {
                             }
                         }
 
-                        if ((temp.contains("到期") || temp.contains("期满") || temp.contains("期限至") || temp.contains("续签至") || temp.contains("延期") || temp.contains("延长")) && temp.contains("年") && temp.contains("月") && temp.contains("日")) {
+                        if ((temp.contains("到期") || temp.contains("期满") || temp.contains("期限至") || temp.contains("续签至") || temp.contains("延期") || temp.contains("延长")) && temp.contains("年") && temp.contains("月") && temp.contains("日") && !temp.contains("到期后")) {
                             String contractEndDate = "";
                             int index = temp.indexOf("延长");
                             if (index != -1) {
@@ -493,10 +493,11 @@ public class EconomicService {
                             }
                         }
 
-                        if ((temp.contains("解除") || temp.contains("实际工作至") || temp.contains("辞退通知书") || temp.contains("不在被告处工作") || temp.contains("处理决定")) && temp.contains("年") && temp.contains("月") && temp.contains("日") && !temp.contains("没有") && !temp.contains("未") && !temp.contains("未提供") && !temp.contains("经济补偿金") && !temp.contains("赔偿金") && !temp.contains("签订") && !temp.contains("判令") && !temp.contains("罚单") && !temp.contains("存在劳动关系")
+                        if ((temp.contains("解除") || temp.contains("实际工作至") || temp.contains("辞退通知书") || temp.contains("不在被告处工作") || temp.contains("处理决定") || temp.contains("协商一致") || temp.contains("工作至")) && temp.contains("年") && temp.contains("月") && !temp.contains("没有") && !temp.contains("未") && !temp.contains("未提供") && !temp.contains("经济补偿金") && !temp.contains("赔偿金") && !temp.contains("签订") && !temp.contains("判令") && !temp.contains("罚单") && !temp.contains("存在劳动关系")
                                 && StringUtils.isEmpty(vo.getDefaultDate())) {
                             String defaultDate = "";
-                            for (Term term : ToAnalysis.parse(temp)) {
+                            String t = temp.replace("月经", "月");
+                            for (Term term : ToAnalysis.parse(t)) {
                                 if (defaultDate.contains("年") && term.getRealName().contains("年")) {
                                     break;
                                 }
@@ -528,12 +529,13 @@ public class EconomicService {
                             }
                         }
 
-                        if (((temp.contains("通知") || temp.contains("进入") || temp.contains("到被告") || temp.contains("从事") || temp.contains("办理") || temp.contains("在") || temp.contains("建立") || temp.contains("招聘") || temp.contains("入职"))
+                        if (((temp.contains("通知") || temp.contains("进入") || temp.contains("到被告") || temp.contains("从事") || temp.contains("办理") || temp.contains("在") || temp.contains("建立") || temp.contains("招聘") || temp.contains("入职") || temp.contains("到"))
                                 && (temp.contains("报道") || temp.contains("工作") || temp.contains("入职") || temp.contains("上班") || temp.contains("合同关系")))
-                                && !temp.contains("未") && !temp.contains("没有") && !temp.contains("不在") && !temp.contains("工作时间")
+                                && !temp.contains("未") && !temp.contains("没有") && !temp.contains("不在") && !temp.contains("工作时间") && !temp.contains("成立")
                                 && temp.contains("年")) {
                             String actualDate = "";
-                            for (Term term : ToAnalysis.parse(temp)) {
+                            String t = temp.replace("月入", "月");
+                            for (Term term : ToAnalysis.parse(t)) {
                                 if (actualDate.contains("年") && term.getRealName().contains("年")) {
                                     break;
                                 }
