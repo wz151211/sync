@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.ping.syncsearch.entity.BaseEntity;
 import com.ping.syncsearch.vo.Dict;
 import org.apache.commons.io.IOUtils;
+import org.jsoup.Jsoup;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.Assert;
@@ -102,6 +103,7 @@ public class BeanUtils {
         entity.setDocType(docTypeMap.get(docType));
         entity.setJsonContent(from);
         entity.setHtmlContent(htmlContent);
+        entity.setText(StringUtils.hasLength(htmlContent) ? Jsoup.parse(htmlContent).text() : htmlContent);
         entity.setJudgmentResult(judgmentResult);
         entity.setCourtConsidered(courtConsidered);
         entity.setLitigationRecords(litigationRecords);

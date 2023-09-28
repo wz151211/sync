@@ -1,4 +1,4 @@
-package com.ping.syncparse.entity;
+package com.ping.syncmysqltomongo.mongo.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

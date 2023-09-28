@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.*;
 
 @Data
-@Document(value = "document_hunyue_result")
+@Document(value = "document_sf_result")
 public class DivorceVo {
 
     @Id

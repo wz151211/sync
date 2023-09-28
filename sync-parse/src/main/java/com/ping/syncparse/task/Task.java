@@ -8,9 +8,14 @@ import com.ping.syncparse.service.contract.ParseContractService;
 import com.ping.syncparse.service.divorce.ParseDivorceService;
 import com.ping.syncparse.service.economic.EconomicService;
 import com.ping.syncparse.service.economic.ExportEconomicService;
+import com.ping.syncparse.service.export.ExportResultService2;
+import com.ping.syncparse.service.fraud.FraudService;
 import com.ping.syncparse.service.gamble.ParseGambleService;
 import com.ping.syncparse.service.invoice.InvoiceService;
+import com.ping.syncparse.service.word.WordService;
 import lombok.extern.slf4j.Slf4j;
+import org.ansj.domain.Term;
+import org.ansj.splitWord.analysis.DicAnalysis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -174,7 +179,7 @@ public class Task {
     @Autowired
     private ContractService contractService1;
 
-    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+  //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void ContractService() {
         contractService1.parse();
     }
@@ -182,7 +187,7 @@ public class Task {
     @Autowired
     private ExportContractService exportContractService;
 
-    //@Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void exportContractService() {
         exportContractService.export();
     }
@@ -203,7 +208,7 @@ public class Task {
     @Autowired
     private EconomicService economicService;
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void economicParse() {
         economicService.parse();
     }
@@ -211,9 +216,32 @@ public class Task {
     @Autowired
     private ExportEconomicService exportEconomicService;
 
-    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void exportEconomic() {
         exportEconomicService.export();
     }
 
+    @Autowired
+    private FraudService fraudService;
+
+    //@Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    public void fraudService() {
+        fraudService.parse();
+    }
+
+    @Autowired
+    private WordService wordService;
+
+    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30000)
+    public void toWord() {
+        wordService.toWord();
+    }
+
+    @Autowired
+    private ExportResultService2 exportResultService2;
+
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    public void export2() {
+        exportResultService2.export();
+    }
 }

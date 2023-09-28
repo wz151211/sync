@@ -806,7 +806,7 @@ public class ParseDivorceService {
                                 } else if (temp.contains("未举行婚礼") || temp.contains("没有举行婚礼") || (temp.contains("未") && temp.contains("举行婚礼"))) {
                                     vo.setHostingWedding("否");
                                     vo.setHostingWeddingContent(sentence);
-                                    } else if ((temp.contains("举办婚礼") || temp.contains("举行婚礼") || temp.contains("结婚仪式") || temp.contains("举办酒席") || temp.contains("结婚酒席") || temp.contains("举办结婚典礼") || temp.contains("典礼仪式") || (temp.contains("举办") && temp.contains("婚礼")) || (temp.contains("举行") && temp.contains("婚礼")) || temp.contains("按民间习俗结婚") || temp.contains("举行结婚仪式")) && (temp.contains("没有") || temp.contains("未"))) {
+                                } else if ((temp.contains("举办婚礼") || temp.contains("举行婚礼") || temp.contains("结婚仪式") || temp.contains("举办酒席") || temp.contains("结婚酒席") || temp.contains("举办结婚典礼") || temp.contains("典礼仪式") || (temp.contains("举办") && temp.contains("婚礼")) || (temp.contains("举行") && temp.contains("婚礼")) || temp.contains("按民间习俗结婚") || temp.contains("举行结婚仪式")) && (temp.contains("没有") || temp.contains("未"))) {
 
                                 } else if ((temp.contains("年") || temp.contains("月") || temp.contains("日")) && (temp.contains("举办婚礼") || temp.contains("举行婚礼") || temp.contains("结婚仪式") || temp.contains("举办酒席") || temp.contains("结婚酒席") || temp.contains("举办结婚典礼") || temp.contains("典礼仪式") || (temp.contains("举办") && temp.contains("婚礼")) || (temp.contains("举行") && temp.contains("婚礼")) || temp.contains("按民间习俗结婚") || temp.contains("举行结婚仪式"))) {
                                     vo.setHostingWedding("是");
@@ -1022,7 +1022,7 @@ public class ParseDivorceService {
                                 } else if ((!temp.contains("未") || !temp.contains("不会") && !temp.contains("不能") && !temp.contains("没有") && !temp.contains("无生育") && !temp.contains("未有生育")) && (temp.contains("生育") || temp.contains("生下") || temp.contains("育有") || temp.contains("分娩") || temp.contains("非婚生") || temp.contains("诞下") || temp.contains("产下") || temp.contains("生产") && (temp.contains("子") || temp.contains("女") || temp.contains("男")))) {
                                     vo.setChild("是");
                                     vo.setChildContent(sentence);
-                                    } else if (temp.contains("男婴") || temp.contains("女婴") || temp.contains("非婚生") || temp.contains("剖腹") || temp.contains("剖宫")) {
+                                } else if (temp.contains("男婴") || temp.contains("女婴") || temp.contains("非婚生") || temp.contains("剖腹") || temp.contains("剖宫")) {
                                     vo.setChild("是");
                                     vo.setChildContent(sentence);
                                 }
@@ -1197,7 +1197,8 @@ public class ParseDivorceService {
         String[] split = text.split(",");
         PartyEntity party = new PartyEntity();
         party.setContent(text);
-        for (String s : split) {
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
             if (StringUtils.hasLength(name) && s.contains(name)) {
                 party.setName(name);
             }
@@ -1223,7 +1224,7 @@ public class ParseDivorceService {
 
 
                 } catch (Exception e) {
-                    log.info("s={}", s);
+                    //  log.info("s={}", s);
                     e.printStackTrace();
                 }
             }
@@ -1255,7 +1256,7 @@ public class ParseDivorceService {
                     str = str.replace(" ", "");
                     party.setAge(DateUtil.ageOfNow(DateUtil.parse(str)) + "");
                 } catch (Exception e) {
-                    log.error("s={}", s);
+                    // log.error("s={}", s);
                     //  e.printStackTrace();
                 }
 
@@ -1353,6 +1354,61 @@ public class ParseDivorceService {
                     if (s.contains(temp)) {
                         party.setProfession(temp);
                     }
+                }
+            }
+            String idCard = "";
+            if (i == 0) {
+                idCard = s;
+            } else {
+                idCard = split[i - 1] + s;
+            }
+
+            if (idCard.contains("身份证号")) {
+                int index = idCard.indexOf("身份证号");
+                String temp = idCard.substring(index + 4);
+                temp = temp.replace("：", "");
+                temp = temp.replace(":", "");
+                temp = temp.replace("）", "");
+                temp = temp.replace(")", "");
+                temp = temp.replace("。", "");
+                temp = temp.replace(".", "");
+                temp = temp.replace("，", "");
+                temp = temp.replace(",", "");
+                temp = temp.replace("，", "");
+                temp = temp.replace("码", "");
+                temp = temp.replace("为", "");
+                temp = temp.replace("汉族", "");
+
+                int end = -1;
+                if (temp.length() != 18) {
+                    if (temp.contains("*") && end == -1) {
+                        end = temp.lastIndexOf("*");
+                    }
+                    if (temp.contains("X") && end == -1) {
+                        end = temp.lastIndexOf("X");
+                    }
+                    if (temp.contains("×") && end == -1) {
+                        end = temp.lastIndexOf("×");
+                    }
+                    if (temp.contains("户") && end == -1) {
+                        end = temp.lastIndexOf("户");
+                    }
+                    if (temp.contains("汉") && end == -1) {
+                        end = temp.lastIndexOf("汉");
+                    }
+                    if (temp.contains("曾") && end == -1) {
+                        end = temp.lastIndexOf("曾");
+                    }
+                    if (temp.contains("因") && end == -1) {
+                        end = temp.lastIndexOf("因");
+                    }
+                    if (end > -1) {
+                        temp = temp.substring(0, end);
+                    }
+                }
+                log.info("身份证号={}  ==  {}", temp, idCard);
+                if (StringUtils.isEmpty(party.getIdCard()) && StringUtils.hasLength(temp) && !temp.contains("族")) {
+                    party.setIdCard(temp);
                 }
             }
    /*         if (!StringUtils.hasLength(party.getHasCriminalRecord())) {

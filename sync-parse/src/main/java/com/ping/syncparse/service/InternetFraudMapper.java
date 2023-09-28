@@ -1,5 +1,6 @@
 package com.ping.syncparse.service;
 
+import com.ping.syncparse.service.export.ExportResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -33,9 +34,16 @@ public class InternetFraudMapper {
         if (criteria != null) {
             query.addCriteria(criteria);
         }
-    /*    PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
-        query.with(pageRequest);*/
+        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+        query.with(pageRequest);
         return mongoTemplate.find(query, DocumentTargetEntity.class);
     }
+
+    public void delete(String id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(id));
+        mongoTemplate.remove(query, DocumentTargetEntity.class);
+    }
+
 
 }

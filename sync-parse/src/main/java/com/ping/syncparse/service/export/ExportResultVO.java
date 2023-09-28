@@ -1,26 +1,22 @@
-package com.ping.syncparse.service.economic;
+package com.ping.syncparse.service.export;
 
-import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.ping.syncparse.entity.PartyEntity;
+import com.ping.syncparse.service.CaseSummaryVO;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Data
-@Document(value = "doc_economic_data")
-public class EconomicResultVo {
+@Document(value = "document_feiwu")
+public class ExportResultVO {
     @Id
-    @ExcelIgnore
-    private String id;
 
+    private String id;
     @ExcelProperty(value = "案件名称", index = 0)
     private String name;
 
@@ -35,9 +31,9 @@ public class EconomicResultVo {
     private Date refereeDate;
 
     @ExcelProperty(value = "案由", index = 4)
-    private String cause;
+    private JSONArray cause;
 
-    private String keyword;
+    private JSONArray keyword;
 
     @ExcelProperty(value = "案件类型", index = 5)
     private String caseType;
@@ -57,8 +53,10 @@ public class EconomicResultVo {
     @ExcelProperty(value = "区县", index = 10)
     private String county;
 
-    @ExcelIgnore
-    private List<PartyEntity> party = new ArrayList<>();
+
+    private JSONArray party;
+
+    private CaseSummaryVO summaryVO = null;
 
     @ExcelProperty(value = "判决结果", index = 11)
     private String judgmentResult;
@@ -70,45 +68,15 @@ public class EconomicResultVo {
     private String litigationRecords;
 
     @ExcelProperty(value = "法律依据", index = 14)
-    private String legalBasis;
+    private JSONArray legalBasis;
 
     @ExcelProperty(value = "事实", index = 15)
     private String fact;
 
     //@ExcelProperty(value = "HTML内容", index = 16)
-    @ExcelIgnore
+
     private String htmlContent;
 
-    @ExcelIgnore
+
     private JSONObject jsonContent;
-
-    //
-    private String contractSigningDate;
-    private String contractSigningDateContent;
-
-    //借款开始时间
-    private String contractStartDate;
-    private String contractStartDateContent;
-    //借款结束时间
-    private String contractEndDate;
-    private String contractEndDateContent;
-
-
-    //违约日期
-    private String defaultDate;
-    private String defaultDateContent;
-
-    //期限
-    private Integer term;
-
-    private String termContent;
-
-    private String averageWage;
-    private String averageWageContent;
-
-    private String actualDate;
-    private String actualDateContent;
-
-    private JSONArray array = new JSONArray();
-
 }

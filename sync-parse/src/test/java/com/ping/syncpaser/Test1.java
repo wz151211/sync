@@ -18,7 +18,13 @@ import com.ping.syncparse.service.CaseVo;
 import com.ping.syncparse.service.InternetFraudEntity;
 import org.ansj.domain.Result;
 import org.ansj.domain.Term;
+import org.ansj.library.DicLibrary;
+import org.ansj.recognition.arrimpl.UserDefineRecognition;
+import org.ansj.splitWord.analysis.DicAnalysis;
+import org.ansj.splitWord.analysis.NlpAnalysis;
 import org.ansj.splitWord.analysis.ToAnalysis;
+import org.ansj.util.MyStaticValue;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +56,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -542,7 +549,9 @@ public class Test1 {
 
     @Test
     public void test7() {
-        for (Term term : ToAnalysis.parse("平均每月实领工资2273.59元，2273.59×11%＝250.09元（每月扣缴保险费）")) {
+        MyStaticValue.ENV.put(DicLibrary.DEFAULT, "library/default.dic");
+        DicLibrary.insertOrCreate(DicLibrary.DEFAULT, "4日", "t", 1000);
+        for (Term term : NlpAnalysis.parse("约定逾期利息月利率一分二厘")) {
             System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
     }
@@ -644,5 +653,68 @@ public class Test1 {
             bg = true;
             System.out.println("-------------");
         }
+    }
+
+    @Test
+    public void test45() {
+        String text = "身份证号码";
+        if (text.contains("身份证号")) {
+            int index = text.indexOf("身份证号");
+            String temp = text.substring(index + 4);
+            temp = temp.replace("：", "");
+            temp = temp.replace(":", "");
+            temp = temp.replace("）", "");
+            temp = temp.replace(")", "");
+            temp = temp.replace("。", "");
+            temp = temp.replace(".", "");
+            temp = temp.replace("码", "");
+            System.out.println(temp);
+
+        }
+    }
+
+    @Test
+    public void test46() {
+        String temp = "35032219*******分手大师";
+        for (byte aByte : temp.getBytes()) {
+            System.out.println(aByte);
+        }
+        System.out.println("--------------");
+        for (char c : temp.toCharArray()) {
+            System.out.println(c);
+        }
+        System.out.println("--------------");
+
+        for (String s : temp.split("")) {
+            System.out.println(s);
+        }
+    }
+
+    @Test
+    public void test47() throws IOException {
+        File file = new File("E:\\案件包\\反馈包");
+        for (File listFile : file.listFiles()) {
+            String path = listFile.getParent();
+            String name = listFile.getName();
+            File to = new File(path + "\\~" + name);
+            listFile.renameTo(to);
+        }
+
+    }
+
+    @Test
+    public void test48() {
+        int count = 0;
+        File file = new File("G:\\word\\");
+        for (File listFile : file.listFiles()) {
+            boolean file1 = listFile.isFile();
+            if (!file1) {
+                String[] list = listFile.list();
+                count += list.length;
+            }
+
+        }
+        System.out.println(count);
+
     }
 }

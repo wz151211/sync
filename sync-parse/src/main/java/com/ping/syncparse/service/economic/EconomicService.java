@@ -3,6 +3,7 @@ package com.ping.syncparse.service.economic;
 import cn.hutool.core.convert.NumberChineseFormatter;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -24,6 +25,8 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -185,8 +188,6 @@ public class EconomicService {
                 vo.setKeyword(entity.getKeyword().stream().map(Object::toString).collect(joining(",")));
             }
             if (entity.getLegalBasis() != null && entity.getLegalBasis().size() > 0) {
-                for (int i = 0; i < entity.getLegalBasis().size(); i++) {
-                }
                 vo.setLegalBasis(entity.getLegalBasis().stream().map(c -> {
                     JSONObject aa = JSONObject.parseObject(JSON.toJSONString(c));
                     return aa.getString("fgmc") + aa.getString("tkx");
@@ -417,9 +418,12 @@ public class EconomicService {
                                 vo.setContractStartDateContent(temp);
                             }
                         }
+                        if (temp.contains("原告主张按")) {
+                            System.out.println("原告主张按");
 
-                        if ((temp.contains("平均工资") || temp.contains("每月基本工资") || (temp.contains("平均") && temp.contains("工资")) || temp.contains("每月应发工资") || temp.contains("同意按月工资") || temp.contains("工资标准") || temp.contains("基本工资")) && (!temp.contains("至") || temp.contains("计算依据")) && !temp.contains("部分工资")) {
-                            for (Term term : ToAnalysis.parse(comma)) {
+                        }
+                        if ((temp.contains("平均工资") || temp.contains("每月基本工资") || (temp.contains("平均") && temp.contains("工资")) || temp.contains("每月应发工资") || temp.contains("同意按月工资") || temp.contains("工资标准") || temp.contains("基本工资") || temp.contains("原告主张按")) && (!temp.contains("至") || temp.contains("计算依据")) && !temp.contains("部分工资") && !temp.contains("补发")) {
+                            for (Term term : ToAnalysis.parse(temp)) {
                                 if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
                                     if (StringUtils.isEmpty(vo.getAverageWage())) {
                                         Matcher matcher = AMOUNT_PATTERN.matcher(term.getRealName().replace("元", ""));
@@ -452,7 +456,7 @@ public class EconomicService {
                             }
                         }
 
-                        if ((temp.contains("到期") || temp.contains("期满") || temp.contains("期限至") || temp.contains("续签至") || temp.contains("延期") || temp.contains("延长")) && temp.contains("年") && temp.contains("月") && temp.contains("日") && !temp.contains("到期后")) {
+                        if ((temp.contains("到期") || temp.contains("期满") || temp.contains("期限至") || temp.contains("续签至") || temp.contains("延期") || temp.contains("延长")) && temp.contains("年") && temp.contains("月") && temp.contains("日") && !temp.contains("到期后") && !temp.contains("诉讼请求")) {
                             String contractEndDate = "";
                             int index = temp.indexOf("延长");
                             if (index != -1) {
@@ -493,7 +497,7 @@ public class EconomicService {
                             }
                         }
 
-                        if ((temp.contains("解除") || temp.contains("实际工作至") || temp.contains("辞退通知书") || temp.contains("不在被告处工作") || temp.contains("处理决定") || temp.contains("协商一致") || temp.contains("工作至")) && temp.contains("年") && temp.contains("月") && !temp.contains("没有") && !temp.contains("未") && !temp.contains("未提供") && !temp.contains("经济补偿金") && !temp.contains("赔偿金") && !temp.contains("签订") && !temp.contains("判令") && !temp.contains("罚单") && !temp.contains("存在劳动关系")
+                        if ((temp.contains("解除") || temp.contains("实际工作至") || temp.contains("辞退通知书") || temp.contains("不在被告处工作") || temp.contains("处理决定") || temp.contains("协商一致") || temp.contains("工作至") || temp.contains("终止劳动关系证明")) && temp.contains("年") && temp.contains("月") && !temp.contains("没有") && !temp.contains("未") && !temp.contains("未提供") && !temp.contains("经济补偿金") && !temp.contains("赔偿金") && !temp.contains("判令") && !temp.contains("罚单") && !temp.contains("存在劳动关系") && !temp.contains("开始拖欠")
                                 && StringUtils.isEmpty(vo.getDefaultDate())) {
                             String defaultDate = "";
                             String t = temp.replace("月经", "月");
@@ -755,6 +759,51 @@ public class EconomicService {
 //                for (PartyEntity entity1 : vo.getParty()) {
 //                    parseAddress(entity1);
 //                }
+
+                JSONArray list = new JSONArray();
+                list.add(KeyVo.builder().title("请您介绍一下案件经过：").content(vo.getFact()).build());
+                list.add(KeyVo.builder().title("请尽可能详细说明一下您的合同约定的劳动期限开始的日期（如果有）：").content(vo.getContractStartDate()).build());
+                list.add(KeyVo.builder().title("请尽可能详细说明一下您的合同约定的劳动期限结束的日期（如果有）：").content(vo.getContractEndDate()).build());
+                list.add(KeyVo.builder().title("请尽可能详细说明一下您签订劳动合同的日期（如果有）：").content(vo.getContractSigningDate()).build());
+                list.add(KeyVo.builder().title("请尽可能详细说明一下您的合同解除的日期（如果有）：").content(vo.getDefaultDate()).build());
+                list.add(KeyVo.builder().title("请粗略估计一下您解除劳动合同前12个月的平均工资：").content(vo.getAverageWage()).build());
+                list.add(KeyVo.builder().title("请说明一下您实际开始劳动的日期（包含合同外的工作开始时间）：").content(vo.getActualDate()).build());
+                list.add(KeyVo.builder().title("下面是我做出判断根据的理由：").content(vo.getCourtConsidered()).build());
+                list.add(KeyVo.builder().title("下面是我做出判断根据的法律法规：").content(vo.getLegalBasis()).build());
+                list.add(KeyVo.builder().title("下面是我认为可能出现的判决结果：").content(vo.getJudgmentResult()).build());
+                vo.setArray(list);
+                File file = new File("G:\\经济补偿纠纷\\");
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+                String name = vo.getName();
+                if (org.apache.commons.lang3.StringUtils.isNotEmpty(name)) {
+                    name = Jsoup.parse(name).text();
+                    name = name.replace(".", "");
+                    name = name.replace("*", "");
+                    name = name.replace(":", "");
+                    name = name.replace("?", "");
+                    name = name.replace("\\", "");
+                    name = name.replace("/", "");
+                    name = name.replace(">", "");
+                    name = name.replace("<", "");
+                    name = name.replace("＇", "");
+                    name = name.replace("#", "");
+                    name = name.replace("p", "");
+                    name = name.replace("@", "");
+                    name = name.replace(";", "");
+
+                } else {
+                    name = "";
+                }
+                String docPath = file.getPath() + "\\" + name + ".json ";
+                File f = new File(docPath);
+                if (f.exists()) {
+                    docPath = file.getPath() + "\\" + name + "-" + RandomUtil.randomString(5) + ".json";
+                }
+                String s = list.toJSONString();
+                FileOutputStream outputStream = new FileOutputStream(docPath);
+                IOUtils.write(s, outputStream, "UTF-8");
                 economicResultMapper.insert(vo);
             } catch (Exception e) {
                 e.printStackTrace();

@@ -1,13 +1,11 @@
-package com.ping.syncparse.entity;
+package com.ping.syncmysqltomongo.mysql.temp;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(value = "area")
+@TableName("area")
 public class AreaEntity {
-    @Id
     private String id;
     private String pid;
     private String name;

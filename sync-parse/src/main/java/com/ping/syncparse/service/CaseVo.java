@@ -25,7 +25,7 @@ import java.util.*;
 @HeadRowHeight(25)
 @HeadStyle
 @HeadFontStyle(fontHeightInPoints = 12)
-@Document(value = "document_quanshujiufen_result_data")
+@Document(value = "document_zhengquan")
 public class CaseVo {
 
     @Id
@@ -168,6 +168,7 @@ public class CaseVo {
 
     //诊断评估意见
     private String evaluationOpinions;
+    private JSONArray array = new JSONArray();
 
 
 }

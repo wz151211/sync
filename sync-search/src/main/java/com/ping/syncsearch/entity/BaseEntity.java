@@ -33,6 +33,7 @@ public class BaseEntity {
     private String docType;
 
     private String htmlContent;
+    private String text;
 
 
     private String judgmentResult;

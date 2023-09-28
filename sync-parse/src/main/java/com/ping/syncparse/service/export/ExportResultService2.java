@@ -1,10 +1,12 @@
-package com.ping.syncparse.service;
+package com.ping.syncparse.service.export;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.entity.PartyEntity;
-import com.ping.syncparse.sync.c34.DocumentXsMapper;
+import com.ping.syncparse.service.CaseXsMapper;
+import com.ping.syncparse.service.CrimeVO;
 import com.ping.syncparse.utils.ExcelUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -29,8 +31,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.joining;
+
 @Service
-public class ExportResultService {
+public class ExportResultService2 {
 
     @Autowired
     private CaseXsMapper caseMapper;
@@ -38,13 +42,13 @@ public class ExportResultService {
     private AtomicInteger pageNum = new AtomicInteger(-1);
 
     @Autowired
-    private DocumentXsMapper documentXsMapper;
+    private ExportResultMapper exportResultMapper;
 
     public void export() {
         pageNum.getAndIncrement();
-        List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
+        List<ExportResultVO> vos = exportResultMapper.findList(pageNum.get(), pageSize, null);
         Workbook wb = new XSSFWorkbook();
-        String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县",
+        String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "当事人", "省份", "地市", "区县",
                 "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容"};
         Sheet sheet = wb.createSheet("案件信息");
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
@@ -321,7 +325,7 @@ public class ExportResultService {
 
     }
 
-    private Map<Integer, Object> toMap(CaseVo vo) {
+    private Map<Integer, Object> toMap(ExportResultVO vo) {
         Map<Integer, Object> map = new HashMap<>();
         map.put(1, vo.getName());
         map.put(2, vo.getCaseNo());
@@ -331,25 +335,41 @@ public class ExportResultService {
         } else {
             map.put(4, "");
         }
-        map.put(5, vo.getCause());
+        if (vo.getCause() != null && vo.getCause().size() > 0) {
+            map.put(5, vo.getCause().stream().map(Object::toString).collect(joining(",")));
+        } else {
+            map.put(5, "");
+        }
         map.put(6, vo.getCaseType());
         map.put(7, vo.getTrialProceedings());
         map.put(8, vo.getDocType());
-        map.put(9, vo.getProvince());
-        map.put(10, vo.getCity());
-        map.put(11, vo.getCounty());
-        map.put(12, vo.getFact());
-        map.put(13, vo.getJudgmentResult());
-        map.put(14, vo.getCourtConsidered());
-        map.put(15, vo.getLegalBasis());
-        map.put(16, vo.getLitigationRecords());
-        map.put(17, vo.getHtmlContent());
-        if (vo.getJsonContent() != null) {
-            map.put(18, vo.getJsonContent());
+        if (vo.getParty() != null && vo.getParty().size() > 0) {
+            map.put(9, vo.getParty().stream().map(Object::toString).collect(joining(",")));
         } else {
-            map.put(18, "");
+            map.put(9, "");
         }
-      //  map.put(19, vo.getArray().toJSONString());
+        map.put(10, vo.getProvince());
+        map.put(11, vo.getCity());
+        map.put(12, vo.getCounty());
+        map.put(13, vo.getFact());
+        map.put(14, vo.getJudgmentResult());
+        map.put(15, vo.getCourtConsidered());
+        if (vo.getLegalBasis() != null && vo.getLegalBasis().size() > 0) {
+            map.put(16, vo.getLegalBasis().stream().map(c -> {
+                JSONObject aa = JSONObject.parseObject(JSON.toJSONString(c));
+                return aa.getString("fgmc") + aa.getString("tkx");
+            }).collect(joining(",")));
+        } else {
+            map.put(16, "");
+        }
+        map.put(17, vo.getLitigationRecords());
+        map.put(18, vo.getHtmlContent());
+        if (vo.getJsonContent() != null) {
+            map.put(19, vo.getJsonContent());
+        } else {
+            map.put(19, "");
+        }
+        //  map.put(19, vo.getArray().toJSONString());
 
         return map;
 

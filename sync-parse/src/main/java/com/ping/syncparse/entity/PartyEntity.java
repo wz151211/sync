@@ -7,7 +7,9 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: W.Z
@@ -69,7 +71,12 @@ public class PartyEntity {
     @ExcelProperty(value = "职业", index = 12)
     private String profession;
 
-    @ExcelProperty(value = "案件名称", index = 13)
+    @ExcelProperty(value = "身份证号码", index = 13)
+    private String idCard;
+
+    private List<String> idCards = new ArrayList<>();
+
+    @ExcelProperty(value = "案件名称", index = 14)
     private String content;
 
 }

@@ -37,4 +37,70 @@ public class AreaMapper {
         }
         return null;
     }
+
+    public AreaEntity findCounty(String city, String county) {
+        Query query = new Query();
+        Criteria criteria = new Criteria();
+        if (StringUtils.isEmpty(city) && StringUtils.isEmpty(county)) {
+            return null;
+        }
+        if (StringUtils.hasText(city) && StringUtils.hasText(county)) {
+            criteria.and("city").is(city.trim()).and("county").is(county.trim());
+        }
+        query.addCriteria(criteria);
+        List<AreaEntity> entities = mongoTemplate.find(query, AreaEntity.class);
+        if (entities.size() > 0) {
+            return entities.get(0);
+        }
+        return null;
+    }
+
+    public AreaEntity findCity(String city) {
+        Query query = new Query();
+        Criteria criteria = new Criteria();
+        if (StringUtils.isEmpty(city)) {
+            return null;
+        }
+        criteria.and("name").is(city.trim());
+        query.addCriteria(criteria);
+        List<AreaEntity> entities = mongoTemplate.find(query, AreaEntity.class);
+        if (entities.size() > 0) {
+            return entities.get(0);
+        }
+        return null;
+    }
+
+    public List<AreaEntity> findCityChild(String city) {
+        Query query = new Query();
+        Criteria criteria = new Criteria();
+        if (StringUtils.isEmpty(city)) {
+            return null;
+        }
+        criteria.and("city").is(city.trim()).and("level").is(3);
+        query.addCriteria(criteria);
+        return mongoTemplate.find(query, AreaEntity.class);
+    }
+
+    public AreaEntity findProvince(String province) {
+        Query query = new Query();
+        Criteria criteria = new Criteria();
+        if (StringUtils.isEmpty(province)) {
+            return null;
+        }
+        criteria.and("name").is(province.trim());
+        query.addCriteria(criteria);
+        return mongoTemplate.findOne(query, AreaEntity.class);
+    }
+
+    public List<AreaEntity> findProvinceChild(String province) {
+        Query query = new Query();
+        Criteria criteria = new Criteria();
+        if (StringUtils.isEmpty(province)) {
+            return null;
+        }
+        criteria.and("province").is(province.trim()).and("level").is(3);
+        query.addCriteria(criteria);
+        return mongoTemplate.find(query, AreaEntity.class);
+    }
+
 }

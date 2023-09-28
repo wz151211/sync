@@ -4,6 +4,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.ping.syncparse.SyncParseApplication;
 import com.ping.syncparse.service.*;
+import org.ansj.domain.Term;
+import org.ansj.splitWord.analysis.DicAnalysis;
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.AltChunkType;
@@ -101,7 +103,7 @@ class SyncPaserApplicationTests {
 
     @Test
     public void testpc() throws Exception {
-        List<DocumentTargetEntity> entities = tempMapper.findtargetList(0, 0, null);
+        List<DocumentTargetEntity> entities = tempMapper.findtargetList(0, 100, null);
         for (DocumentTargetEntity entity : entities) {
             String htmlContent = entity.getString("htmlContent");
          //   int year = DateUtil.year(entity.getDate("refereeDate"));
@@ -162,4 +164,12 @@ class SyncPaserApplicationTests {
     public void test12() {
         exportResultService.export();
     }
+
+    @Test
+    public void testParse(){
+        for (Term term : DicAnalysis.parse("户籍所在地广西壮族自治区玉林市容县")) {
+            System.out.println(term.getNatureStr() + "=====" + term.getRealName());
+        }
+    }
+
 }

@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "doc_jinjijiufen")
+@Document(value = "document_feiwu")
 public class DocumentOtherEntity extends BaseEntity {
 
 }
