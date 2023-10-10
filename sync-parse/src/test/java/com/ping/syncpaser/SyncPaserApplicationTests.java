@@ -113,7 +113,7 @@ class SyncPaserApplicationTests {
             //  String temp = year + "\\" + "玩忽职守罪";
             // String temp = year + "\\" + "刑讯逼供罪";
            // String temp = year + "\\" + "徇私舞弊减刑、假释、暂予监外执行罪";
-            String temp = "挪用资金";
+            String temp = "2020";
             String name = entity.getString("name").replace(".", "");
             name = name.replace("*", "");
             name = name.replace(":", "");

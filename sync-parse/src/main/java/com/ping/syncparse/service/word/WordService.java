@@ -29,10 +29,10 @@ public class WordService {
 
     public void toWord() {
         log.info("当前页={}", pageNum.get());
-        Criteria criteria = Criteria.where("s8").is("民事案件");
-        List<DocumentTargetEntity> entities = internetFraudMapper.findtargetList(pageNum.get(), pageSize, criteria);
+        //  Criteria criteria = Criteria.where("s8").is("民事案件");
+        List<DocumentTargetEntity> entities = internetFraudMapper.findtargetList(pageNum.get(), pageSize, null);
         for (DocumentTargetEntity entity : entities) {
-            String htmlContent = entity.getString("qwContent");
+            String htmlContent = entity.getString("htmlContent");
             //   int year = DateUtil.year(entity.getDate("refereeDate"));
             //String temp = year + "\\" + "滥用职权罪";
             //  String temp = year + "\\" + "虐待被监管人罪";
@@ -40,9 +40,10 @@ public class WordService {
             //  String temp = year + "\\" + "玩忽职守罪";
             // String temp = year + "\\" + "刑讯逼供罪";
             // String temp = year + "\\" + "徇私舞弊减刑、假释、暂予监外执行罪";
-            String temp = entity.getString("s8");
+            String temp = "2021.06.01-2023.05.31样本";
 
-            String name = entity.getString("s1");
+            String name = entity.getString("name");
+            String caseNo = entity.getString("caseNo");
             if (StringUtils.isNotEmpty(name)) {
                 name = Jsoup.parse(name).text();
                 name = name.replace(".", "");
@@ -69,15 +70,15 @@ public class WordService {
             if (!file.exists()) {
                 file.mkdirs();
             }
-            String docPath = file.getPath() + "\\" + name + ".docx ";
+            String docPath = file.getPath() + "\\" + caseNo + "-" + name + ".docx ";
             File f = new File(docPath);
             if (f.exists()) {
-                docPath = file.getPath() + "\\" + name + "-" + RandomUtil.randomString(5) + ".docx";
+                docPath = file.getPath() + "\\" + caseNo + "-" + name + "-" + RandomUtil.randomString(5) + ".docx";
             }
             log.info("文件:{}", docPath);
             try {
                 htmlAsAltChunk2Docx(htmlContent, docPath);
-              //  internetFraudMapper.delete(entity.getString("_id"));
+                //  internetFraudMapper.delete(entity.getString("_id"));
             } catch (Exception e) {
                 e.printStackTrace();
             }

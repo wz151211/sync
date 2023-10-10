@@ -8,6 +8,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Component
@@ -46,13 +52,58 @@ public class Task1 {
     // Criteria criteria = Criteria.where("fyTree").is("佛山市").and("s9").in("民事一审", "0301").and("s6").is("03");
     // Criteria criteria = Criteria.where("s8").is("民事案件").and("qwContent").regex("彩礼");
 
-    // Criteria criteria = Criteria.where("s11").is("证券虚假陈述责任纠纷");
+     Criteria criteria = Criteria.where("s11").is("证券虚假陈述责任纠纷");
     //   Criteria criteria = Criteria.where("qwContent").regex("证券虚假陈述责任纠纷");
     //Criteria criteria = Criteria.where("s8").is("刑事案件").orOperator(Criteria.where("s1").regex("公司"), Criteria.where("s1").regex("集团"));
     // Criteria criteria = Criteria.where("qwContent").regex("滋事").andOperator(Criteria.where("qwContent").regex("网络"));
     // Criteria criteria = Criteria.where("s9").in("刑事一审", "0201").and("s6").is("01").and("s1").regex("盗窃").and("fyTree").is("东莞市");
     // Criteria criteria = Criteria.where("s9").in("民事一审", "0301").and("s6").is("01").and("s11").is("离婚纠纷");
-    Criteria criteria = Criteria.where("s6").is("01").and("s11").is("走私废物");
+/*    private List<String> caseNo = new ArrayList<>();
+
+    {
+        File file = new File("E:\\case.txt");
+        try {
+            List<String> list = Files.readAllLines(file.toPath());
+            for (String s : list) {
+                s.trim();
+                s = s.replace("(", "（");
+                s = s.replace(")", "）");
+                caseNo.add(s);
+            }
+            System.out.println(caseNo.size());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }*/
+
+    // Criteria criteria = Criteria.where("s7").in(caseNo);
+    List<String> city = new ArrayList<>();
+
+    {
+        city.add("杭州市");
+        city.add("成都市");
+        city.add("苏州市");
+        city.add("南京市");
+        city.add("重庆市");
+        city.add("武汉市");
+        city.add("天津市");
+        city.add("长沙市");
+        city.add("西安市");
+        city.add("青岛市");
+        city.add("郑州市");
+        city.add("宁波市");
+        city.add("佛山市");
+        city.add("东莞市");
+        city.add("合肥市");
+        city.add("北京市");
+        city.add("上海市");
+        city.add("广州市");
+        city.add("深圳市");
+    }
+
+/*    Criteria criteria = Criteria.where("s11").is("离婚纠纷")
+            .and("s6").is("01")
+            .and("fyTree").in(city);*/
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2014() {
@@ -136,7 +187,7 @@ public class Task1 {
         }
     }
 
-    @Scheduled(initialDelay = 20 * 1000L, fixedRate = 1000 * 60 * 3L)
+      @Scheduled(initialDelay = 20 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2023() {
         try {
             queryService.sync2023(criteria);
