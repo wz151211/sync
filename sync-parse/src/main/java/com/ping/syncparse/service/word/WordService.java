@@ -24,13 +24,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class WordService {
     @Autowired
     private InternetFraudMapper internetFraudMapper;
-    private int pageSize = 6000;
+    private int pageSize = 10000;
     private AtomicInteger pageNum = new AtomicInteger(0);
 
     public void toWord() {
         log.info("当前页={}", pageNum.get());
         //  Criteria criteria = Criteria.where("s8").is("民事案件");
         List<DocumentTargetEntity> entities = internetFraudMapper.findtargetList(pageNum.get(), pageSize, null);
+        pageNum.getAndIncrement();
         for (DocumentTargetEntity entity : entities) {
             String htmlContent = entity.getString("htmlContent");
             //   int year = DateUtil.year(entity.getDate("refereeDate"));
@@ -66,14 +67,14 @@ public class WordService {
                 temp = "其他类型";
             }
 
-            File file = new File("G:\\words\\" + temp);
+            File file = new File("/Volumes/cpws/word");
             if (!file.exists()) {
                 file.mkdirs();
             }
-            String docPath = file.getPath() + "\\" + caseNo + "-" + name + ".docx ";
+            String docPath = file.getPath() + File.separator + caseNo + "-" + name + ".docx ";
             File f = new File(docPath);
             if (f.exists()) {
-                docPath = file.getPath() + "\\" + caseNo + "-" + name + "-" + RandomUtil.randomString(5) + ".docx";
+                docPath = file.getPath() + File.separator + caseNo + "-" + name + "-" + RandomUtil.randomString(5) + ".docx";
             }
             log.info("文件:{}", docPath);
             try {

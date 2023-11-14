@@ -25,7 +25,7 @@ import java.util.*;
 @HeadRowHeight(25)
 @HeadStyle
 @HeadFontStyle(fontHeightInPoints = 12)
-@Document(value = "document_zhengquan")
+@Document(value = "document_xinxingzhuanli_result")
 public class CaseVo {
 
     @Id
@@ -49,6 +49,8 @@ public class CaseVo {
 
     @ExcelProperty(value = "案由", index = 4)
     private String cause;
+
+    private String keyword;
 
     @ExcelProperty(value = "案件类型", index = 5)
     private String caseType;
@@ -103,8 +105,8 @@ public class CaseVo {
     @ExcelIgnore
     private JSONObject jsonContent;
 
-    @ExcelIgnore
-    private List<String> moneyString = new ArrayList<>();
+    // @ExcelIgnore
+    // private List<String> moneyString = new ArrayList<>();
 
     //诉讼请求
     @ExcelIgnore
@@ -113,8 +115,8 @@ public class CaseVo {
     @ExcelIgnore
     private String judgmentDesc;
 
-    @ExcelIgnore
-    private Set<String> money = new LinkedHashSet<>();
+    // @ExcelIgnore
+    // private Set<String> money = new LinkedHashSet<>();
 
     @ExcelIgnore
     private String executionResult;
@@ -168,7 +170,7 @@ public class CaseVo {
 
     //诊断评估意见
     private String evaluationOpinions;
-    private JSONArray array = new JSONArray();
+    // private JSONArray array = new JSONArray();
 
 
 }

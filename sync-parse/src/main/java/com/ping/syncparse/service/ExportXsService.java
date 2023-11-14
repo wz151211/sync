@@ -28,7 +28,7 @@ public class ExportXsService {
 
     @Autowired
     private CaseXsMapper caseMapper;
-    private int pageSize = 500;
+    private int pageSize = 40000;
     private AtomicInteger pageNum = new AtomicInteger(-1);
 
     @Autowired
@@ -44,7 +44,7 @@ public class ExportXsService {
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
         try {
-            File file = new File("E:\\导出\\刑事案件-" + (pageNum.get() + 1) + ".xlsx");
+            File file = new File("/Users/monkey/Desktop/导出/侵害实用新型专利权纠纷-" + (pageNum.get() + 1) + ".xlsx");
             if (file.exists()) {
                 file.delete();
             } else {
@@ -58,16 +58,16 @@ public class ExportXsService {
             partyHead.add("案号");
             partyHead.add("类型");
             partyHead.add("姓名");
-            partyHead.add("性别");
-            partyHead.add("年龄");
-            partyHead.add("出生日期");
-            partyHead.add("民族");
-            partyHead.add("省份");
-            partyHead.add("地市");
-            partyHead.add("区县");
-            partyHead.add("地址");
-            partyHead.add("文化水平");
-            partyHead.add("职业");
+            // partyHead.add("性别");
+            // partyHead.add("年龄");
+            // partyHead.add("出生日期");
+            // partyHead.add("民族");
+            // partyHead.add("省份");
+            // partyHead.add("地市");
+            // partyHead.add("区县");
+            // partyHead.add("地址");
+            // partyHead.add("文化水平");
+            // partyHead.add("职业");
             partyHead.add("内容");
 
             List<String> crimeHead = new ArrayList<>();
@@ -147,8 +147,8 @@ public class ExportXsService {
             Sheet partySheet2 = wb.createSheet("当事人信息");
             ExcelUtils.export(wb, partySheet2, partyList, partyHead.toArray());
 
-            Sheet crimeSheet = wb.createSheet("判决结果");
-            ExcelUtils.export(wb, crimeSheet, crimeList, crimeHead.toArray());
+           // Sheet crimeSheet = wb.createSheet("判决结果");
+           // ExcelUtils.export(wb, crimeSheet, crimeList, crimeHead.toArray());
             wb.write(out);
             System.out.println("导出完成");
         } catch (FileNotFoundException e) {
@@ -216,19 +216,23 @@ public class ExportXsService {
     }
 
     private Map<Integer, Object> toParty(Map<Integer, Object> map, PartyEntity party) {
+        // map.put(2, party.getType());
+        // map.put(3, party.getName());
+        // map.put(4, party.getSex());
+        // map.put(5, party.getAge());
+        // map.put(6, party.getBirthday());
+        // map.put(7, party.getNation());
+        // map.put(8, party.getProvince());
+        // map.put(9, party.getCity());
+        // map.put(10, party.getCounty());
+        // map.put(11, party.getAddress());
+        // map.put(12, party.getEduLevel());
+        // map.put(13, party.getProfession());
+        // map.put(14, party.getContent());
+
         map.put(2, party.getType());
         map.put(3, party.getName());
-        map.put(4, party.getSex());
-        map.put(5, party.getAge());
-        map.put(6, party.getBirthday());
-        map.put(7, party.getNation());
-        map.put(8, party.getProvince());
-        map.put(9, party.getCity());
-        map.put(10, party.getCounty());
-        map.put(11, party.getAddress());
-        map.put(12, party.getEduLevel());
-        map.put(13, party.getProfession());
-        map.put(14, party.getContent());
+        map.put(4, party.getContent());
         return map;
 
     }

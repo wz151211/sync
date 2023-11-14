@@ -12,12 +12,10 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_contract_result")
+@Document(value = "document_contract_copy1")
 public class ContractVo {
     @Id
     private String id;
-
-    private String tId;
 
     private String name;
 
@@ -29,34 +27,34 @@ public class ContractVo {
 
     private String caseType;
 
-    private String cause;
+    private JSONArray cause;
 
-    private List<PartyEntity> party = new ArrayList<>();
+    private JSONArray party;
 
-    private String keyword;
+    private JSONArray keyword;
 
     private String trialProceedings;
 
     private String docType;
 
     private String htmlContent;
+    private String text;
 
-    private JSONObject jsonContent;
-
-    private Date createTime;
-
-    private String courtConsidered;
 
     private String judgmentResult;
 
+    private String courtConsidered;
     private String litigationRecords;
-    private String legalBasis;
+    private JSONArray legalBasis;
     private String fact;
+    private JSONObject jsonContent;
 
     private String province;
 
     private String city;
 
     private String county;
+
+    private String uid;
 
 }

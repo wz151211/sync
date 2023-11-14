@@ -12,11 +12,17 @@ import com.ping.syncparse.service.AreaService;
 import lombok.extern.slf4j.Slf4j;
 import org.ansj.domain.Result;
 import org.ansj.domain.Term;
+import org.ansj.splitWord.analysis.DicAnalysis;
 import org.ansj.splitWord.analysis.ToAnalysis;
 import org.apache.commons.io.IOUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -24,10 +30,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 @Service
 @Slf4j
@@ -42,7 +49,7 @@ public class ParseContractService {
     @Autowired
     private PartyMapper partyMapper;
 
-    private AtomicInteger pageNum = new AtomicInteger(8);
+    private AtomicInteger pageNum = new AtomicInteger(6);
 
     private List<Dict> causeList = new ArrayList<>();
     private List<Dict> areaList = new ArrayList<>();
@@ -125,13 +132,14 @@ public class ParseContractService {
     AtomicInteger count = new AtomicInteger();
 
     public void parse() {
-        Pattern compile = Pattern.compile("^((?!解).)*$", Pattern.CASE_INSENSITIVE);
         log.info("当前页={}", pageNum.get());
-        List<ContractVo> entities = contractMapper.findList(5, pageSize, null);
+        // Criteria criteria = Criteria.where("caseNo").is("（2017）川1302民初4436号");
+
+        List<ContractVo> entities = contractMapper.findList(pageNum.get(), pageSize, null);
         if (entities == null || entities.size() == 0) {
             return;
         }
-        pageNum.getAndIncrement();
+       // pageNum.getAndIncrement();
         entities.parallelStream().forEach(entity -> {
             ContractResultVo vo = new ContractResultVo();
             vo.setId(entity.getId());
@@ -178,10 +186,7 @@ public class ParseContractService {
             vo.setCourtConsidered(entity.getCourtConsidered());
             vo.setLitigationRecords(entity.getLitigationRecords());
             vo.setFact(entity.getFact());
-            vo.setCause(entity.getCause());
-            vo.setLegalBasis(entity.getLegalBasis());
-            vo.setParty(entity.getParty());
-   /*         if (entity.getCause() != null && entity.getCause().size() > 0) {
+            if (entity.getCause() != null && entity.getCause().size() > 0) {
                 vo.setCause(entity.getCause().stream().map(Object::toString).collect(joining(",")));
             }
             if (entity.getKeyword() != null && entity.getKeyword().size() > 0) {
@@ -194,14 +199,14 @@ public class ParseContractService {
                     JSONObject aa = JSONObject.parseObject(JSON.toJSONString(c));
                     return aa.getString("fgmc") + aa.getString("tkx");
                 }).collect(joining(",")));
-            }*/
+            }
             try {
                 vo.setRefereeDate(entity.getRefereeDate());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
             if (entity.getHtmlContent() != null && entity.getJsonContent() != null && entity.getJsonContent().size() > 0) {
-/*                PartyEntity party = null;
+                PartyEntity party = null;
                 Document parse = Jsoup.parse(entity.getHtmlContent());
 
                 Elements elements = new Elements();
@@ -213,17 +218,28 @@ public class ParseContractService {
                 Elements p = parse.getElementsByTag("p");
                 elements.addAll(trs);
                 elements.addAll(div);
-                elements.addAll(p);*/
-
- /*               JSONArray array = entity.getParty();
+                elements.addAll(p);
+                String litigationRecords = entity.getLitigationRecords();
+                String record = "";
+                if (StringUtils.hasLength(litigationRecords)) {
+                    litigationRecords = litigationRecords.replace("，", ",");
+                    String[] temp = litigationRecords.split(",");
+                    if (temp.length > 0) {
+                        record = temp[0];
+                    }
+                }
+                JSONArray array = entity.getParty();
                 if (array != null && array.size() > 0) {
                     for (Object o : array) {
                         boolean isExist = false;
                         for (int i = 0; i < elements.size(); i++) {
                             Element element = elements.get(i);
                             String text = element.text();
+                            if (text.contains(record) || text.contains("立案")) {
+                                break;
+                            }
                             if (text.contains(o.toString())) {
-                                party = parseText(text, o.toString());
+                                party = parseText(text, o.toString(), entity.getRefereeDate());
                                 party.setCaseId(vo.getId());
                                 party.setCaseNo(vo.getCaseNo());
                                 vo.getParty().add(party);
@@ -240,8 +256,11 @@ public class ParseContractService {
                                 for (int i = 0; i < elements.size(); i++) {
                                     Element element = elements.get(i);
                                     String text = element.text();
-                                    if (text.contains(name)) {
-                                        party = parseText(text, name);
+                                    if (text.contains(record) || text.contains("立案")) {
+                                        break;
+                                    }
+                                    if (StringUtils.hasLength(name) && text.contains(name)) {
+                                        party = parseText(text, name, entity.getRefereeDate());
                                         party.setCaseId(vo.getId());
                                         party.setCaseNo(vo.getCaseNo());
                                         vo.getParty().add(party);
@@ -261,8 +280,11 @@ public class ParseContractService {
                                 for (int i = 0; i < elements.size(); i++) {
                                     Element element = elements.get(i);
                                     String text = element.text();
-                                    if (text.contains(name)) {
-                                        party = parseText(text, name);
+                                    if (text.contains(record) || text.contains("立案")) {
+                                        break;
+                                    }
+                                    if (StringUtils.hasLength(name) && text.contains(name)) {
+                                        party = parseText(text, name, entity.getRefereeDate());
                                         party.setCaseId(vo.getId());
                                         party.setCaseNo(vo.getCaseNo());
                                         vo.getParty().add(party);
@@ -284,8 +306,11 @@ public class ParseContractService {
                             for (int i = 0; i < elements.size(); i++) {
                                 Element element = elements.get(i);
                                 String text = element.text();
-                                if (text.contains(name)) {
-                                    party = parseText(text, name);
+                                if (text.contains(record) || text.contains("立案")) {
+                                    break;
+                                }
+                                if (StringUtils.hasLength(name) && text.contains(name)) {
+                                    party = parseText(text, name, entity.getRefereeDate());
                                     party.setCaseId(vo.getId());
                                     party.setCaseNo(vo.getCaseNo());
                                     vo.getParty().add(party);
@@ -304,8 +329,11 @@ public class ParseContractService {
                             for (int i = 0; i < elements.size(); i++) {
                                 Element element = elements.get(i);
                                 String text = element.text();
-                                if (text.contains(name)) {
-                                    party = parseText(text, name);
+                                if (text.contains(record) || text.contains("立案")) {
+                                    break;
+                                }
+                                if (StringUtils.hasLength(name) && text.contains(name)) {
+                                    party = parseText(text, name, entity.getRefereeDate());
                                     party.setCaseId(vo.getId());
                                     party.setCaseNo(vo.getCaseNo());
                                     vo.getParty().add(party);
@@ -323,8 +351,11 @@ public class ParseContractService {
                             for (int i = 0; i < elements.size(); i++) {
                                 Element element = elements.get(i);
                                 String text = element.text();
-                                if (text.contains(name)) {
-                                    party = parseText(text, name);
+                                if (text.contains(record) || text.contains("立案")) {
+                                    break;
+                                }
+                                if (StringUtils.hasLength(name) && text.contains(name)) {
+                                    party = parseText(text, name, entity.getRefereeDate());
                                     party.setCaseId(vo.getId());
                                     party.setCaseNo(vo.getCaseNo());
                                     vo.getParty().add(party);
@@ -334,9 +365,9 @@ public class ParseContractService {
                             }
                         }
                     }
-                }*/
+                }
 
-               /* for (int i = 0; i < 6; i++) {
+                for (int i = 0; i < 6; i++) {
                     if (i > elements.size() - 1) {
                         continue;
                     }
@@ -345,13 +376,14 @@ public class ParseContractService {
                     if (StringUtils.isEmpty(text)) {
                         continue;
                     }
-                    if (text.contains("异议") || text.contains("诉讼")) {
+                    if (text.contains("异议") || text.contains("诉讼") || text.contains("立案")) {
                         break;
                     }
                     boolean exits = false;
-                    if (array != null && array.size() > 0) {
-                        for (Object o : array) {
-                            if (text.contains(o.toString())) {
+                    List<PartyEntity> partyList = vo.getParty();
+                    if (partyList != null && partyList.size() > 0) {
+                        for (PartyEntity partyEntity : partyList) {
+                            if (StringUtils.hasLength(partyEntity.getName()) && text.contains(partyEntity.getName())) {
                                 exits = true;
                             }
                         }
@@ -359,12 +391,8 @@ public class ParseContractService {
                     if (exits) {
                         continue;
                     }
-                    String records = vo.getLitigationRecords();
-                    if (StringUtils.hasLength(records)) {
-                        String[] split = records.split("，");
-                        if (text.contains(split[0].trim())) {
-                            break;
-                        }
+                    if (text.contains(record)) {
+                        break;
                     }
                     try {
                         text = text.split("。")[0];
@@ -373,7 +401,7 @@ public class ParseContractService {
                     }
                     if (text.startsWith("原告") || text.startsWith("被告") || text.startsWith("被申请人") || text.startsWith("申请机关") || text.startsWith("原申请机关") || text.startsWith("被强制医疗人") || text.startsWith("申请人") || text.startsWith("申请复议人")) {
                         try {
-                            party = parseText(text, null);
+                            party = parseText(text, null, entity.getRefereeDate());
                             party.setCaseId(vo.getId());
                             party.setCaseNo(vo.getCaseNo());
                             vo.getParty().add(party);
@@ -381,12 +409,13 @@ public class ParseContractService {
                             e.printStackTrace();
                         }
                     }
-                }*/
+                }
             }
 
             try {
                 for (PartyEntity entity1 : vo.getParty()) {
                     parseAddress(entity1);
+                    // parseIdCard(entity1);
                 }
                 List<PartyEntity> parties = vo.getParty();
                 if (parties != null && parties.size() > 0) {
@@ -446,7 +475,7 @@ public class ParseContractService {
                 }
 
                 try {
-                    //   contractMapper.delete(entity);
+                       contractMapper.delete(entity);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -458,14 +487,15 @@ public class ParseContractService {
         });
     }
 
-    private PartyEntity parseText(String text, String name) {
+    private PartyEntity parseText(String text, String name, Date refereeDate) {
         text = text.replace("，", ",");
         text = text.replace("。", ",");
-        text = text.replace("：", ",");
+        text = text.replace("：", "");
         String[] split = text.split(",");
         PartyEntity party = new PartyEntity();
         party.setContent(text);
-        for (String s : split) {
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
             if (StringUtils.hasLength(name) && s.contains(name)) {
                 party.setName(name);
             }
@@ -605,8 +635,8 @@ public class ParseContractService {
                     str = str.replace("年", "-");
                     str = str.replace("月", "-");
                     str = str.replace(" ", "");
-                    if (StringUtils.isEmpty(party.getAge())) {
-                        party.setAge(DateUtil.ageOfNow(DateUtil.parse(str)) + "");
+                    if (StringUtils.isEmpty(party.getAge()) && refereeDate != null) {
+                        party.setAge(DateUtil.age(DateUtil.parse(str), refereeDate) + "");
                         party.setAgeContent(str);
                     }
                 } catch (Exception e) {
@@ -620,45 +650,54 @@ public class ParseContractService {
             }
 
 
-            if (!StringUtils.hasText(party.getAddress())) {
-                if ((s.contains("户籍") || s.contains("籍贯")) && !s.contains("户籍地")) {
+            if (StringUtils.isEmpty(party.getAddress())) {
+                if (s.contains("住") && (!s.equals("住所地") && !s.equals("住所")) && (s.contains("省") || s.contains("自治区") || s.contains("兵团") || s.contains("市") || s.contains("盟") || s.contains("自治州") || s.contains("县") || s.contains("旗") || s.contains("区"))) {
                     party.setAddress(s);
-                }
+                } else {
+                    if (i + 1 < split.length) {
+                        String next = split[i + 1];
+                        if ((s.equals("住") || s.equals("住所地") || s.equals("住所")) && (next.contains("省") || next.contains("自治区") || next.contains("兵团") || next.contains("市") || next.contains("盟") || next.contains("自治州") || next.contains("县") || next.contains("旗") || next.contains("区"))) {
+                            party.setAddress(s + next);
+                        }
+                    }
 
-                if (!StringUtils.hasText(party.getAddress())) {
-                    if (s.contains("住") && (!s.equals("住所地") && !s.equals("住所") && !s.equals("现住") && !s.equals("住址")) && s.length() > 2) {
+                }
+            }
+
+            if (StringUtils.isEmpty(party.getAddress())) {
+                if ((s.contains("省") || s.contains("自治区") || s.contains("兵团"))
+                        && (s.contains("市") || s.contains("自治州") || s.contains("盟"))
+                        && (s.contains("县") || s.contains("区") || s.contains("旗"))) {
+                    if (!s.contains("检察院") && !s.contains("法院") && !s.contains("公安局") && !s.contains("公司") && !s.contains("看守所") && !s.contains("羁押")) {
+                        party.setAddress(s);
+                    }
+
+                }
+            }
+
+            if (StringUtils.isEmpty(party.getAddress())) {
+                if ((s.contains("省") || s.contains("自治区") || s.contains("兵团"))
+                        || (s.contains("市") || s.contains("自治州") || s.contains("盟"))
+                        && (s.contains("县") || s.contains("区") || s.contains("旗"))) {
+                    if (!s.contains("检察院") && !s.contains("法院") && !s.contains("公安局") && !s.contains("公司") && !s.contains("看守所") && !s.contains("羁押")) {
                         party.setAddress(s);
                     }
                 }
-
-                if (!StringUtils.hasText(party.getAddress())) {
-                    if ((s.contains("省") || s.contains("市") || s.contains("县") || s.contains("区")) & s.contains("人")) {
-                        if (!s.contains("出生") && !s.contains("检察院") && !s.contains("法院") && !s.contains("公安局") && !s.contains("公司")) {
-                            party.setAddress(s);
-                        }
+            }
+            if ((s.contains("省") || s.contains("市") || s.contains("县") || s.contains("区") || s.contains("盟") || s.contains("旗")) && s.contains("人")) {
+                if (!s.contains("检察院") && !s.contains("法院") && !s.contains("公安局") && !s.contains("公司") && !s.contains("看守所") && !s.contains("羁押") && !s.contains("被告") && !s.contains("原告")) {
+                    party.setAddress(s);
+                }
+            }
+            if ((s.contains("户籍") || s.contains("籍贯")) && (s.contains("省") || s.contains("自治区") || s.contains("兵团") || s.contains("市") || s.contains("盟") || s.contains("自治州") || s.contains("县") || s.contains("旗") || s.contains("区"))) {
+                party.setAddress(s);
+            } else {
+                if (i + 1 < split.length) {
+                    String next = split[i + 1];
+                    if ((s.equals("户籍") || s.equals("籍贯") || s.equals("户籍地") || s.equals("户籍所在地")) && (next.contains("省") || next.contains("自治区") || next.contains("兵团") || next.contains("市") || next.contains("盟") || next.contains("自治州") || next.contains("县") || next.contains("旗") || next.contains("区"))) {
+                        party.setAddress(s + next);
                     }
                 }
-                if (StringUtils.isEmpty(party.getAddress())) {
-                    if ((s.contains("省") || s.contains("自治区") || s.contains("兵团"))
-                            && (s.contains("市") || s.contains("自治州") || s.contains("盟"))
-                            && (s.contains("县") || s.contains("区") || s.contains("旗"))) {
-                        if (!s.contains("公司") && !s.contains("委员会")) {
-                            party.setAddress(s);
-                        }
-
-                    }
-                }
-
-                if (StringUtils.isEmpty(party.getAddress())) {
-                    if ((s.contains("省") || s.contains("自治区") || s.contains("兵团"))
-                            || (s.contains("市") || s.contains("自治州") || s.contains("盟"))
-                            || (s.contains("县") || s.contains("区") || s.contains("旗"))) {
-                        if (!s.contains("公司") && !s.contains("委员会")) {
-                            party.setAddress(s);
-                        }
-                    }
-                }
-
             }
 
             if (s.contains("文化")
@@ -711,6 +750,74 @@ public class ParseContractService {
                     }
                 }
             }
+/*            String idCard = "";
+            if (i == 0) {
+                idCard = s;
+            } else {
+                idCard = split[i - 1] + s;
+            }
+
+            if (idCard.contains("身份证号") || idCard.contains("身份号码")) {
+                int index = idCard.indexOf("身份证号");
+                if (index == -1) {
+                    index = idCard.indexOf("身份号码");
+                }
+                String temp = idCard.substring(index + 4);
+                temp = temp.replace("：", "");
+                temp = temp.replace(":", "");
+                temp = temp.replace("）", "");
+                temp = temp.replace(")", "");
+                temp = temp.replace("。", "");
+                temp = temp.replace(".", "");
+                temp = temp.replace("，", "");
+                temp = temp.replace(",", "");
+                temp = temp.replace("，", "");
+                temp = temp.replace("码", "");
+                temp = temp.replace("为", "");
+                temp = temp.replace("汉族", "");
+                // temp = temp.substring(0, 18);
+
+                int end = -1;
+                if (temp.length() != 18) {
+                    if (temp.contains("*") && end == -1) {
+                        end = temp.lastIndexOf("*");
+                    }
+                    if (temp.contains("X") && end == -1) {
+                        end = temp.lastIndexOf("X");
+                    }
+                    if (temp.contains("×") && end == -1) {
+                        end = temp.lastIndexOf("×");
+                    }
+                    if (temp.contains("户") && end == -1) {
+                        end = temp.lastIndexOf("户");
+                    }
+                    if (temp.contains("汉") && end == -1) {
+                        end = temp.lastIndexOf("汉");
+                    }
+                    if (temp.contains("曾") && end == -1) {
+                        end = temp.lastIndexOf("曾");
+                    }
+                    if (temp.contains("因") && end == -1) {
+                        end = temp.lastIndexOf("因");
+                    }
+                    if (temp.contains("住") && end == -1) {
+                        end = temp.lastIndexOf("住");
+                    }
+
+                    Pattern pattern = Pattern.compile("^[0-9]*");
+                    Matcher matcher = pattern.matcher(temp);
+                    if (matcher.find()) {
+                        if (end > -1) {
+                            temp = temp.substring(0, end);
+                        }
+                    }
+
+                }
+                //   log.info("身份证号={}  ==  {}", temp, idCard);
+                if (StringUtils.isEmpty(party.getIdCard()) && StringUtils.hasLength(temp) && !temp.contains("族")) {
+                    party.setIdCard(temp);
+                }
+            }*/
    /*         if (!StringUtils.hasLength(party.getHasCriminalRecord())) {
                 if (s.contains("刑满释放") || s.contains("因犯") || s.contains("曾因")) {
                     party.setHasCriminalRecord("是");
@@ -749,23 +856,29 @@ public class ParseContractService {
             return;
         }
         String address = party.getAddress();
-        address = address.replace("住所地", "");
-        address = address.replace("住址", "");
-        address = address.replace("所在地", "");
-        address = address.replace("住所", "");
-        address = address.replace("现住", "");
-        address = address.replace("住", "");
         party.setProvince(null);
         party.setCity(null);
         party.setCounty(null);
-        for (Term term : ToAnalysis.parse(address)) {
-            if ((term.getRealName().contains("省") || term.getRealName().contains("自治区") || term.getRealName().contains("兵团")) && (!term.getRealName().contains("住所地") && !term.getRealName().equals("住所") && !term.getRealName().contains("住址") && !term.getRealName().contains("所在地") && !term.getRealName().contains("住") && !term.getRealName().contains("现住"))) {
+        for (Term term : DicAnalysis.parse(address)) {
+            if ((term.getRealName().contains("省") || term.getRealName().contains("自治区") || term.getRealName().contains("兵团")) && (!term.getRealName().contains("住所地") && !term.getRealName().equals("住所") && !term.getRealName().contains("住址") && !term.getRealName().contains("所在地") && !term.getRealName().contains("住") && !term.getRealName().contains("现住") && !term.getRealName().contains("户籍地"))) {
                 if (StringUtils.isEmpty(party.getProvince())) {
                     party.setProvince(term.getRealName());
                 }
+                if (term.getRealName().equals("自治区")) {
+                    Term temp = term;
+                    while (temp != null && !temp.getRealName().equals("BEGIN")) {
+                        if (provinceSimple.containsKey(temp.getRealName())) {
+                            String province = provinceSimple.get(temp.getRealName());
+                            party.setProvince(province);
+                            break;
+                        }
+                        party.setProvince(temp.getRealName() + party.getProvince());
+                        temp = temp.from();
+                    }
+                }
             }
             if (term.getRealName().contains("市") || term.getRealName().contains("盟") || term.getRealName().contains("自治州")) {
-                if (term.getRealName().length() <= 1) {
+                if (term.getRealName().length() <= 1 || term.getRealName().contains("自治州")) {
                     StringBuilder city = new StringBuilder();
                     Term temp = term;
                     for (int i = 0; i < 10; i++) {
@@ -773,7 +886,12 @@ public class ParseContractService {
                             continue;
                         }
                         String name = temp.getRealName();
-                        if (name.contains("省") || name.contains("自治区") || name.contains("兵团") || name.contains("住所地") || name.equals("住所") || name.contains("住址") || name.contains("所在地") || name.contains("住") || name.contains("现住")) {
+                        if (name.contains("省") || name.contains("自治区") || name.contains("兵团") || name.contains("住所地") || name.equals("住所") || name.contains("住址") || name.contains("所在地") || name.contains("住") || name.contains("现住") || name.contains("户籍地")) {
+                            break;
+                        }
+                        if (provinceSimple.containsKey(name)) {
+                            String province = provinceSimple.get(name);
+                            party.setProvince(province);
                             break;
                         }
                         city.insert(0, name);
@@ -790,7 +908,7 @@ public class ParseContractService {
             }
 
             if (term.getRealName().contains("县") || term.getRealName().contains("旗") || (term.getRealName().contains("区") && !term.getRealName().contains("自治区"))) {
-                if (term.getRealName().length() <= 2 || term.getRealName().equals("开发区") || term.getRealName().equals("工业区")) {
+                if (term.getRealName().length() <= 2 || term.getRealName().equals("开发区") || term.getRealName().equals("工业区") || term.getRealName().equals("自治县")) {
                     StringBuilder county = new StringBuilder();
                     Term temp = term;
                     for (int i = 0; i < 10; i++) {
@@ -798,7 +916,12 @@ public class ParseContractService {
                             continue;
                         }
                         String name = temp.getRealName();
-                        if (name.contains("省") || name.contains("自治区") || name.contains("兵团") || name.contains("市") || name.contains("盟") || name.contains("自治州") || name.contains("住所地") || name.equals("住所") || name.contains("住址") || name.contains("所在地") || name.contains("住") || name.contains("现住")) {
+                        if (name.contains("省") || name.contains("自治区") || name.contains("兵团") || name.contains("市") || name.contains("盟") || name.contains("自治州") || name.contains("住所地") || name.equals("住所") || name.contains("住址") || name.contains("所在地") || name.contains("住") || name.contains("现住") || name.contains("户籍地")) {
+                            break;
+                        }
+                        if (provinceSimple.containsKey(name)) {
+                            String province = provinceSimple.get(name);
+                            party.setProvince(province);
                             break;
                         }
                         county.insert(0, name);
@@ -818,18 +941,112 @@ public class ParseContractService {
                 if (StringUtils.isEmpty(party.getProvince()) || !entity.getProvince().equals(party.getProvince())) {
                     party.setProvince(entity.getProvince());
                 }
-                if (StringUtils.isEmpty(party.getCity())) {
+                if (StringUtils.isEmpty(party.getCity()) || (StringUtils.hasLength(entity.getCity()) && !entity.getCity().equals(party.getCity()))) {
                     party.setCity(entity.getCity());
                 }
-                if (StringUtils.isEmpty(party.getCounty())) {
+                if (StringUtils.isEmpty(party.getCounty()) || (StringUtils.hasLength(entity.getCounty()) && !entity.getCounty().equals(party.getCounty()))) {
                     party.setCounty(entity.getCounty());
                 }
             }
         }
     }
 
+    private void parseIdCard(PartyEntity party) {
+        List<AreaEntity> areas = new ArrayList<>();
+        if (StringUtils.hasLength(party.getCity()) && StringUtils.hasLength(party.getCounty())) {
+            AreaEntity entity = areaService.findCounty(party.getCity(), party.getCounty());
+            if (entity != null) {
+                areas.add(entity);
+            }
+        }
+        if (StringUtils.hasLength(party.getCity()) && StringUtils.isEmpty(party.getCounty())) {
+            if (StringUtils.hasLength(party.getAgeContent())) {
+                List<AreaEntity> entities = areaService.findCityChild(party.getCity());
+                areas.addAll(entities);
+            } else {
+                AreaEntity entity = areaService.findCity(party.getCity());
+                if (entity != null) {
+                    areas.add(entity);
+                }
+            }
+        }
+        if (StringUtils.hasLength(party.getProvince()) && StringUtils.isEmpty(party.getCity()) && StringUtils.isEmpty(party.getCounty())) {
+            if (StringUtils.hasLength(party.getAgeContent())) {
+                List<AreaEntity> entities = areaService.findProvinceChild(party.getProvince());
+                areas.addAll(entities);
+            } else {
+                AreaEntity entity = areaService.findProvince(party.getProvince());
+                if (entity != null) {
+                    areas.add(entity);
+                }
+            }
+        }
+
+        String idCard = party.getIdCard();
+        if (StringUtils.hasLength(idCard)) {
+            idCard = idCard.replace("×", "X");
+            idCard = idCard.replace("*", "X");
+        }
+        if (StringUtils.hasLength(idCard) && idCard.length() == 18 && !idCard.contains("X")) {
+            party.getIdCards().add(idCard);
+        } else {
+            for (AreaEntity area : areas) {
+                if (area.getLevel() == 3 && StringUtils.hasLength(party.getAgeContent())) {
+                    String code = area.getId().substring(0, 6);
+                    String ageContent = party.getAgeContent();
+                    String birthday = "";
+                    ageContent = ageContent.replace("×", "X");
+                    ageContent = ageContent.replace("*", "X");
+                    String[] split = ageContent.split("-");
+                    if (split.length == 3) {
+                        for (int i = 1; i < split.length; i++) {
+                            String s = split[i];
+                            try {
+                                if (s.contains("X")) {
+                                    continue;
+                                }
+                                int num = Integer.parseInt(s);
+                                if (num < 10) {
+                                    split[i] = "0" + s;
+                                }
+                            } catch (NumberFormatException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                        if (!split[0].contains("X")) {
+                            birthday += split[0];
+
+                        }
+                        if (!split[1].contains("X")) {
+                            birthday += split[1];
+
+                        }
+                        if (!split[2].contains("X")) {
+                            birthday += split[2];
+
+                        }
+                    }
+                    String prefix = code + birthday;
+                    party.getIdCards().add(prefix);
+                } else {
+                    party.getIdCards().add(area.getId().substring(0, 6));
+                }
+                if (area.getLevel() == 2) {
+                    party.getIdCards().add(area.getId().substring(0, 4));
+                }
+                if (area.getLevel() == 1) {
+                    party.getIdCards().add(area.getId().substring(0, 2));
+                }
+            }
+
+        }
+
+    }
+
     private List<String> moneyList = new ArrayList<>();
     private List<String> provinceList = new ArrayList<>();
+    private Map<String, String> provinceSimple = new HashMap<>();
     private Map<String, String> province = new HashMap<>();
 
     private String convert(String name) {
@@ -916,6 +1133,39 @@ public class ParseContractService {
         provinceList.add("甘肃省");
         provinceList.add("青海省");
         provinceList.add("宁夏回族自治区");
+
+        provinceSimple.put("北京", "北京市");
+        provinceSimple.put("天津", "天津市");
+        provinceSimple.put("河北", "河北省");
+        provinceSimple.put("山西", "山西省");
+        provinceSimple.put("内蒙古", "内蒙古自治区");
+        provinceSimple.put("内蒙", "内蒙古自治区");
+        provinceSimple.put("辽宁", "辽宁省");
+        provinceSimple.put("吉林", "吉林省");
+        provinceSimple.put("黑龙江", "黑龙江省");
+        provinceSimple.put("上海", "上海市");
+        provinceSimple.put("江苏", "江苏省");
+        provinceSimple.put("浙江", "浙江省");
+        provinceSimple.put("安徽", "安徽省");
+        provinceSimple.put("福建", "福建省");
+        provinceSimple.put("江西", "江西省");
+        provinceSimple.put("山东", "山东省");
+        provinceSimple.put("河南", "河南省");
+        provinceSimple.put("湖北", "湖北省");
+        provinceSimple.put("湖南", "湖南省");
+        provinceSimple.put("广东", "广东省");
+        provinceSimple.put("广西", "广西壮族自治区");
+        provinceSimple.put("海南", "海南省");
+        provinceSimple.put("重庆", "重庆市");
+        provinceSimple.put("四川", "四川省");
+        provinceSimple.put("贵州", "贵州省");
+        provinceSimple.put("云南", "云南省");
+        provinceSimple.put("西藏", "西藏自治区");
+        provinceSimple.put("陕西", "陕西省");
+        provinceSimple.put("甘肃", "甘肃省");
+        provinceSimple.put("青海", "青海省");
+        provinceSimple.put("宁夏", "宁夏回族自治区");
+
         nations.addAll(Arrays.asList(temp));
         tempCode.add("110000");
         tempCode.add("120000");
@@ -933,8 +1183,6 @@ public class ParseContractService {
         eduLevel.add("小学毕业");
         eduLevel.add("初中毕业");
         eduLevel.add("本科毕业");
-        eduLevel.add("教师");
-        eduLevel.add("老师");
         eduLevel.add("专科毕业");
         eduLevel.add("专科文化");
         eduLevel.add("大学专科");
@@ -946,6 +1194,8 @@ public class ParseContractService {
         eduLevel.add("大学专科肄业文化");
         eduLevel.add("大学本科文化程度");
 
+        professionSet.add("教师");
+        professionSet.add("老师");
         professionSet.add("汽车质检员");
         professionSet.add("个体");
         professionSet.add("个体工商户");

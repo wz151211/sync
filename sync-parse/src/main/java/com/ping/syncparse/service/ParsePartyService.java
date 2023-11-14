@@ -762,6 +762,8 @@ public class ParsePartyService {
 
     }
 
+    
+
     private List<String> moneyList = new ArrayList<>();
     private List<String> provinceList = new ArrayList<>();
 

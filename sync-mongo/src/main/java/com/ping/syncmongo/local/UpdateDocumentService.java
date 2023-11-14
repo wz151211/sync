@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ping.syncmongo.common.model.Dict;
+import com.ping.syncmongo.local.entity.CpwsEntity;
+import com.ping.syncmongo.local.mapper.CpwsMapper;
 import com.ping.syncmongo.remote.DocumentEntity;
 import com.ping.syncmongo.remote.RemoteDocumentMapper;
 import lombok.extern.slf4j.Slf4j;

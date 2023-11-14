@@ -366,8 +366,8 @@ public class ParsePartyTempService {
                         for (String s : fact.split("，")) {
                             for (Term term : ToAnalysis.parse(s)) {
                                 if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
-                                    vo.getMoney().add(term.getRealName());
-                                    vo.getMoneyString().add(s);
+                                    // vo.getMoney().add(term.getRealName());
+                                    // vo.getMoneyString().add(s);
                                 }
                             }
                         }

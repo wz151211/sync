@@ -4,8 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ping.syncmysqltomongo.mongo.entity.BaseEntity;
-import com.ping.syncmysqltomongo.mongo.temp.MongoTempEntity;
-import com.ping.syncmysqltomongo.mongo.temp.MongoTempMapper;
+import com.ping.syncmysqltomongo.mongo.temp.*;
 import com.ping.syncmysqltomongo.mysql.temp.TempDocumentEntity;
 import com.ping.syncmysqltomongo.mysql.temp.TempDocumentMapper;
 import com.ping.syncmysqltomongo.utils.BeanUtils;
@@ -13,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -27,7 +27,10 @@ public class ToMysqlService {
     @Autowired
     private MongoTempMapper mongoTempMapper;
 
-    private AtomicInteger pageNum = new AtomicInteger(0);
+    @Autowired
+    private DocumentTabMapper documentTabMapper;
+
+    private AtomicInteger pageNum = new AtomicInteger(30);
     private Integer pageSize = 10000;
 
     public void sync() {
@@ -36,7 +39,7 @@ public class ToMysqlService {
         pageNum.getAndIncrement();
         for (MongoTempEntity entity : entities) {
             TempDocumentEntity tempDocument = new TempDocumentEntity();
-        //    convert(entity, tempDocument);
+            //    convert(entity, tempDocument);
             try {
                 tempDocumentMapper.insert(tempDocument);
             } catch (Exception e) {
@@ -57,9 +60,58 @@ public class ToMysqlService {
         pageNum.getAndIncrement();
         for (MongoTempEntity entity : entities) {
             TempDocumentEntity tempDocument = new TempDocumentEntity();
-          //  convert(entity, tempDocument);
+            // convert(entity, tempDocument);
             BaseEntity base = BeanUtils.toEntity(entity);
-            convert(base,tempDocument);
+            convert(base, tempDocument);
+            try {
+                tempDocumentMapper.insert(tempDocument);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+/*            try {
+                mongoTempMapper.delete(entity.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }*/
+
+        }
+    }
+
+    @Autowired
+    private DocumentFinanceMapper financeMapper;
+
+    public void sync3() {
+        log.info("pageNum={}", pageNum.get());
+        List<DocumentFinanceEntity> entities = financeMapper.findList(pageNum.get(), pageSize, null);
+        pageNum.getAndIncrement();
+        for (DocumentFinanceEntity entity : entities) {
+            TempDocumentEntity tempDocument = new TempDocumentEntity();
+            // convert(entity, tempDocument);
+            // BaseEntity base = BeanUtils.toEntity(entity);
+            convert1(entity, tempDocument);
+            try {
+                tempDocumentMapper.insert(tempDocument);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+/*            try {
+                mongoTempMapper.delete(entity.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }*/
+
+        }
+    }
+
+    public void sync4() {
+        log.info("pageNum={}", pageNum.get());
+        List<DocumentTabEntity> entities = documentTabMapper.findList(pageNum.get(), pageSize, null);
+        pageNum.getAndIncrement();
+        for (DocumentTabEntity entity : entities) {
+            TempDocumentEntity tempDocument = new TempDocumentEntity();
+            // convert(entity, tempDocument);
+            // BaseEntity base = BeanUtils.toEntity(entity);
+            convert(entity, tempDocument);
             try {
                 tempDocumentMapper.insert(tempDocument);
             } catch (Exception e) {
@@ -103,6 +155,48 @@ public class ToMysqlService {
                 return aa.getString("fgmc") + aa.getString("tkx");
             }).collect(joining(",")));
         }
+        to.setTrialProceedings(from.getTrialProceedings());
+        to.setDocType(from.getDocType());
+        to.setHtmlContent(from.getHtmlContent());
+        to.setJudgmentResult(from.getJudgmentResult());
+        to.setCourtConsidered(from.getCourtConsidered());
+        to.setLitigationRecords(from.getLitigationRecords());
+        to.setFact(from.getFact());
+        to.setProvince(from.getProvince());
+        to.setCity(from.getCity());
+        to.setCounty(from.getCounty());
+
+    }
+
+    private void convert1(DocumentFinanceEntity from, TempDocumentEntity to) {
+        to.setId(from.getId());
+        to.setName(from.getName());
+        to.setCaseNo(from.getCaseNo());
+        to.setCourtName(from.getCourtName());
+        if (from.getJsonContent() != null) {
+            to.setJsonContent(from.getJsonContent().toJSONString());
+        }
+        if (from.getRefereeDate() != null) {
+            to.setRefereeDate(DateUtil.offsetHour(from.getRefereeDate(), -8));
+        }
+        to.setCaseType(from.getCaseType());
+        to.setCause(from.getCause());
+        if (from.getParty() != null && from.getParty().size() > 0) {
+            List<PartyEntity> list = new ArrayList<>();
+            for (PartyEntity entity : from.getParty()) {
+                PartyEntity partyEntity = new PartyEntity();
+                partyEntity.setId(entity.getId());
+                partyEntity.setCaseNo(entity.getCaseNo());
+                partyEntity.setType(entity.getType());
+                partyEntity.setName(entity.getName());
+                partyEntity.setIdCard(null);
+                partyEntity.setContent(entity.getContent());
+                list.add(partyEntity);
+            }
+            to.setParty(JSON.toJSONString(list));
+        }
+        to.setKeyword(from.getKeyword());
+        to.setLegalBasis(from.getLegalBasis());
         to.setTrialProceedings(from.getTrialProceedings());
         to.setDocType(from.getDocType());
         to.setHtmlContent(from.getHtmlContent());

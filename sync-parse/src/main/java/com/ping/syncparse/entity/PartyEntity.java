@@ -79,4 +79,11 @@ public class PartyEntity {
     @ExcelProperty(value = "案件名称", index = 14)
     private String content;
 
+    //判决金额或诉请金额
+    private String  petitionAmount;
+    //判决金额或诉请金额内容
+    private String  petitionAmountContent;
+
+
+
 }

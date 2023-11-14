@@ -130,7 +130,7 @@ public class ContractService {
 
     AtomicInteger count = new AtomicInteger();
 
-    public void parse() {
+    public void     parse() {
         List<ContractTempVo> entities = contractTempMapper.findList(pageNum.get(), pageSize, null);
         if (entities == null || entities.size() == 0) {
             return;

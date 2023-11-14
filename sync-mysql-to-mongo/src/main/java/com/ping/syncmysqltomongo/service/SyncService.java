@@ -77,7 +77,7 @@ public class SyncService {
             pageNum.getAndIncrement();
         }
         log.info("pageNum={}", pageNum.get());
-        List<RemotrDocumentEntity> entities = remoteDocumentMapper.selectList(Wrappers.<RemotrDocumentEntity>lambdaQuery().lt(RemotrDocumentEntity::getCreateTime, date).last("limit " + (pageNum.get() * pageSize) + ", " + pageSize));
+        List<RemotrDocumentEntity> entities = remoteDocumentMapper.selectList(Wrappers.<RemotrDocumentEntity>lambdaQuery().last("limit " + (pageNum.get() * pageSize) + ", " + pageSize));
         entities.parallelStream().map(this::toEntity).forEach(c -> {
             log.info("id={},案件名称={}", c.getId(), c.getName());
             if (StringUtils.hasLength(c.getHtmlContent()) || (c.getJsonContent() != null && c.getJsonContent().size() > 0)) {

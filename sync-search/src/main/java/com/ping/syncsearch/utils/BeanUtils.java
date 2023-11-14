@@ -103,7 +103,7 @@ public class BeanUtils {
         entity.setDocType(docTypeMap.get(docType));
         entity.setJsonContent(from);
         entity.setHtmlContent(htmlContent);
-        entity.setText(StringUtils.hasLength(htmlContent) ? Jsoup.parse(htmlContent).text() : htmlContent);
+       // entity.setText(StringUtils.hasLength(htmlContent) ? Jsoup.parse(htmlContent).text() : htmlContent);
         entity.setJudgmentResult(judgmentResult);
         entity.setCourtConsidered(courtConsidered);
         entity.setLitigationRecords(litigationRecords);

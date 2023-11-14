@@ -77,7 +77,7 @@ public class EconomicTempVo {
     @ExcelProperty(value = "事实", index = 15)
     private String fact;
 
-    //@ExcelProperty(value = "HTML内容", index = 16)
+    @ExcelProperty(value = "HTML内容", index = 16)
     @ExcelIgnore
     private String htmlContent;
 

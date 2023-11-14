@@ -1,6 +1,7 @@
 package com.ping.syncsearch.task;
 
 import com.ping.syncsearch.service.QueryService;
+import com.ping.syncsearch.utils.CauseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @Component
@@ -52,8 +54,8 @@ public class Task1 {
     // Criteria criteria = Criteria.where("fyTree").is("佛山市").and("s9").in("民事一审", "0301").and("s6").is("03");
     // Criteria criteria = Criteria.where("s8").is("民事案件").and("qwContent").regex("彩礼");
 
-     Criteria criteria = Criteria.where("s11").is("证券虚假陈述责任纠纷");
-    //   Criteria criteria = Criteria.where("qwContent").regex("证券虚假陈述责任纠纷");
+    //Criteria criteria = Criteria.where("s11").is("证券虚假陈述责任纠纷");
+    // Criteria criteria = Criteria.where("qwContent").regex("证券虚假陈述责任纠纷");
     //Criteria criteria = Criteria.where("s8").is("刑事案件").orOperator(Criteria.where("s1").regex("公司"), Criteria.where("s1").regex("集团"));
     // Criteria criteria = Criteria.where("qwContent").regex("滋事").andOperator(Criteria.where("qwContent").regex("网络"));
     // Criteria criteria = Criteria.where("s9").in("刑事一审", "0201").and("s6").is("01").and("s1").regex("盗窃").and("fyTree").is("东莞市");
@@ -77,6 +79,11 @@ public class Task1 {
     }*/
 
     // Criteria criteria = Criteria.where("s7").in(caseNo);
+    // Criteria criteria = Criteria.where("s8").is("行政案件").and("qwContent").regex("入赘").andOperator(Criteria.where("qwContent").regex("土地"));
+   // Criteria criteria = Criteria.where("s8").is("刑事案件").and("qwContent").regex("职务犯罪");
+   // Criteria criteria = Criteria.where("s11").is("婚约财产纠纷").and("s6").is("01").and("s8").is("民事案件");
+
+
     List<String> city = new ArrayList<>();
 
     {
@@ -101,9 +108,37 @@ public class Task1 {
         city.add("深圳市");
     }
 
-/*    Criteria criteria = Criteria.where("s11").is("离婚纠纷")
-            .and("s6").is("01")
-            .and("fyTree").in(city);*/
+    // Criteria criteria = Criteria.where("s11").is("离婚后财产纠纷")
+    //         .and("s6").is("01")
+    //         .and("fyTree").in(city);
+//Criteria criteria = Criteria.where("s6").is("01").and("s9").in("民事一审", "0301").and("s11").in(CauseUtils.getCauseList("9177"s));
+
+    // Criteria criteria = Criteria.where("s8").is("民事案件");
+    // Criteria criteria = Criteria.where("s9").in("民事一审", "0301").and("s6").is("01").and("s11").is("离婚纠纷").and("s43").is("01").and("s25").regex("殴打");
+
+    // Criteria criteria = Criteria.where("s8").is("民事案件").and("s6").is("01").and("qwContent").regex("纯粹经济损失");
+    // Criteria criteria = Criteria.where("qwContent").regex("公益诉讼");
+    // Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").in(CauseUtils.getCauseList("9363"));
+    // Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").in(CauseUtils.getCauseList("9047"));
+    // Criteria criteria = Criteria.where("s11").is("侵害发明专利权纠纷");
+    // Criteria criteria = Criteria.where("s11").is("侵害实用新型专利权纠纷");
+    // Criteria criteria = Criteria.where("s8").is("民事案件");
+
+    // Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").is("离婚后财产纠纷").and("s6").is("01");
+    // Criteria criteria = Criteria.where("s31").gte("2021-10-01");
+
+     Criteria criteria = Criteria.where("s8").is("民事案件");
+
+
+    {
+        Set<String> causeList = CauseUtils.getCauseList("9299");
+        List<Criteria> criteriaList = new ArrayList<>();
+        for (String cause : causeList) {
+            criteriaList.add(Criteria.where("qwContent").regex(cause));
+        }
+         criteria.orOperator(criteriaList);
+
+    }
 
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2014() {
@@ -187,7 +222,7 @@ public class Task1 {
         }
     }
 
-      @Scheduled(initialDelay = 20 * 1000L, fixedRate = 1000 * 60 * 3L)
+    @Scheduled(initialDelay = 20 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2023() {
         try {
             queryService.sync2023(criteria);

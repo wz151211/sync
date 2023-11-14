@@ -20,7 +20,7 @@ public class TaskTemp {
     @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 10)
     public void save1() {
         try {
-            toMysqlService.sync2();
+            toMysqlService.sync4();
         } catch (Exception e) {
             log.error("", e);
         }

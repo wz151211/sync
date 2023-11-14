@@ -412,51 +412,51 @@ public class ParseGambleService {
                                     sentence = sentence.replace("，", "");
                                     for (Term term : ToAnalysis.parse(sentence)) {
                                         if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
-                                            if (!vo.getMoney().contains(term.getRealName())) {
-                                                vo.getMoney().add(term.getRealName());
-                                                vo.getMoneyString().add(sentence);
-                                            }
+                                            // if (!vo.getMoney().contains(term.getRealName())) {
+                                            //     vo.getMoney().add(term.getRealName());
+                                            //     vo.getMoneyString().add(sentence);
+                                            // }
 
                                         }
                                     }
                                 }
 
-                                if (vo.getMoney().size() == 0) {
-                                    if ((sentence.contains("非法获利")
-                                            || sentence.contains("抽头获利")
-                                            || sentence.contains("抽水渔利")
-                                            || sentence.contains("抽取头薪")
-                                            || sentence.contains("违法所得")
-                                            || sentence.contains("抽取费用")
-                                            || sentence.contains("入账为")
-                                            || sentence.contains("赌场共抽头")
-                                            || sentence.contains("牟利约")
-                                            || sentence.contains("服务费")
-                                            || sentence.contains("投注共计")
-                                            || sentence.contains("累计抽水")
-                                            || sentence.contains("赌博活动从中获利")
-                                            || sentence.contains("抢红包渔利")
-                                            || sentence.contains("发出微信红包约")
-                                            || sentence.contains("三人获利")
-                                            || sentence.contains("累计金额")
-                                            || sentence.contains("赃款")
-                                            || sentence.contains("退水费获利")
-                                            || sentence.contains("赚取")
-                                            || sentence.contains("赌资")) && sentence.contains("元")) {
-                                        sentence = sentence.replace("余", "");
-                                        sentence = sentence.replace("多", "");
-                                        sentence = sentence.replace("，", "");
-                                        for (Term term : ToAnalysis.parse(sentence)) {
-                                            if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
-                                                if (!vo.getMoney().contains(term.getRealName())) {
-                                                    vo.getMoney().add(term.getRealName());
-                                                    vo.getMoneyString().add(sentence);
-                                                }
-
-                                            }
-                                        }
-                                    }
-                                }
+                                // if (vo.getMoney().size() == 0) {
+                                //     if ((sentence.contains("非法获利")
+                                //             || sentence.contains("抽头获利")
+                                //             || sentence.contains("抽水渔利")
+                                //             || sentence.contains("抽取头薪")
+                                //             || sentence.contains("违法所得")
+                                //             || sentence.contains("抽取费用")
+                                //             || sentence.contains("入账为")
+                                //             || sentence.contains("赌场共抽头")
+                                //             || sentence.contains("牟利约")
+                                //             || sentence.contains("服务费")
+                                //             || sentence.contains("投注共计")
+                                //             || sentence.contains("累计抽水")
+                                //             || sentence.contains("赌博活动从中获利")
+                                //             || sentence.contains("抢红包渔利")
+                                //             || sentence.contains("发出微信红包约")
+                                //             || sentence.contains("三人获利")
+                                //             || sentence.contains("累计金额")
+                                //             || sentence.contains("赃款")
+                                //             || sentence.contains("退水费获利")
+                                //             || sentence.contains("赚取")
+                                //             || sentence.contains("赌资")) && sentence.contains("元")) {
+                                //         sentence = sentence.replace("余", "");
+                                //         sentence = sentence.replace("多", "");
+                                //         sentence = sentence.replace("，", "");
+                                //         for (Term term : ToAnalysis.parse(sentence)) {
+                                //             if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
+                                //                 if (!vo.getMoney().contains(term.getRealName())) {
+                                //                     vo.getMoney().add(term.getRealName());
+                                //                     vo.getMoneyString().add(sentence);
+                                //                 }
+                                //
+                                //             }
+                                //         }
+                                //     }
+                                // }
                             }
                         }
                     }

@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
 @Data
-@Document(value = "document_feiwu")
+@Document(value = "document_zhiwufanzui")
 public class ExportResultVO {
     @Id
 
