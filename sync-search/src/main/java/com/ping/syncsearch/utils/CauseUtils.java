@@ -55,9 +55,44 @@ public class CauseUtils {
         if (dicts == null || dicts.size() == 0) {
             return new HashSet<>();
         }
-        Set<String> set = dicts.stream().flatMap(c -> c.getChild().stream()).map(Dict::getName).collect(toSet());
-        set.add(dict.get(code));
-        set.addAll(dicts.stream().map(Dict::getName).collect(toSet()));
+        Set<String> set = new HashSet<>();
+        for (Dict dict1 : dicts) {
+            set.add(dict1.getName());
+            List<Dict> child = dict1.getChild();
+            if (child != null && child.size() > 0) {
+                for (Dict dict2 : child) {
+                    set.add(dict2.getName());
+                    List<Dict> child1 = dict2.getChild();
+                    if (child1 != null && child1.size() > 0) {
+                        for (Dict dict3 : child1) {
+                            set.add(dict3.getName());
+                            List<Dict> child2 = dict3.getChild();
+                            if (child2 != null && child2.size() > 0) {
+                                for (Dict dict4 : child2) {
+                                    set.add(dict4.getName());
+                                    List<Dict> child3 = dict4.getChild();
+                                    if (child3 != null && child3.size() > 0) {
+                                        for (Dict dict5 : child3) {
+                                            set.add(dict5.getName());
+                                            List<Dict> child4 = dict5.getChild();
+                                            if (child4 != null && child4.size() > 0) {
+                                                for (Dict dict6 : child4) {
+                                                    set.add(dict6.getName());
+                                                }
+                                            }
+
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+
+        }
         return set;
     }
 }

@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_contract_copy1")
+@Document(value = "document_contract")
 public class ContractVo {
     @Id
     private String id;

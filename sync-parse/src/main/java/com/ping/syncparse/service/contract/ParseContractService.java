@@ -49,7 +49,7 @@ public class ParseContractService {
     @Autowired
     private PartyMapper partyMapper;
 
-    private AtomicInteger pageNum = new AtomicInteger(6);
+    private AtomicInteger pageNum = new AtomicInteger(0);
 
     private List<Dict> causeList = new ArrayList<>();
     private List<Dict> areaList = new ArrayList<>();
@@ -139,7 +139,7 @@ public class ParseContractService {
         if (entities == null || entities.size() == 0) {
             return;
         }
-       // pageNum.getAndIncrement();
+        pageNum.getAndIncrement();
         entities.parallelStream().forEach(entity -> {
             ContractResultVo vo = new ContractResultVo();
             vo.setId(entity.getId());
@@ -468,14 +468,15 @@ public class ParseContractService {
                         }
                     }
                     if (yg && bg) {
-                        contractResultMapper.insert(vo);
+                    //    contractResultMapper.insert(vo);
                     } else {
                         log.info("{}", entity.getName());
+                        contractResultMapper.insert(vo);
                     }
                 }
 
                 try {
-                       contractMapper.delete(entity);
+                    //   contractMapper.delete(entity);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -80,8 +80,12 @@ public class Task1 {
 
     // Criteria criteria = Criteria.where("s7").in(caseNo);
     // Criteria criteria = Criteria.where("s8").is("行政案件").and("qwContent").regex("入赘").andOperator(Criteria.where("qwContent").regex("土地"));
-   // Criteria criteria = Criteria.where("s8").is("刑事案件").and("qwContent").regex("职务犯罪");
-   // Criteria criteria = Criteria.where("s11").is("婚约财产纠纷").and("s6").is("01").and("s8").is("民事案件");
+    // Criteria criteria = Criteria.where("s8").is("刑事案件").and("qwContent").regex("职务犯罪");
+    // Criteria criteria = Criteria.where("s11").is("民间借贷纠纷").and("s6").is("01").and("s8").is("民事案件");
+   //  Criteria criteria = Criteria.where("s6").is("01").and("s8").is("民事案件");
+
+  //   Criteria criteria = Criteria.where("s9").in("刑事一审", "0201").and("s6").is("01").and("s11").is("强奸");
+
 
 
     List<String> city = new ArrayList<>();
@@ -113,7 +117,7 @@ public class Task1 {
     //         .and("fyTree").in(city);
 //Criteria criteria = Criteria.where("s6").is("01").and("s9").in("民事一审", "0301").and("s11").in(CauseUtils.getCauseList("9177"s));
 
-    // Criteria criteria = Criteria.where("s8").is("民事案件");
+    // Criteria criteria = Criteria.where("s8").is("民事案件").and("s6").is("01");
     // Criteria criteria = Criteria.where("s9").in("民事一审", "0301").and("s6").is("01").and("s11").is("离婚纠纷").and("s43").is("01").and("s25").regex("殴打");
 
     // Criteria criteria = Criteria.where("s8").is("民事案件").and("s6").is("01").and("qwContent").regex("纯粹经济损失");
@@ -121,13 +125,18 @@ public class Task1 {
     // Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").in(CauseUtils.getCauseList("9363"));
     // Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").in(CauseUtils.getCauseList("9047"));
     // Criteria criteria = Criteria.where("s11").is("侵害发明专利权纠纷");
-    // Criteria criteria = Criteria.where("s11").is("侵害实用新型专利权纠纷");
+   // Criteria criteria = Criteria.where("s11").is("侵害实用新型专利权纠纷");
     // Criteria criteria = Criteria.where("s8").is("民事案件");
 
     // Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").is("离婚后财产纠纷").and("s6").is("01");
     // Criteria criteria = Criteria.where("s31").gte("2021-10-01");
 
-     Criteria criteria = Criteria.where("s8").is("民事案件");
+   //  Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").in(CauseUtils.getCauseList("9299"));
+
+   // Criteria criteria = Criteria.where("s8").is("民事案件").and("qwContent").regex("妇女").andOperator(Criteria.where("qwContent").regex("农村土地"));
+
+
+    Criteria criteria = Criteria.where("s8").is("刑事案件").and("s9").in("刑事一审", "0201").and("s6").is("01").and("qwContent").regex("杀人");
 
 
     {
@@ -136,7 +145,7 @@ public class Task1 {
         for (String cause : causeList) {
             criteriaList.add(Criteria.where("qwContent").regex(cause));
         }
-         criteria.orOperator(criteriaList);
+        //  criteria.orOperator(criteriaList);
 
     }
 

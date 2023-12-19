@@ -16,7 +16,7 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@TableName(value = "document")
+@TableName(value = "document_tudi_nongcuntudi")
 public class TempDocumentEntity {
 
     @TableId(type = IdType.INPUT)

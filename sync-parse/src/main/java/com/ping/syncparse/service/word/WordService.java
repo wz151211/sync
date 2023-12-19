@@ -95,11 +95,19 @@ public class WordService {
         //   wordMLPackage.setFontMapper(IFontHandler.getFontMapper());
         // Add the Html altChunk
         //  String html = sb.toString();
+
+        if (html.contains("charset=GBK")) {
+            html = html.replace("charset=GBK", "charset=UTF-8");
+        }
+
+        if (html.contains("charset=GB2312")) {
+            html = html.replace("charset=GB2312", "charset=UTF-8");
+        }
         if (StringUtils.isEmpty(html)) {
             mdp.addAltChunk(AltChunkType.Html, "<html><center>不公开理由：人民法院认为不宜在互联网公布的其他情形</center></html>".getBytes(StandardCharsets.UTF_8));
 
         } else {
-            mdp.addAltChunk(AltChunkType.Html, html.getBytes());
+            mdp.addAltChunk(AltChunkType.Html, html.getBytes(StandardCharsets.UTF_8));
 
         }
 

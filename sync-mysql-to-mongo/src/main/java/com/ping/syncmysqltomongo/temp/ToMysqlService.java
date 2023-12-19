@@ -30,8 +30,8 @@ public class ToMysqlService {
     @Autowired
     private DocumentTabMapper documentTabMapper;
 
-    private AtomicInteger pageNum = new AtomicInteger(30);
-    private Integer pageSize = 10000;
+    private AtomicInteger pageNum = new AtomicInteger(0);
+    private Integer pageSize = 40000;
 
     public void sync() {
         log.info("pageNum={}", pageNum.get());

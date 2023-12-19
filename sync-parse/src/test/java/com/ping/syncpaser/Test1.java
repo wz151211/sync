@@ -178,6 +178,198 @@ public class Test1 {
         }
     }
 
+
+    @Test
+    public void  test1111(){
+        String content = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n" +
+                "\n" +
+                "<HTML>\n" +
+                "\n" +
+                "<HEAD>\n" +
+                "\n" +
+                " <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=UTF-8\">\n" +
+                "\n" +
+                " <TITLE></TITLE>\n" +
+                "\n" +
+                " <META NAME=\"GENERATOR\" CONTENT=\"OpenOffice 4.1.3  (Win32)\">\n" +
+                "\n" +
+                " <META NAME=\"AUTHOR\" CONTENT=\"NTKO\">\n" +
+                "\n" +
+                " <META NAME=\"CREATED\" CONTENT=\"20190422;15250000\">\n" +
+                "\n" +
+                " <META NAME=\"CHANGEDBY\" CONTENT=\"9080\">\n" +
+                "\n" +
+                " <META NAME=\"CHANGED\" CONTENT=\"20190422;16340000\">\n" +
+                "\n" +
+                " <STYLE TYPE=\"text/css\">\n" +
+                "\n" +
+                " <!--\n" +
+                "\n" +
+                "  @page { margin-right: 2.6cm; margin-top: 3.7cm; margin-bottom: 1.75cm }\n" +
+                "\n" +
+                "  P { margin-bottom: 0.21cm; direction: ltr; color: #000000; text-align: justify; widows: 0; orphans: 0 }\n" +
+                "\n" +
+                "  P.western { font-family: \"Times New Roman\", \"Times\", serif; font-size: 10pt; so-language: en-US }\n" +
+                "\n" +
+                "  P.cjk { font-family: \"宋体\", \"SimSun\"; font-size: 10pt; so-language: zh-CN }\n" +
+                "\n" +
+                "  P.ctl { font-family: \"Times New Roman\", \"Times\", serif; font-size: 12pt; so-language: ar-SA }\n" +
+                "\n" +
+                " -->\n" +
+                "\n" +
+                " </STYLE>\n" +
+                "\n" +
+                "</HEAD>\n" +
+                "\n" +
+                "<BODY LANG=\"zh-CN\" TEXT=\"#000000\" DIR=\"LTR\">\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=JUSTIFY STYLE=\"margin-bottom: 0cm; line-height: 1.41cm\">\n" +
+                "\n" +
+                "<FONT SIZE=6 STYLE=\"font-size: 22pt\">西  安  市  未  央  区  人  民 \n" +
+                "\n" +
+                "法  院  </FONT>\n" +
+                "\n" +
+                "</P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=CENTER STYLE=\"margin-bottom: 0cm; line-height: 1.41cm\">\n" +
+                "\n" +
+                "<FONT SIZE=6 STYLE=\"font-size: 26pt\">执 行 裁 定 书</FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=RIGHT STYLE=\"margin-bottom: 0cm; line-height: 1.41cm\">\n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">（</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">2019</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">）陕</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">0112</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">执</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">1813</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">号</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=RIGHT STYLE=\"margin-bottom: 0cm; line-height: 1.41cm\">\n" +
+                "\n" +
+                "<BR>\n" +
+                "\n" +
+                "</P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"text-indent: 1.13cm; margin-bottom: 0cm; widows: 2; orphans: 2\"><A NAME=\"Label_msg_1462\"></A><A NAME=\"Label_msg_1469\"></A>\n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">申请执行人中国民生银行股份有限公司西安分行。住所地：西安市楼。统一社会信用代码</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">XXXXXXXXXXXXXX1970</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">。</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"text-indent: 1.13cm; margin-bottom: 0cm; widows: 2; orphans: 2\">\n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">负责人薛文才，该分行行长。</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"text-indent: 1.13cm; margin-bottom: 0cm; widows: 2; orphans: 2\"><A NAME=\"Label_msg_1463\"></A><A NAME=\"Label_msg_1466\"></A>\n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">被执行人姜辉，女，</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">1980</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">年</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">5</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">月</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">30</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">日出生，汉族，住西安市未央区，公民身份号码</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">XXXXXXXXXXXXXXXXXX</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">。</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"text-indent: 1.13cm; margin-bottom: 0cm; widows: 2; orphans: 2\"><A NAME=\"Label_msg_1464\"></A><A NAME=\"Label_msg_1467\"></A>\n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">被执行人薛健华，女，</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">1972</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">年</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">4</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">月</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">16</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">日出生，汉族，住西安市新城区，公民身份号码</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">XXXXXXXXXXXXXXXXXX</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">。</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"text-indent: 1.13cm; margin-bottom: 0cm; widows: 2; orphans: 2\"><A NAME=\"Label_msg_1465\"></A><A NAME=\"Label_msg_1468\"></A>\n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">被执行人刘红兵，男，</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">1971</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">年</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">11</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">月</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">26</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">日出生，汉族，住河南省许昌市魏都区，公民身份号码</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">XXXXXXXXXXXXXXXXXX</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">。</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"text-indent: 1.13cm; margin-bottom: 0cm; widows: 2; orphans: 2\">\n" +
+                "\n" +
+                "   \n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">本院在执行申请执行人</FONT></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">中国民生银行股份有限公司西安分行</FONT></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">与被执行人</FONT></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">姜辉、薛建华、刘红兵公证文书一案中，申请执行人中国民生银行股份有限公司西安分行</FONT></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">依据已经发生法律效力的陕西省西安市公证处</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">(2017)</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">西证经字第</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">3924</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">号公证书和（</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">2018</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">）西证执字第</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">233</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">号执行证书于</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">2019</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">年</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">2</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">月</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">3</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">日向本院申请执行，本院依法受理。执行中，</FONT></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">申请执行人中国民生银行股份有限公司西安分行于</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">2019</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">年</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">4</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">月</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">9</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">日</FONT></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">向本院申请撤回执行申请，本院予以准许。依照《中华人民共和国民事诉讼法》第一百五十四条第（八）项、第二百五十七条（六）项之规定，裁定如下：</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"margin-right: 1.11cm; text-indent: 1.11cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">终结本院（</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">2019</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">）陕</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">0112</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">执</FONT></FONT><FONT FACE=\"Times New Roman, Times, serif\"><SPAN LANG=\"en-US\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">1813</FONT></FONT></SPAN></FONT><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">号案件的执行。</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"text-indent: 1.11cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">本裁定送达后立即生效。</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"text-indent: 1.11cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "<BR>\n" +
+                "\n" +
+                "</P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"text-indent: 1.11cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "<BR>\n" +
+                "\n" +
+                "</P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"margin-right: 1.27cm; text-indent: 1.11cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "<BR>\n" +
+                "\n" +
+                "</P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=RIGHT STYLE=\"margin-right: 0.16cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">审\n" +
+                "\n" +
+                " 判  长    康晓纲</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=RIGHT STYLE=\"margin-right: 0.16cm; text-indent: 1.13cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "       <FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">审\n" +
+                "\n" +
+                " 判  员    贺  诚</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=RIGHT STYLE=\"margin-right: 0.16cm; text-indent: 1.13cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">审\n" +
+                "\n" +
+                " 判  员    王  昆</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=RIGHT STYLE=\"margin-right: 0.16cm; text-indent: 1.13cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "<BR>\n" +
+                "\n" +
+                "</P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=RIGHT STYLE=\"margin-right: 0.16cm; text-indent: 1.13cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "<BR>\n" +
+                "\n" +
+                "</P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=RIGHT STYLE=\"text-indent: 1.08cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "<FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">二&#12295;一九年四月十七日</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=RIGHT STYLE=\"text-indent: 1.08cm; margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "<BR>\n" +
+                "\n" +
+                "</P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" ALIGN=RIGHT STYLE=\"margin-bottom: 0cm; line-height: 1.06cm\">\n" +
+                "\n" +
+                "           <FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">书\n" +
+                "\n" +
+                " 记  员    关海霞</FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"margin-bottom: 0cm; line-height: 1.06cm\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">打印人：关海霞\n" +
+                "\n" +
+                "</FONT></FONT><FONT FACE=\"仿宋, 宋体, monospace\">  </FONT><FONT COLOR=\"#000000\"><FONT FACE=\"仿宋, 宋体, monospace\"><FONT SIZE=4 STYLE=\"font-size: 16pt\">校对人：刘启&#21894;\n" +
+                "\n" +
+                "  送达时间：    年  月  日</FONT></FONT></FONT></P>\n" +
+                "\n" +
+                "<P CLASS=\"cjk\" STYLE=\"margin-bottom: 0cm\"><BR>\n" +
+                "\n" +
+                "</P>\n" +
+                "\n" +
+                "<DIV TYPE=FOOTER>\n" +
+                "\n" +
+                " <P ALIGN=RIGHT STYLE=\"margin-top: 1.65cm; margin-bottom: 0cm\"><SDFIELD TYPE=PAGE SUBTYPE=RANDOM FORMAT=PAGE>2</SDFIELD></P>\n" +
+                "\n" +
+                " <P ALIGN=LEFT STYLE=\"margin-bottom: 0cm\"><BR>\n" +
+                "\n" +
+                " </P>\n" +
+                "\n" +
+                "</DIV>\n" +
+                "\n" +
+                "</BODY>\n" +
+                "\n" +
+                "</HTML>";
+      String path = "/Users/monkey/Desktop/test/未命名.docx";
+      htmlAsAltChunk2Docx(content,path);
+    }
+
     public void htmlAsAltChunk2Docx(String html, String docxPath) {
 
         try {
@@ -191,7 +383,15 @@ public class Test1 {
                 mdp.addAltChunk(AltChunkType.Html, "<html><center>不公开理由：人民法院认为不宜在互联网公布的其他情形</center></html>".getBytes(StandardCharsets.UTF_8));
 
             } else {
-                mdp.addAltChunk(AltChunkType.Html, html.getBytes(StandardCharsets.UTF_8));
+                if (html.contains("charset=GBK")) {
+                    html = html.replace("charset=GBK", "charset=UTF-8");
+                }
+
+                if (html.contains("charset=GB2312")) {
+                    html = html.replace("charset=GB2312", "charset=UTF-8");
+                }
+
+                mdp.addAltChunk(AltChunkType.Html, html.getBytes());
 
             }
 

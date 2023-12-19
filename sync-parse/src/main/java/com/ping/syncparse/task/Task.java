@@ -165,7 +165,7 @@ public class Task {
     @Autowired
     private ParseContractService contractService;
 
-   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void contract() {
         contractService.parse();
     }
@@ -226,7 +226,7 @@ public class Task {
     @Autowired
     private FraudService fraudService;
 
-   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void fraudService() {
         fraudService.parse();
     }
@@ -234,7 +234,7 @@ public class Task {
     @Autowired
     private WordService wordService;
 
-   //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void toWord() {
         wordService.toWord();
     }
@@ -242,7 +242,7 @@ public class Task {
     @Autowired
     private ExportResultService2 exportResultService2;
 
-      @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void export2() {
         exportResultService2.export();
     }
@@ -250,7 +250,7 @@ public class Task {
     @Autowired
     private SecurityService securityService;
 
-   // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void securityService() {
         securityService.parse();
     }
