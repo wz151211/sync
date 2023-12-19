@@ -80,10 +80,15 @@ public class PartyEntity {
     private String content;
 
     //判决金额或诉请金额
-    private String  petitionAmount;
+    private String petitionAmount;
     //判决金额或诉请金额内容
-    private String  petitionAmountContent;
+    private String petitionAmountContent;
 
+    //是否初犯
+    private String firsOffender;
+
+    //婚姻状况
+    private String maritalStatus;
 
 
 }
