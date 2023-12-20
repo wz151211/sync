@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.ping.syncparse.SyncParseApplication;
 import com.ping.syncparse.service.*;
+import com.ping.syncparse.service.criminal.CriminalService;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.DicAnalysis;
 import org.apache.commons.lang3.StringUtils;
@@ -106,13 +107,13 @@ class SyncPaserApplicationTests {
         List<DocumentTargetEntity> entities = tempMapper.findtargetList(0, 100, null);
         for (DocumentTargetEntity entity : entities) {
             String htmlContent = entity.getString("htmlContent");
-         //   int year = DateUtil.year(entity.getDate("refereeDate"));
+            //   int year = DateUtil.year(entity.getDate("refereeDate"));
             //String temp = year + "\\" + "滥用职权罪";
             //  String temp = year + "\\" + "虐待被监管人罪";
             //  String temp = year + "\\" + "私放在押人员罪";
             //  String temp = year + "\\" + "玩忽职守罪";
             // String temp = year + "\\" + "刑讯逼供罪";
-           // String temp = year + "\\" + "徇私舞弊减刑、假释、暂予监外执行罪";
+            // String temp = year + "\\" + "徇私舞弊减刑、假释、暂予监外执行罪";
             String temp = "2020";
             String name = entity.getString("name").replace(".", "");
             name = name.replace("*", "");
@@ -166,10 +167,18 @@ class SyncPaserApplicationTests {
     }
 
     @Test
-    public void testParse(){
+    public void testParse() {
         for (Term term : DicAnalysis.parse("户籍所在地广西壮族自治区玉林市容县")) {
             System.out.println(term.getNatureStr() + "=====" + term.getRealName());
         }
+    }
+
+    @Autowired
+    private CriminalService criminalService;
+
+    @Test
+    public void criminaParse() {
+        criminalService.parse();
     }
 
 }

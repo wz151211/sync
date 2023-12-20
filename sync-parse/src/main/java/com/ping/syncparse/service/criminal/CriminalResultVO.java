@@ -7,16 +7,16 @@ import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.entity.PartyEntity;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @Author: W.Z
  * @Date: 2023/12/19 21:42
  */
 @Data
+@Document(value = "document_sharen_result")
 public class CriminalResultVO {
 
     @Id
@@ -89,5 +89,22 @@ public class CriminalResultVO {
     private String incidentTime;
 
     private String incidentTimeContent;
+
+    //案发地点
+    private String happeningPlace;
+
+    private String happeningPlaceContent;
+
+    //凶器
+    private Set<String> weapon = new HashSet<>();
+    private Set<String> weaponContent = new HashSet<>();
+
+    //方法
+    private Set<String> method = new HashSet<>();
+    private Set<String> methodContent = new HashSet<>();
+
+    //赔偿
+    private String compensate;
+    private String compensateContent;
 
 }

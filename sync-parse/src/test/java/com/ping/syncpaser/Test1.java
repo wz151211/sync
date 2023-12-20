@@ -180,7 +180,7 @@ public class Test1 {
 
 
     @Test
-    public void  test1111(){
+    public void test1111() {
         String content = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n" +
                 "\n" +
                 "<HTML>\n" +
@@ -366,8 +366,8 @@ public class Test1 {
                 "</BODY>\n" +
                 "\n" +
                 "</HTML>";
-      String path = "/Users/monkey/Desktop/test/未命名.docx";
-      htmlAsAltChunk2Docx(content,path);
+        String path = "/Users/monkey/Desktop/test/未命名.docx";
+        htmlAsAltChunk2Docx(content, path);
     }
 
     public void htmlAsAltChunk2Docx(String html, String docxPath) {
@@ -406,15 +406,9 @@ public class Test1 {
 
     @Test
     public void test02() {
-        Result parse = ToAnalysis.parse("用于金某接收贪污款项共计人民币380余万元");
+        Result parse = ToAnalysis.parse("2015年12月初至2016年1月7日");
         for (Term term : parse.getTerms()) {
-            System.out.println(term.getRealName());
-            for (int i = 0; i < 5; i++) {
-                if (i == 2) {
-                    System.out.println("--------------------------");
-                    break;
-                }
-            }
+            System.out.println(term.getNatureStr() + "--" + term.getRealName());
         }
     }
 

@@ -9,10 +9,10 @@ import com.ping.syncparse.common.DwbmCode;
 import com.ping.syncparse.entity.AreaEntity;
 import com.ping.syncparse.entity.PartyEntity;
 import com.ping.syncparse.service.AreaService;
-import com.ping.syncparse.service.TempMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.DicAnalysis;
+import org.ansj.splitWord.analysis.ToAnalysis;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -123,8 +123,7 @@ public class CriminalService {
                 }
             }).map(Dict::getName).collect(toSet());
 
-        } catch (
-                IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -132,10 +131,10 @@ public class CriminalService {
     AtomicInteger count = new AtomicInteger();
 
     public void parse() {
-        Criteria criteria = Criteria.where("docType").is("判决书").and("trialProceedings").is("民事一审");
+        Criteria criteria = Criteria.where("cause").is("故意伤害");
 
 
-        List<CriminalVO> entities = criminalMapper.findList(pageNum.get(), pageSize, null);
+        List<CriminalVO> entities = criminalMapper.findList(pageNum.get(), pageSize, criteria);
         pageNum.getAndIncrement();
         entities.parallelStream().forEach(entity -> {
             CriminalResultVO vo = new CriminalResultVO();
@@ -383,6 +382,109 @@ public class CriminalService {
                 }
             }
 
+            String fact = entity.getFact();
+            if ((StringUtils.isEmpty(fact) || (StringUtils.hasLength(fact) && fact.length() < 10)) && StringUtils.hasLength(entity.getHtmlContent())) {
+                Document parse = Jsoup.parse(entity.getHtmlContent());
+                String text = parse.text();
+                int index = text.indexOf("本院认为");
+                if (index > 0) {
+                    text = text.substring(0, index);
+                }
+                fact = text;
+            }
+            String[] sentences = fact.split("。");
+            for (String sentence : sentences) {
+                sentence = sentence.replace(";", "，");
+                sentence = sentence.replace("；", "，");
+                if (sentence.contains("审理查明")) {
+                    break;
+                }
+                String[] split = sentence.split("，");
+                for (int i = 0; i < split.length; i++) {
+                    String comma = split[i];
+                    comma = comma.replace("Ｏ", "0");
+                    comma = comma.replace("ｌ", "0");
+                    comma = comma.replace(" ", "");
+                    comma = comma.replace("日前", "日");
+                    comma = comma.replace("23月", "23个月");
+                    if (StringUtils.isEmpty(vo.getIncidentTime())) {
+                        String incidentTime = "";
+                        if (comma.contains("时许") || (comma.contains("年") && comma.contains("月") && comma.contains("日"))) {
+                            for (Term term : ToAnalysis.parse(comma)) {
+                                if (term.getRealName().contains("时") || term.getRealName().contains("许")) {
+                                    break;
+                                }
+                                if (incidentTime.contains("年") && incidentTime.contains("月") && incidentTime.contains("日")) {
+                                    break;
+                                }
+                                if (term.getRealName().contains("当日") || term.getRealName().contains("次日") || (term.getRealName().contains("年") && term.getRealName().length() <= 3)) {
+                                    continue;
+                                }
+                                if (term.getNatureStr().equals("t") && (term.getRealName().contains("年") || term.getRealName().contains("月") || term.getRealName().contains("日"))) {
+                                    incidentTime += term.getRealName();
+                                }
+                                if (term.getNatureStr().equals("m") && term.to() != null && term.to().getRealName().contains("月")) {
+                                    incidentTime += term.getRealName();
+                                }
+                            }
+                            if (StringUtils.isEmpty(vo.getIncidentTime()) && StringUtils.hasLength(incidentTime)) {
+                                vo.setIncidentTime(incidentTime);
+                                vo.setIncidentTimeContent(sentence);
+                            }
+
+                        }
+                    }
+
+                    if (StringUtils.isEmpty(vo.getHappeningPlace())) {
+                        if (comma.contains("被害人") && (comma.contains("省") || comma.contains("市") || comma.contains("区") || comma.contains("县") || comma.contains("镇") || comma.contains("自治区") || comma.contains("盟") || comma.contains("旗")) && !comma.contains("检察院") && !comma.contains("鉴定") && !comma.contains("解决纠纷")) {
+                            String happeningPlace = "";
+
+                            if (StringUtils.isEmpty(vo.getHappeningPlace())) {
+                                vo.setHappeningPlace(comma);
+                                vo.setHappeningPlaceContent(sentence);
+                            }
+                        }
+                    }
+
+                    if ((comma.contains("用") || comma.contains("持") || comma.contains("拿") || comma.contains("取")) && (comma.contains("扎") || comma.contains("刺") || comma.contains("打") || comma.contains("勒") || comma.contains("捅") || comma.contains("杀") || comma.contains("砍") || comma.contains("泼") || comma.contains("油") || comma.contains("击"))) {
+                        for (Term term : ToAnalysis.parse(comma)) {
+                            String name = term.getRealName();
+                            if ((name.contains("刀") || name.contains("棒") || name.contains("棍") || name.contains("斧") || name.contains("锄") || name.contains("拳") || name.contains("脚") || name.contains("水") || name.contains("杖"))) {
+                                vo.getWeapon().add(term.getRealName());
+                                vo.getWeaponContent().add(comma);
+                            }
+                        }
+                        vo.getMethod().add(comma);
+                        vo.getMethodContent().add(comma);
+
+                    }
+
+                }
+            }
+            String judgmentResult = entity.getJudgmentResult();
+            if (StringUtils.hasLength(judgmentResult)) {
+                judgmentResult = judgmentResult.replace("。", "；");
+                judgmentResult = judgmentResult.replace(";", "；");
+                String[] split = judgmentResult.split("；");
+                for (String temp : split) {
+                    if (temp.contains("经济损失")) {
+                        for (Term term : ToAnalysis.parse(temp)) {
+                            if (term.getNatureStr().equals("mq") && term.getRealName().contains("元")) {
+                                if (StringUtils.isEmpty(vo.getCompensate())) {
+                                    vo.setCompensate(term.getRealName());
+                                    vo.setCompensateContent(temp);
+                                }
+                            } else if (term.getNatureStr().equals("m") && term.from() != null && (term.from().getRealName().contains("人民币") || term.from().getRealName().contains("彩礼"))) {
+                                if (StringUtils.isEmpty(vo.getCompensate())) {
+                                    vo.setCompensate(term.getRealName());
+                                    vo.setCompensateContent(temp);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
 
             try {
                 for (PartyEntity entity1 : vo.getParty()) {
@@ -535,9 +637,7 @@ public class CriminalService {
             }
 
             if (StringUtils.isEmpty(party.getAddress())) {
-                if ((s.contains("省") || s.contains("自治区") || s.contains("兵团"))
-                        && (s.contains("市") || s.contains("自治州") || s.contains("盟"))
-                        && (s.contains("县") || s.contains("区") || s.contains("旗"))) {
+                if ((s.contains("省") || s.contains("自治区") || s.contains("兵团")) && (s.contains("市") || s.contains("自治州") || s.contains("盟")) && (s.contains("县") || s.contains("区") || s.contains("旗"))) {
                     if (!s.contains("检察院") && !s.contains("法院") && !s.contains("公安局") && !s.contains("公司") && !s.contains("看守所") && !s.contains("羁押")) {
                         party.setAddress(s);
                     }
@@ -546,9 +646,7 @@ public class CriminalService {
             }
 
             if (StringUtils.isEmpty(party.getAddress())) {
-                if ((s.contains("省") || s.contains("自治区") || s.contains("兵团"))
-                        || (s.contains("市") || s.contains("自治州") || s.contains("盟"))
-                        && (s.contains("县") || s.contains("区") || s.contains("旗"))) {
+                if ((s.contains("省") || s.contains("自治区") || s.contains("兵团")) || (s.contains("市") || s.contains("自治州") || s.contains("盟")) && (s.contains("县") || s.contains("区") || s.contains("旗"))) {
                     if (!s.contains("检察院") && !s.contains("法院") && !s.contains("公安局") && !s.contains("公司") && !s.contains("看守所") && !s.contains("羁押")) {
                         party.setAddress(s);
                     }
@@ -570,18 +668,7 @@ public class CriminalService {
                 }
             }
 
-            if (s.contains("文化")
-                    || s.contains("文盲")
-                    || s.contains("肄业")
-                    || s.contains("专科")
-                    || s.contains("本科")
-                    || s.contains("毕业")
-                    || s.contains("大学")
-                    || s.contains("研究生")
-                    || s.contains("硕士")
-                    || s.contains("博士")
-                    || s.contains("教授")
-                    || s.contains("院士")) {
+            if (s.contains("文化") || s.contains("文盲") || s.contains("肄业") || s.contains("专科") || s.contains("本科") || s.contains("毕业") || s.contains("大学") || s.contains("研究生") || s.contains("硕士") || s.contains("博士") || s.contains("教授") || s.contains("院士")) {
                 if (s.length() < 9) {
                     if (!StringUtils.hasText(party.getEduLevel())) {
                         party.setEduLevel(s);
@@ -680,7 +767,7 @@ public class CriminalService {
                 }
             }
             if (!StringUtils.hasLength(party.getFirsOffender())) {
-                if (s.contains("刑满释放") || s.contains("因犯") || s.contains("曾因") || s.contains("又因")||s.contains("再因")) {
+                if (s.contains("刑满释放") || s.contains("因犯") || s.contains("曾因") || s.contains("又因") || s.contains("再因")) {
                     party.setFirsOffender("否");
                 } else {
                     party.setFirsOffender("是");
