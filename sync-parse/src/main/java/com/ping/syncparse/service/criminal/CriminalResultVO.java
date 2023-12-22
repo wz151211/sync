@@ -5,6 +5,7 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.entity.PartyEntity;
+import com.ping.syncparse.service.CrimeVO;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -61,6 +62,9 @@ public class CriminalResultVO {
 
     @ExcelIgnore
     private List<PartyEntity> party = new ArrayList<>();
+
+    @ExcelIgnore
+    private List<CrimeVO> crimes = new ArrayList<>();
 
     @ExcelProperty(value = "判决结果", index = 11)
     private String judgmentResult;

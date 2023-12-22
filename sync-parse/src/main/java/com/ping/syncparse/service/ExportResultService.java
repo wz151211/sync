@@ -10,10 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.checkerframework.checker.units.qual.C;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.AltChunkType;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -34,18 +36,19 @@ public class ExportResultService {
 
     @Autowired
     private CaseXsMapper caseMapper;
-    private int pageSize = 70000;
+    private int pageSize = 100;
     private AtomicInteger pageNum = new AtomicInteger(-1);
 
     @Autowired
     private DocumentXsMapper documentXsMapper;
 
     public void export() {
+        Criteria criteria = Criteria.where("weapon").size(2);
+
         pageNum.getAndIncrement();
-        List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
+        List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, criteria);
         Workbook wb = new XSSFWorkbook();
-        String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县",
-                "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容"};
+        String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县", "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容", "案发时间", "案发时间内容", "案发地点", "案发地点内容", "凶器", "凶器内容", "方法", "方法内容", "最终赔偿", "最终赔偿内容"};
         Sheet sheet = wb.createSheet("案件信息");
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
@@ -121,7 +124,7 @@ public class ExportResultService {
             List<Map<Integer, Object>> crimeList = new ArrayList<>();
             List<Map<Integer, Object>> crimeList2 = new ArrayList<>();
 
-       /*     for (CaseVo vo : vos) {
+            for (CaseVo vo : vos) {
                 List<PartyEntity> party = vo.getParty();
                 if (party != null && party.size() > 0) {
                     Map<String, List<PartyEntity>> listMap = party.stream().filter(c -> org.springframework.util.StringUtils.hasLength(c.getType())).collect(Collectors.groupingBy(PartyEntity::getType));
@@ -134,14 +137,14 @@ public class ExportResultService {
                     if (entities != null && entities.size() > 0) {
                         for (int i = 0; i < entities.size(); i++) {
                             PartyEntity entity = entities.get(i);
-                        *//*    entity.setAge("");
+                            entity.setAge("");
                             try {
                                 if (StringUtils.isNotEmpty(entity.getAgeContent())) {
                                     entity.setAge(DateUtil.age(DateUtil.parse(entity.getAgeContent()), vo.getRefereeDate()) + "");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                            }*//*
+                            }
                             //   toParty(start, partyMap, entity);
                             Map<Integer, Object> partyMap2 = new HashMap<>();
                             partyMap2.put(1, vo.getCaseNo());
@@ -159,14 +162,14 @@ public class ExportResultService {
                                 break;
                             }
                             PartyEntity entity = bList.get(i);
-                     *//*       entity.setAge("");
+                            entity.setAge("");
                             try {
                                 if (StringUtils.isNotEmpty(entity.getAgeContent())) {
                                     entity.setAge(DateUtil.age(DateUtil.parse(entity.getAgeContent()), vo.getRefereeDate()) + "");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                            }*//*
+                            }
                             //     toParty(start, partyMap, entity);
                             Map<Integer, Object> partyMap2 = new HashMap<>();
                             partyMap2.put(1, vo.getCaseNo());
@@ -206,15 +209,15 @@ public class ExportResultService {
                 } else {
                     crimeList.add(new HashMap<>());
                 }
-            }*/
-    /*        Sheet partySheet = wb.createSheet("当事人信息");
+            }
+     /*       Sheet partySheet = wb.createSheet("当事人信息");
             ExcelUtils.export(wb, partySheet, partyList, partyHead.toArray());*/
 
-            // Sheet partySheet2 = wb.createSheet("当事人信息");
-            // ExcelUtils.export(wb, partySheet2, partyList2, partyHead2.toArray());
+            Sheet partySheet2 = wb.createSheet("当事人信息");
+            ExcelUtils.export(wb, partySheet2, partyList2, partyHead2.toArray());
+            Sheet crimeSheet = wb.createSheet("判决结果");
+            ExcelUtils.export(wb, crimeSheet, crimeList2, crimeHead2.toArray());
 
-            //   Sheet crimeSheet = wb.createSheet("判决结果");
-            //   ExcelUtils.export(wb, crimeSheet, crimeList2, crimeHead2.toArray());
             wb.write(out);
             System.out.println("导出完成");
         } catch (FileNotFoundException e) {
@@ -349,8 +352,54 @@ public class ExportResultService {
         } else {
             map.put(18, "");
         }
-      //  map.put(19, vo.getArray().toJSONString());
+        map.put(19, vo.getIncidentTime());
+        map.put(20, vo.getIncidentTimeContent());
 
+        map.put(21, vo.getHappeningPlace());
+        map.put(22, vo.getHappeningPlaceContent());
+
+        if (vo.getWeapon().size() > 0) {
+            StringBuilder str = new StringBuilder();
+            int index = 1;
+            for (String weapon : vo.getWeapon()) {
+                str.append(index).append("、").append(weapon).append("\r\n");
+                index++;
+            }
+            map.put(23, str.toString());
+        }
+
+        if (vo.getWeaponContent().size() > 0) {
+            StringBuilder str = new StringBuilder();
+            int index = 1;
+            for (String weapon : vo.getWeaponContent()) {
+                str.append(index).append("、").append(weapon).append("\r\n");
+                index++;
+            }
+            map.put(24, str.toString());
+        }
+
+        if (vo.getMethod().size() > 0) {
+            StringBuilder str = new StringBuilder();
+            int index = 1;
+            for (String weapon : vo.getMethod()) {
+                str.append(index).append("、").append(weapon).append("\r\n");
+                index++;
+            }
+            map.put(25, str.toString());
+        }
+
+        if (vo.getMethodContent().size() > 0) {
+            StringBuilder str = new StringBuilder();
+            int index = 1;
+            for (String weapon : vo.getMethodContent()) {
+                str.append(index).append("、").append(weapon).append("\r\n");
+                index++;
+            }
+            map.put(26, str.toString());
+        }
+
+        map.put(27, vo.getCompensate());
+        map.put(28, vo.getCompensateContent());
         return map;
 
     }

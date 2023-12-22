@@ -9,6 +9,7 @@ import com.ping.syncparse.common.DwbmCode;
 import com.ping.syncparse.entity.AreaEntity;
 import com.ping.syncparse.entity.PartyEntity;
 import com.ping.syncparse.service.AreaService;
+import com.ping.syncparse.service.CrimeVO;
 import lombok.extern.slf4j.Slf4j;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.DicAnalysis;
@@ -445,18 +446,28 @@ public class CriminalService {
                             }
                         }
                     }
-
-                    if ((comma.contains("用") || comma.contains("持") || comma.contains("拿") || comma.contains("取")) && (comma.contains("扎") || comma.contains("刺") || comma.contains("打") || comma.contains("勒") || comma.contains("捅") || comma.contains("杀") || comma.contains("砍") || comma.contains("泼") || comma.contains("油") || comma.contains("击"))) {
-                        for (Term term : ToAnalysis.parse(comma)) {
+                    String temp = "";
+                    if (i > 0) {
+                        temp = split[i - 1] + "，" + comma;
+                    } else {
+                        temp = comma;
+                    }
+                    if ((temp.contains("用") || temp.contains("持") || temp.contains("拿") || temp.contains("取") || temp.contains("多次") || temp.contains("抢过")) && (temp.contains("扎") || temp.contains("刺") || temp.contains("打") || temp.contains("勒") || temp.contains("捅") || temp.contains("杀") || temp.contains("砍") || temp.contains("泼") || temp.contains("油") || temp.contains("击") || temp.contains("挖") || temp.contains("踹") || temp.contains("踢"))) {
+                        for (Term term : ToAnalysis.parse(temp)) {
                             String name = term.getRealName();
                             if ((name.contains("刀") || name.contains("棒") || name.contains("棍") || name.contains("斧") || name.contains("锄") || name.contains("拳") || name.contains("脚") || name.contains("水") || name.contains("杖"))) {
                                 vo.getWeapon().add(term.getRealName());
-                                vo.getWeaponContent().add(comma);
+                                vo.getWeaponContent().add(temp);
                             }
                         }
+                        vo.getMethod().add(temp);
+                        vo.getMethodContent().add(temp);
+
+                    }
+
+                    if (vo.getWeapon().size() == 0 && comma.contains("多次殴打")) {
                         vo.getMethod().add(comma);
                         vo.getMethodContent().add(comma);
-
                     }
 
                 }
@@ -478,6 +489,133 @@ public class CriminalService {
                                 if (StringUtils.isEmpty(vo.getCompensate())) {
                                     vo.setCompensate(term.getRealName());
                                     vo.setCompensateContent(temp);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            if ("刑事案件".equals(entity.getCaseType())) {
+                String s27 = entity.getJudgmentResult();
+                if (StringUtils.isEmpty(s27) && StringUtils.hasLength(entity.getHtmlContent())) {
+                    String text = Jsoup.parse(entity.getHtmlContent()).text();
+                    int index = text.indexOf("判决如下");
+                    if (index > 0) {
+                        s27 = text.substring(index);
+                    }
+
+                }
+                if (StringUtils.hasLength(s27)) {
+                    String replace = s27.replace("；", "。");
+                    replace = replace.replace("\n", "。");
+                    replace = replace.replace(";", "。");
+                    String[] split = replace.split("。");
+                    List<PartyEntity> array = vo.getParty();
+                    Set<String> set = new HashSet<>();
+                    if (array != null && array.size() > 0) {
+                        set = array.stream().map(c -> c.getName()).collect(toSet());
+
+                    } else {
+                        if (entity.getParty() != null && entity.getParty().size() > 0) {
+                            for (Object o : entity.getParty()) {
+                                set.add(o.toString());
+                            }
+
+                        }
+                    }
+                    if (set != null && set.size() > 0) {
+                        boolean isUnitCrime = false;
+                        for (String o : set) {
+                            if (StringUtils.hasLength(o) && o.contains("公司")) {
+                                isUnitCrime = true;
+                            }
+                        }
+                        for (String o : set) {
+                            for (String s : split) {
+                                if (StringUtils.isEmpty(s) || o == null || StringUtils.isEmpty(o)) {
+                                    log.info("party={}", o);
+                                    log.info("s={}", s);
+                                    continue;
+                                }
+                                if (s.contains(o) && s.contains("犯") && s.contains("罪")) {
+                                    CrimeVO crimeVO = new CrimeVO();
+                                    if (isUnitCrime) {
+                                        crimeVO.setUnitCrime("是");
+                                        crimeVO.setDoublePenalty("是");
+                                    } else {
+                                        crimeVO.setUnitCrime("否");
+                                        crimeVO.setDoublePenalty("否");
+                                    }
+                                    if (vo.getParty() != null) {
+                                        for (PartyEntity party : vo.getParty()) {
+                                            if (party != null && party.getName() != null && party.getName().equals(o)) {
+                                                crimeVO.setEduLevel(party.getEduLevel());
+
+                                            }
+                                        }
+                                    }
+
+                                    crimeVO.setName(o);
+
+                                    for (String cause : causeSet) {
+                                        if (s.contains(cause)) {
+                                            if (StringUtils.hasLength(crimeVO.getCrime())) {
+                                                crimeVO.setCrime(crimeVO.getCrime() + "、" + cause + "罪");
+                                            } else {
+                                                crimeVO.setCrime(cause + "罪");
+                                            }
+                                        }
+                                    }
+                                    if (StringUtils.isEmpty(crimeVO.getCrime())) {
+                                        String comma = s.replace(",", "，");
+                                        for (String s1 : comma.split("，")) {
+                                            if (s1.contains("犯") && s1.contains("罪")) {
+                                                int start = s1.indexOf("犯");
+                                                int end = s1.indexOf("罪");
+                                                if (end > start) {
+                                                    String crime = null;
+                                                    try {
+                                                        crime = s1.substring(start + 1, end + 1);
+                                                    } catch (Exception e) {
+                                                        log.error("罪名={}", s1);
+                                                    }
+                                                    if (StringUtils.hasLength(crimeVO.getCrime())) {
+                                                        crimeVO.setCrime(crimeVO.getCrime() + "、" + crime + "罪");
+                                                    } else {
+                                                        crimeVO.setCrime(crime + "罪");
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    try {
+                                        if (s.contains("有期徒刑") && s.contains("月")) {
+                                            int start = s.indexOf("有期徒刑");
+                                            int end = s.indexOf("月") + 1;
+                                            String s1 = s.substring(start, end);
+                                            crimeVO.setImprisonmentTerm(s1);
+                                        } else if (s.contains("有期徒刑") && s.contains("年")) {
+                                            String s1 = s.substring(s.indexOf("有期徒刑"), s.indexOf("年") + 1);
+                                            crimeVO.setImprisonmentTerm(s1);
+                                        } else if (s.contains("死刑")) {
+                                            crimeVO.setImprisonmentTerm("死刑");
+                                        } else if (s.contains("无期徒刑")) {
+                                            crimeVO.setImprisonmentTerm("无期徒刑");
+                                        } else if (s.contains("拘役") && s.contains("月")) {
+                                            String s1 = s.substring(s.indexOf("拘役"), s.lastIndexOf("月") + 1);
+                                            crimeVO.setImprisonmentTerm(s1);
+                                        } else if (s.contains("免予刑事处罚")) {
+                                            crimeVO.setImprisonmentTerm("免予刑事处罚");
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        log.error("判决={}", s);
+                                    }
+                                    crimeVO.setContent(s);
+                                    vo.getCrimes().add(crimeVO);
+                                    break;
                                 }
                             }
                         }

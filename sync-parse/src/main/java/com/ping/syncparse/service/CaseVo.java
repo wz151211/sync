@@ -25,7 +25,7 @@ import java.util.*;
 @HeadRowHeight(25)
 @HeadStyle
 @HeadFontStyle(fontHeightInPoints = 12)
-@Document(value = "document_xinxingzhuanli_result")
+@Document(value = "document_sharen_result")
 public class CaseVo {
 
     @Id
@@ -171,6 +171,29 @@ public class CaseVo {
     //诊断评估意见
     private String evaluationOpinions;
     // private JSONArray array = new JSONArray();
+
+
+    //案发时间
+    private String incidentTime;
+
+    private String incidentTimeContent;
+
+    //案发地点
+    private String happeningPlace;
+
+    private String happeningPlaceContent;
+
+    //凶器
+    private Set<String> weapon = new HashSet<>();
+    private Set<String> weaponContent = new HashSet<>();
+
+    //方法
+    private Set<String> method = new HashSet<>();
+    private Set<String> methodContent = new HashSet<>();
+
+    //赔偿
+    private String compensate;
+    private String compensateContent;
 
 
 }
