@@ -21,6 +21,7 @@ import org.ansj.domain.Term;
 import org.ansj.library.DicLibrary;
 import org.ansj.recognition.arrimpl.UserDefineRecognition;
 import org.ansj.splitWord.analysis.DicAnalysis;
+import org.ansj.splitWord.analysis.IndexAnalysis;
 import org.ansj.splitWord.analysis.NlpAnalysis;
 import org.ansj.splitWord.analysis.ToAnalysis;
 import org.ansj.util.MyStaticValue;
@@ -406,7 +407,7 @@ public class Test1 {
 
     @Test
     public void test02() {
-        Result parse = ToAnalysis.parse("2015年12月初至2016年1月7日");
+        Result parse = NlpAnalysis.parse("被告人唐建明在安和乡六合村委卫生所门前的空地上，持铁锤将正在打牌的唐重友头部打伤后潜逃外地");
         for (Term term : parse.getTerms()) {
             System.out.println(term.getNatureStr() + "--" + term.getRealName());
         }

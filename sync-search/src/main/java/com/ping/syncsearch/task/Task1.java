@@ -82,10 +82,9 @@ public class Task1 {
     // Criteria criteria = Criteria.where("s8").is("行政案件").and("qwContent").regex("入赘").andOperator(Criteria.where("qwContent").regex("土地"));
     // Criteria criteria = Criteria.where("s8").is("刑事案件").and("qwContent").regex("职务犯罪");
     // Criteria criteria = Criteria.where("s11").is("民间借贷纠纷").and("s6").is("01").and("s8").is("民事案件");
-   //  Criteria criteria = Criteria.where("s6").is("01").and("s8").is("民事案件");
+    //  Criteria criteria = Criteria.where("s6").is("01").and("s8").is("民事案件");
 
-  //   Criteria criteria = Criteria.where("s9").in("刑事一审", "0201").and("s6").is("01").and("s11").is("强奸");
-
+    //   Criteria criteria = Criteria.where("s9").in("刑事一审", "0201").and("s6").is("01").and("s11").is("强奸");
 
 
     List<String> city = new ArrayList<>();
@@ -125,19 +124,21 @@ public class Task1 {
     // Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").in(CauseUtils.getCauseList("9363"));
     // Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").in(CauseUtils.getCauseList("9047"));
     // Criteria criteria = Criteria.where("s11").is("侵害发明专利权纠纷");
-   // Criteria criteria = Criteria.where("s11").is("侵害实用新型专利权纠纷");
+    // Criteria criteria = Criteria.where("s11").is("侵害实用新型专利权纠纷");
     // Criteria criteria = Criteria.where("s8").is("民事案件");
 
     // Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").is("离婚后财产纠纷").and("s6").is("01");
     // Criteria criteria = Criteria.where("s31").gte("2021-10-01");
 
-   //  Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").in(CauseUtils.getCauseList("9299"));
+    //   Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").in(CauseUtils.getCauseList("9299"));
 
-   // Criteria criteria = Criteria.where("s8").is("民事案件").and("qwContent").regex("妇女").andOperator(Criteria.where("qwContent").regex("农村土地"));
+    // Criteria criteria = Criteria.where("s8").is("民事案件").and("qwContent").regex("妇女").andOperator(Criteria.where("qwContent").regex("农村土地"));
 
 
-    Criteria criteria = Criteria.where("s8").is("刑事案件").and("s9").in("刑事一审", "0201").and("s6").is("01").and("qwContent").regex("杀人");
-
+    //  Criteria criteria = Criteria.where("s11").is("猥亵儿童").and("s6").is("01");
+    //  Criteria criteria = Criteria.where("s8").is("刑事案件").and("s9").in("刑事一审", "0201").and("s6").is("01").and("qwContent").regex("杀人");
+    Criteria criteria = Criteria.where("s11").is("民间借贷纠纷").and("s6").is("01").and("s8").is("民事案件");
+    //Criteria criteria = Criteria.where("s6").is("01").and("s8").is("民事案件");
 
     {
         Set<String> causeList = CauseUtils.getCauseList("9299");
@@ -149,7 +150,7 @@ public class Task1 {
 
     }
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
+  //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2014() {
         try {
             queryService.sync2014(criteria);
@@ -159,7 +160,7 @@ public class Task1 {
     }
 
 
-    @Scheduled(initialDelay = 4 * 1000L, fixedRate = 1000 * 60 * 3L)
+  ///  @Scheduled(initialDelay = 4 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void sync2015() {
         try {
             queryService.sync2015(criteria);
@@ -168,7 +169,7 @@ public class Task1 {
         }
     }
 
-    @Scheduled(initialDelay = 6 * 1000L, fixedRate = 1000 * 60 * 3L)
+  //  @Scheduled(initialDelay = 6 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2016() {
         try {
             queryService.sync2016(criteria);
@@ -177,7 +178,7 @@ public class Task1 {
         }
     }
 
-    @Scheduled(initialDelay = 8 * 1000L, fixedRate = 1000 * 60 * 3L)
+ //   @Scheduled(initialDelay = 8 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2017() {
         try {
             queryService.sync2017(criteria);
@@ -213,7 +214,7 @@ public class Task1 {
         }
     }
 
-    @Scheduled(initialDelay = 16 * 1000L, fixedRate = 1000 * 60 * 3L)
+   // @Scheduled(initialDelay = 16 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2021() {
         try {
             queryService.sync2021(criteria);
@@ -222,7 +223,7 @@ public class Task1 {
         }
     }
 
-    @Scheduled(initialDelay = 18 * 1000L, fixedRate = 1000 * 60 * 3L)
+  //  @Scheduled(initialDelay = 18 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2022() {
         try {
             queryService.sync2022(criteria);
@@ -231,7 +232,7 @@ public class Task1 {
         }
     }
 
-    @Scheduled(initialDelay = 20 * 1000L, fixedRate = 1000 * 60 * 3L)
+  //  @Scheduled(initialDelay = 20 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2023() {
         try {
             queryService.sync2023(criteria);

@@ -45,9 +45,9 @@ public class QueryService {
     private AtomicInteger pageNum2015 = new AtomicInteger(-1);
     private AtomicInteger pageNum2016 = new AtomicInteger(-1);
     private AtomicInteger pageNum2017 = new AtomicInteger(-1);
-    private AtomicInteger pageNum2018 = new AtomicInteger(-1);
-    private AtomicInteger pageNum2019 = new AtomicInteger(-1);
-    private AtomicInteger pageNum2020 = new AtomicInteger(-1);
+    private AtomicInteger pageNum2018 = new AtomicInteger(84);
+    private AtomicInteger pageNum2019 = new AtomicInteger(80);
+    private AtomicInteger pageNum2020 = new AtomicInteger(72);
     private AtomicInteger pageNum2021 = new AtomicInteger(-1);
     private AtomicInteger pageNum2022 = new AtomicInteger(-1);
     private AtomicInteger pageNum2023 = new AtomicInteger(-1);

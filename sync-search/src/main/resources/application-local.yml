@@ -1,5 +1,5 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27018/ws
+      uri: mongodb://localhost:27017/ws
 order: desc

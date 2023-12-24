@@ -13,6 +13,7 @@ import com.ping.syncparse.service.CrimeVO;
 import lombok.extern.slf4j.Slf4j;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.DicAnalysis;
+import org.ansj.splitWord.analysis.NlpAnalysis;
 import org.ansj.splitWord.analysis.ToAnalysis;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
@@ -133,6 +134,7 @@ public class CriminalService {
 
     public void parse() {
         Criteria criteria = Criteria.where("cause").is("故意伤害");
+        //Criteria criteria = Criteria.where("caseNo").is("（2017）豫03刑初12号");
 
 
         List<CriminalVO> entities = criminalMapper.findList(pageNum.get(), pageSize, criteria);
@@ -204,9 +206,10 @@ public class CriminalService {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+            Document parse = null;
             if (entity.getHtmlContent() != null && entity.getJsonContent() != null && entity.getJsonContent().size() > 0) {
                 PartyEntity party = null;
-                Document parse = Jsoup.parse(entity.getHtmlContent());
+                parse = Jsoup.parse(entity.getHtmlContent());
 
                 Elements elements = new Elements();
                 Elements trs = parse.getElementsByTag("tr");
@@ -383,21 +386,46 @@ public class CriminalService {
                 }
             }
 
-            String fact = entity.getFact();
-            if ((StringUtils.isEmpty(fact) || (StringUtils.hasLength(fact) && fact.length() < 10)) && StringUtils.hasLength(entity.getHtmlContent())) {
-                Document parse = Jsoup.parse(entity.getHtmlContent());
-                String text = parse.text();
-                int index = text.indexOf("本院认为");
-                if (index > 0) {
-                    text = text.substring(0, index);
+            String fact = null;
+            if (parse != null) {
+                Elements elements = parse.getAllElements();
+                for (Element element : elements) {
+                    String name = element.tagName();
+                    if (name.equals("html") || name.equals("body") || name.contains("root")) {
+                        continue;
+                    }
+                    String text = element.text();
+                    if (text.contains("异议")) {
+                        continue;
+                    }
+                    if (text.contains("检察院指控") && StringUtils.isEmpty(fact)) {
+                        fact = text;
+                    }
+                    if (text.contains("机关指控") && StringUtils.isEmpty(fact)) {
+                        fact = text;
+                    }
+                    if (text.contains("审理查明") && StringUtils.isEmpty(fact)) {
+                        fact = text;
+                    }
                 }
-                fact = text;
             }
+            if (StringUtils.isEmpty(fact)) {
+                fact = entity.getFact();
+                if ((StringUtils.isEmpty(fact) || (StringUtils.hasLength(fact) && fact.length() < 10)) && StringUtils.hasLength(entity.getHtmlContent())) {
+                    String text = parse.text();
+                    int index = text.indexOf("本院认为");
+                    if (index > 0) {
+                        text = text.substring(0, index);
+                    }
+                    fact = text;
+                }
+            }
+
             String[] sentences = fact.split("。");
             for (String sentence : sentences) {
                 sentence = sentence.replace(";", "，");
                 sentence = sentence.replace("；", "，");
-                if (sentence.contains("审理查明")) {
+                if (sentence.contains("审理查明") && StringUtils.hasLength(vo.getIncidentTime())) {
                     break;
                 }
                 String[] split = sentence.split("，");
@@ -408,7 +436,7 @@ public class CriminalService {
                     comma = comma.replace(" ", "");
                     comma = comma.replace("日前", "日");
                     comma = comma.replace("23月", "23个月");
-                    if (StringUtils.isEmpty(vo.getIncidentTime())) {
+                    if (StringUtils.isEmpty(vo.getIncidentTime()) && !comma.contains("放弃")) {
                         String incidentTime = "";
                         if (comma.contains("时许") || (comma.contains("年") && comma.contains("月") && comma.contains("日"))) {
                             for (Term term : ToAnalysis.parse(comma)) {
@@ -437,36 +465,110 @@ public class CriminalService {
                     }
 
                     if (StringUtils.isEmpty(vo.getHappeningPlace())) {
-                        if (comma.contains("被害人") && (comma.contains("省") || comma.contains("市") || comma.contains("区") || comma.contains("县") || comma.contains("镇") || comma.contains("自治区") || comma.contains("盟") || comma.contains("旗")) && !comma.contains("检察院") && !comma.contains("鉴定") && !comma.contains("解决纠纷")) {
-                            String happeningPlace = "";
 
-                            if (StringUtils.isEmpty(vo.getHappeningPlace())) {
-                                vo.setHappeningPlace(comma);
+
+                        if ((comma.contains("省") || comma.contains("兵团") || comma.contains("自治区") || comma.contains("市") || comma.contains("盟") || comma.contains("自治州") || comma.contains("区") || comma.contains("县") || comma.contains("旗") || comma.contains("小区") || comma.contains("村") || comma.contains("镇") || comma.contains("乡") || comma.contains("胡同") || comma.contains("室") || comma.contains("单元")) && !comma.contains("检察院") && !comma.contains("鉴定") && !comma.contains("送往") && !comma.contains("解决纠纷") && !comma.contains("市场") && !comma.contains("归案")) {
+                            if (comma.contains("在") && comma.contains("内")) {
+                                int start = comma.indexOf("在");
+                                int end = comma.indexOf("内");
+                                if (end == -1) {
+                                    end = comma.indexOf("家中");
+                                }
+                                if (end == -1) {
+                                    end = comma.indexOf("附近");
+                                }
+                                if (end == -1) {
+                                    end = comma.indexOf("门口");
+                                }
+                                if (end == -1) {
+                                    end = comma.indexOf("对面");
+                                }
+                                if (start > -1 && end > -1 && start < end && (end - start > 2)) {
+                                    String temp = comma.substring(start + 1, end);
+                                    vo.setHappeningPlace(temp);
+                                    vo.setHappeningPlaceContent(sentence);
+                                }
+                            }
+
+
+                            String happeningPlace = "";
+                            for (Term term : NlpAnalysis.parse(comma)) {
+                                String name = term.getRealName();
+
+                                if (name.contains("同村") || name.contains("村民") || name.contains("本村") || name.contains("公安局") || name.contains("本市") || name.contains("本县")) {
+                                    continue;
+                                }
+
+                                if (name.contains("店") || name.contains("超市") || name.contains("歌厅") || name.contains("KTV")) {
+                                    if (!happeningPlace.contains(name)) {
+                                        happeningPlace += name;
+                                    }
+                                }
+                                if (name.contains("室") || name.contains("胡同") || name.contains("村") || name.contains("号") || name.contains("街道") || name.contains("楼") || name.contains("栋")) {
+                                    if (!happeningPlace.contains(name)) {
+                                        happeningPlace += name;
+                                    }
+                                }
+                                if (name.contains("小区") || name.contains("村") || name.contains("单元") || name.contains("总场") || name.contains("分场")) {
+                                    if (!happeningPlace.contains(name)) {
+                                        happeningPlace += name;
+                                    }
+                                }
+                                if (name.contains("镇") || name.contains("乡") || name.contains("旗") || name.contains("苏木")) {
+                                    if (!happeningPlace.contains(name)) {
+                                        happeningPlace += name;
+                                    }
+                                }
+                                if (name.contains("县") || name.contains("林区") || name.contains("旗") || name.contains("区")) {
+                                    if (!happeningPlace.contains(name)) {
+                                        happeningPlace += name;
+                                    }
+                                }
+                                if (name.contains("市") || name.contains("自治州") || name.contains("盟")) {
+                                    if (!happeningPlace.contains(name)) {
+                                        happeningPlace += name;
+                                    }
+                                }
+                                if (name.contains("省") || name.contains("自治区") || name.contains("兵团")) {
+                                    if (!happeningPlace.contains(name)) {
+                                        happeningPlace += name;
+                                    }
+                                }
+                            }
+                            if (StringUtils.hasLength(happeningPlace) && happeningPlace.length() > 2 && StringUtils.isEmpty(vo.getHappeningPlace())) {
+                                vo.setHappeningPlace(happeningPlace);
                                 vo.setHappeningPlaceContent(sentence);
                             }
                         }
                     }
+
                     String temp = "";
                     if (i > 0) {
                         temp = split[i - 1] + "，" + comma;
                     } else {
                         temp = comma;
                     }
-                    if ((temp.contains("用") || temp.contains("持") || temp.contains("拿") || temp.contains("取") || temp.contains("多次") || temp.contains("抢过")) && (temp.contains("扎") || temp.contains("刺") || temp.contains("打") || temp.contains("勒") || temp.contains("捅") || temp.contains("杀") || temp.contains("砍") || temp.contains("泼") || temp.contains("油") || temp.contains("击") || temp.contains("挖") || temp.contains("踹") || temp.contains("踢"))) {
+                    if ((temp.contains("用") || temp.contains("持") || temp.contains("捡") || temp.contains("拿") || temp.contains("取") || temp.contains("多次") || temp.contains("抢过") || temp.contains("抓") || temp.contains("倒") || temp.contains("携带")) && (temp.contains("扎") || temp.contains("刺") || temp.contains("打") || temp.contains("勒") || temp.contains("捅") || temp.contains("杀") || temp.contains("砍") || temp.contains("泼") || temp.contains("油") || temp.contains("击") || temp.contains("挖") || temp.contains("踹") || temp.contains("踢") || temp.contains("砸"))) {
                         for (Term term : ToAnalysis.parse(temp)) {
                             String name = term.getRealName();
-                            if ((name.contains("刀") || name.contains("棒") || name.contains("棍") || name.contains("斧") || name.contains("锄") || name.contains("拳") || name.contains("脚") || name.contains("水") || name.contains("杖"))) {
+                            if ((name.contains("刀") || name.contains("棒") || name.contains("耙") || name.contains("棍") || name.contains("斧") || name.contains("锄") || name.contains("拳") || name.contains("脚") || name.contains("水") || name.contains("杖") || name.contains("镐把") || name.contains("石") || name.contains("凳子"))) {
                                 vo.getWeapon().add(term.getRealName());
                                 vo.getWeaponContent().add(temp);
                             }
+                            if (term.getNatureStr().equals("v")) {
+                                vo.getMethod().add(name);
+                            }
                         }
-                        vo.getMethod().add(temp);
-                        vo.getMethodContent().add(temp);
 
+                        vo.getMethodContent().add(temp);
                     }
 
-                    if (vo.getWeapon().size() == 0 && comma.contains("多次殴打")) {
-                        vo.getMethod().add(comma);
+                    if (vo.getWeapon().size() == 0 && comma.contains("多次殴打") && comma.contains("互殴")) {
+                        for (Term term : ToAnalysis.parse(comma)) {
+                            if (term.getNatureStr().equals("v")) {
+                                vo.getMethod().add(term.getRealName());
+                            }
+                        }
                         vo.getMethodContent().add(comma);
                     }
 
