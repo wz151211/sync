@@ -187,7 +187,7 @@ public class Task1 {
         }
     }
 
-    @Scheduled(initialDelay = 10 * 1000L, fixedRate = 1000 * 60 * 3L)
+  //  @Scheduled(initialDelay = 10 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2018() {
         try {
             queryService.sync2018(criteria);
@@ -196,7 +196,7 @@ public class Task1 {
         }
     }
 
-    @Scheduled(initialDelay = 12 * 1000L, fixedRate = 1000 * 60 * 3L)
+   // @Scheduled(initialDelay = 12 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2019() {
         try {
             queryService.sync2019(criteria);
@@ -214,7 +214,7 @@ public class Task1 {
         }
     }
 
-   // @Scheduled(initialDelay = 16 * 1000L, fixedRate = 1000 * 60 * 3L)
+    @Scheduled(initialDelay = 16 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2021() {
         try {
             queryService.sync2021(criteria);

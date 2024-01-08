@@ -37,7 +37,7 @@ public class ExportContractService {
     @Autowired
     private ContractResultMapper contractResultMapper;
 
-    private int pageSize = 2000;
+    private int pageSize = 40000;
     private AtomicInteger pageNum = new AtomicInteger(-1);
 
     public void export() {
@@ -131,7 +131,7 @@ public class ExportContractService {
                     partyList.add(partyMap);
                     int start = 0;
                     int count = 0;
-                    List<PartyEntity> entities = listMap.get("原告");
+                /*    List<PartyEntity> entities = listMap.get("原告");
                     if (entities != null && entities.size() > 0) {
                         for (int i = 0; i < entities.size(); i++) {
                             PartyEntity entity = entities.get(i);
@@ -151,7 +151,7 @@ public class ExportContractService {
                             start += 13;
                             count++;
                         }
-                    }
+                    }*/
 
                     List<PartyEntity> bList = listMap.get("被告");
                     if (bList != null && bList.size() > 0) {

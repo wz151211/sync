@@ -16,7 +16,7 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@TableName(value = "document_tudi_nongcuntudi")
+@TableName(value = "document")
 public class TempDocumentEntity {
 
     @TableId(type = IdType.INPUT)
@@ -82,4 +82,66 @@ public class TempDocumentEntity {
 
     @TableField("county")
     private String county;
+
+    @TableField("loan_amount1")
+    private String loanAmount1;
+    @TableField("loan_amount_content1")
+    private String loanAmountContent1;
+
+    @TableField("loan_amount2")
+    private String loanAmount2;
+
+    @TableField("loan_amount_content2")
+    private String loanAmountContent2;
+    //借款开始时间
+    @TableField("contract_start_date1")
+    private String contractStartDate1;
+
+    @TableField("contract_start_date_content1")
+    private String contractStartDateContent1;
+
+    @TableField("contract_start_date2")
+    private String contractStartDate2;
+    @TableField("contract_start_date_content2")
+    private String contractStartDateContent2;
+    //借款结束时间
+    @TableField("contract_end_date1")
+    private String contractEndDate1;
+    @TableField("contract_end_date_content1")
+    private String contractEndDateContent1;
+
+    @TableField("contract_end_date2")
+    private String contractEndDate2;
+
+    @TableField("contract_end_date_content2")
+    private String contractEndDateContent2;
+
+    //借款利率
+    @TableField("loan_rate1")
+    private String loanRate1;
+    @TableField("loan_rate_content1")
+    private String loanRateContent1;
+
+    @TableField("loan_rate2")
+    private String loanRate2;
+    @TableField("loan_rate_content2")
+    private String loanRateContent2;
+
+    //借款利率
+    @TableField("rate_type1")
+    private String rateType1;
+    @TableField("rate_type2")
+    private String rateType2;
+
+    @TableField("rate_term1")
+    private String rateTerm1;
+
+    @TableField("rate_term2")
+    private String rateTerm2;
+
+    //期限
+    @TableField("term")
+    private Integer term;
+    @TableField("term_content")
+    private String termContent;
 }

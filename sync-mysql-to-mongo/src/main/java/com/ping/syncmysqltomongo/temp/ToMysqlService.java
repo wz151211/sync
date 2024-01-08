@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ping.syncmysqltomongo.mongo.entity.BaseEntity;
 import com.ping.syncmysqltomongo.mongo.temp.*;
+import com.ping.syncmysqltomongo.mysql.temp.PartyMapper;
 import com.ping.syncmysqltomongo.mysql.temp.TempDocumentEntity;
 import com.ping.syncmysqltomongo.mysql.temp.TempDocumentMapper;
 import com.ping.syncmysqltomongo.utils.BeanUtils;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -79,6 +81,8 @@ public class ToMysqlService {
 
     @Autowired
     private DocumentFinanceMapper financeMapper;
+    @Autowired
+    private PartyMapper partyMapper;
 
     public void sync3() {
         log.info("pageNum={}", pageNum.get());
@@ -88,9 +92,22 @@ public class ToMysqlService {
             TempDocumentEntity tempDocument = new TempDocumentEntity();
             // convert(entity, tempDocument);
             // BaseEntity base = BeanUtils.toEntity(entity);
+            org.springframework.beans.BeanUtils.copyProperties(entity,tempDocument);
             convert1(entity, tempDocument);
+            for (PartyEntity partyEntity : entity.getParty()) {
+
+                partyEntity.setId(UUID.randomUUID().toString().replace("-", ""));
+                partyEntity.setCaseId(entity.getId());
+                try {
+                    partyMapper.insert(partyEntity);
+                } catch (Exception e) {
+                   e.printStackTrace();
+                }
+            }
+
             try {
                 tempDocumentMapper.insert(tempDocument);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -189,7 +206,7 @@ public class ToMysqlService {
                 partyEntity.setCaseNo(entity.getCaseNo());
                 partyEntity.setType(entity.getType());
                 partyEntity.setName(entity.getName());
-                partyEntity.setIdCard(null);
+                //   partyEntity.setIdCard(null);
                 partyEntity.setContent(entity.getContent());
                 list.add(partyEntity);
             }

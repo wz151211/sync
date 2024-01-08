@@ -1,6 +1,8 @@
 package com.ping.syncparse.task;
 
 import com.ping.syncparse.service.*;
+import com.ping.syncparse.service.borrow.BorrowService;
+import com.ping.syncparse.service.borrow.ParseBorrowtService;
 import com.ping.syncparse.service.contract.ContractService;
 import com.ping.syncparse.service.contract.ContractStatisticsService;
 import com.ping.syncparse.service.contract.ExportContractService;
@@ -27,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-//@Component
-//@Async
+@Component
+@Async
 @Slf4j
 public class Task {
 
@@ -144,7 +146,7 @@ public class Task {
     @Autowired
     private ExportResultService exportResultService;
 
-    // @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 60L)
+    //  @Scheduled(initialDelay = 3 * 1000L, fixedRate = 1000 * 60L)
     public void test12() {
         exportResultService.export();
     }
@@ -165,7 +167,7 @@ public class Task {
     @Autowired
     private ParseContractService contractService;
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void contract() {
         contractService.parse();
     }
@@ -181,7 +183,7 @@ public class Task {
     @Autowired
     private ContractService contractService1;
 
-    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+     // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void ContractService() {
         contractService1.parse();
     }
@@ -262,4 +264,21 @@ public class Task {
     private void securityExport() {
         securityExportService.export();
     }
+
+    @Autowired
+    private ParseBorrowtService parseBorrowtService;
+
+    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    private void parseBorrowt() {
+        parseBorrowtService.parse();
+    }
+
+    @Autowired
+    private BorrowService borrowService;
+
+    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    public void borrowService() {
+        borrowService.parse();
+    }
+
 }

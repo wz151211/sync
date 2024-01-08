@@ -36,17 +36,17 @@ public class ExportResultService {
 
     @Autowired
     private CaseXsMapper caseMapper;
-    private int pageSize = 100;
+    private int pageSize = 40000;
     private AtomicInteger pageNum = new AtomicInteger(-1);
 
     @Autowired
     private DocumentXsMapper documentXsMapper;
 
     public void export() {
-        Criteria criteria = Criteria.where("weapon").size(2);
+        //Criteria criteria = Criteria.where("weapon").size(2);
 
         pageNum.getAndIncrement();
-        List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, criteria);
+        List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
         Workbook wb = new XSSFWorkbook();
         String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县", "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容", "案发时间", "案发时间内容", "案发地点", "案发地点内容", "凶器", "凶器内容", "方法", "方法内容", "最终赔偿", "最终赔偿内容"};
         Sheet sheet = wb.createSheet("案件信息");
@@ -133,7 +133,7 @@ public class ExportResultService {
                     partyList.add(partyMap);
                     int start = 0;
                     int count = 0;
-                    List<PartyEntity> entities = listMap.get("原告");
+  /*                  List<PartyEntity> entities = listMap.get("原告");
                     if (entities != null && entities.size() > 0) {
                         for (int i = 0; i < entities.size(); i++) {
                             PartyEntity entity = entities.get(i);
@@ -153,7 +153,7 @@ public class ExportResultService {
                             start += 14;
                             count++;
                         }
-                    }
+                    }*/
 
                     List<PartyEntity> bList = listMap.get("被告");
                     if (bList != null && bList.size() > 0) {

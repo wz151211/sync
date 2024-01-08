@@ -4,6 +4,11 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.ping.syncparse.SyncParseApplication;
 import com.ping.syncparse.service.*;
+import com.ping.syncparse.service.borrow.BorrowService;
+import com.ping.syncparse.service.contract.ContractResultMapper;
+import com.ping.syncparse.service.contract.ContractService;
+import com.ping.syncparse.service.contract.ContractTempMapper;
+import com.ping.syncparse.service.contract.ContractTempVo;
 import com.ping.syncparse.service.criminal.CriminalService;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.DicAnalysis;
@@ -16,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
@@ -179,6 +185,22 @@ class SyncPaserApplicationTests {
     @Test
     public void criminaParse() {
         criminalService.parse();
+    }
+
+    @Autowired
+    private BorrowService borrowService;
+
+    @Test
+    public void borrowService() {
+        borrowService.parse();
+    }
+
+    @Autowired
+    private ContractService contractService1;
+
+    @Test
+    public void ContractService() {
+        contractService1.parse();
     }
 
 }

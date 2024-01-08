@@ -1,4 +1,4 @@
-package com.ping.syncparse.service.contract;
+package com.ping.syncparse.service.borrow;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
@@ -14,8 +14,8 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_contract_data_result_new")
-public class ContractResultVo {
+@Document(value = "document_minjinajiedai_bak_data")
+public class BorrowResultVo {
     @Id
     @ExcelIgnore
     private String id;
@@ -81,53 +81,41 @@ public class ContractResultVo {
     @ExcelIgnore
     private JSONObject jsonContent;
 
-    //合同名称
-    private String contractName;
-    private String contractNameContent;
-    //
-    private String contractSigningDate;
-    private String contractSigningDateContent;
+
     //借款金额
-    private String loanAmount;
-    private String loanAmountContent;
+    private String loanAmount1;
+    private String loanAmountContent1;
+
+    private String loanAmount2;
+    private String loanAmountContent2;
     //借款开始时间
-    private String contractStartDate;
-    private String contractStartDateContent;
+    private String contractStartDate1;
+    private String contractStartDateContent1;
+
+    private String contractStartDate2;
+    private String contractStartDateContent2;
     //借款结束时间
-    private String contractEndDate;
-    private String contractEndDateContent;
+    private String contractEndDate1;
+    private String contractEndDateContent1;
+
+    private String contractEndDate2;
+    private String contractEndDateContent2;
 
     //借款利率
-    private String loanRate;
-    private String loanRateContent;
+    private String loanRate1;
+    private String loanRateContent1;
+
+    private String loanRate2;
+    private String loanRateContent2;
 
     //借款利率
-    private String rateType;
+    private String rateType1;
 
-    //逾期利率
-    private String overdueRate;
-    private String overdueRateContent;
+    private String rateType2;
 
-    //抵押条件
-    private String mortgage;
-    private String mortgageContent;
+    private String rateTerm1;
 
-    //违约日期
-    private String defaultDate;
-    private String defaultDateContent;
-
-    //违约金额
-    private String defaultAmount;
-    private String defaultAmountContent;
-
-
-    private String judgmentDesc;
-    //诉讼费
-    private String hearingFees;
-    //被告受理费
-    private String defendantHearingFees;
-    //原告受理费
-    private String plaintiffHearingFees;
+    private String rateTerm2;
 
     //期限
     private Integer term;

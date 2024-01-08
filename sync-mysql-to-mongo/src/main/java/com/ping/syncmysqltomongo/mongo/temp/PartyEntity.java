@@ -1,6 +1,8 @@
 package com.ping.syncmysqltomongo.mongo.temp;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
@@ -12,13 +14,16 @@ import java.util.List;
  * @Date: 2022/12/15 22:26
  */
 @Data
+@TableName("party")
 public class PartyEntity {
 
     @Id
     private String id;
 
+    @TableField("case_id")
     private String caseId;
 
+    @TableField("case_no")
     private String caseNo;
 
     private String type;
@@ -29,7 +34,6 @@ public class PartyEntity {
 
     private String age;
 
-    private String ageContent;
 
     private String birthday;
 
@@ -43,21 +47,12 @@ public class PartyEntity {
 
     private String address;
 
+    @TableField("edu_level")
     private String eduLevel;
 
     private String profession;
 
-    private String idCard;
-
-    private List<String> idCards = new ArrayList<>();
-
     private String content;
-
-    //判决金额或诉请金额
-    private String  petitionAmount;
-    //判决金额或诉请金额内容
-    private String  petitionAmountContent;
-
 
 
 }

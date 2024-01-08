@@ -99,6 +99,13 @@
             <artifactId>docx4j-ImportXHTML</artifactId>
             <version>8.3.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.hankcs</groupId>
+            <artifactId>hanlp</artifactId>
+            <version>portable-1.8.4</version>
+        </dependency>
+
     </dependencies>
 
     <build>

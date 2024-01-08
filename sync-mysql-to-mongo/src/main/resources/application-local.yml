@@ -21,7 +21,7 @@ spring:
   data:
     mongodb:
      # uri: mongodb://root:documentABC@172.16.119.182:27017/cpws?authSource=admin
-      uri: mongodb://localhost:27018/ws
+      uri: mongodb://localhost:27017/ws
 
 mybatis-plus:
   configuration:
