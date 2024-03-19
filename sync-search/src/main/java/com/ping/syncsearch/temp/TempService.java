@@ -15,9 +15,30 @@ public class TempService {
     @Autowired
     private TempMapper tempMapper;
 
-       Criteria criteria = Criteria.where("s11").in(CauseUtils.getCauseList("9723"));
+
+/*       Criteria criteria = Criteria.where("qwContent").regex("知假买假").orOperator(
+               Criteria.where("qwContent").regex("职业打假"),
+               Criteria.where("qwContent").regex("职业索赔"),
+               Criteria.where("qwContent").regex("惩罚性赔偿"),
+               Criteria.where("qwContent").regex("消费者"),
+               Criteria.where("qwContent").regex("假一赔"),
+               Criteria.where("qwContent").regex("食品安全法"),
+               Criteria.where("qwContent").regex("药品管理法")
+       );*/
+//Criteria criteria = Criteria.where("qwContent").regex("商业银行").orOperator(Criteria.where("qwContent").regex("适当性"),Criteria.where("qwContent").regex("理财"));
 
     public void findCount(String collectName) {
+        Criteria criteria = new Criteria();
+    /*    criteria.orOperator(
+                Criteria.where("qwContent").regex("知假买假"),
+                Criteria.where("qwContent").regex("职业打假"),
+                Criteria.where("qwContent").regex("职业索赔"),
+                Criteria.where("qwContent").regex("惩罚性赔偿"),
+                Criteria.where("qwContent").regex("消费者"),
+                Criteria.where("qwContent").regex("假一赔"),
+                Criteria.where("qwContent").regex("食品安全法"),
+                Criteria.where("qwContent").regex("药品管理法"));*/
+        criteria.and("s8").is("民事案件").and("s6").is("01").andOperator(Criteria.where("qwContent").regex("商业银行"), Criteria.where("qwContent").regex("适当性"), Criteria.where("qwContent").regex("理财"));
         tempMapper.findCount(collectName, criteria);
 
     }

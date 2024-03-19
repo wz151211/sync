@@ -38,7 +38,8 @@ public class TempMapper {
         Query query = new Query();
         query.addCriteria(criteria);
         long count = mongoTemplate.count(query, collectName);
-        log.info("集合={},数量为={}", collectName, count);
+        // log.info("集合={},数量为={}", collectName, count);
+        System.out.println("集合=" + collectName + ",数量为：" + count);
 
     }
 

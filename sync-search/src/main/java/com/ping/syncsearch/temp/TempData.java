@@ -8,20 +8,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * @Date: 2024/2/19 22:18
  */
 @Data
-@Document(value = "temp_result")
+@Document(value = "temp_minshi")
 public class TempData {
-    private String id;
     private String province;
     private String city;
     private String county;
 
     private String name;
     private String code;
-
-    private String value;
-
-    private String year;
-    private String type;
 
     private String c2010;
     private String c2011;
@@ -37,5 +31,4 @@ public class TempData {
     private String c2021;
     private String c2022;
     private String c2023;
-    private String c2024;
 }

@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
  * @Author: W.Z
  * @Date: 2023/11/30 21:33
  */
-//@Component
-//@Async
+ // @Component
+ // @Async
 @Slf4j
 public class TempTask {
 

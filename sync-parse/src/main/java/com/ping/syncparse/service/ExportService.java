@@ -7,12 +7,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.entity.PartyEntity;
 import com.ping.syncparse.sync.c34.DocumentXsLhEntity;
 import com.ping.syncparse.sync.c34.DocumentXsMapper;
-import com.ping.syncparse.utils.ExcelUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.AltChunkType;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
@@ -20,16 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
 
@@ -106,9 +98,10 @@ public class ExportService {
             }
 
             // Round trip
-            WordprocessingMLPackage pkgOut = mdp.convertAltChunks();
+         //   WordprocessingMLPackage pkgOut = mdp.convertAltChunks();
 
-            pkgOut.save(new File(docxPath));
+            mdp.convertAltChunks();
+            wordMLPackage.save(new File(docxPath));
         } catch (Exception e) {
             e.printStackTrace();
         }

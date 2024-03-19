@@ -120,7 +120,7 @@ public class Task {
         exportTempService.export();
     }
 
-    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
+      @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3L)
     public void parse() {
         parsePartyEasyService.parse();
     }
