@@ -96,7 +96,13 @@ public class Test1 {
         System.out.println(after);
         System.out.println(before);
         System.out.println(DateUtil.offsetHour(parse, 16));
-    }
+        System.out.println(DateUtil.offsetDay(parse, 1).toString(DatePattern.CHINESE_DATE_PATTERN));
+        String temp ="载明截至2022年3月2日，被告尚欠原告借款本金152810.78元，利息（含罚息、复利）27213.17元。原告主张后期利息（含罚息、复利）";
+        if ((temp.contains("未还款") || temp.contains("提前到期") || temp.contains("罚息") || temp.contains("利息至今未付") || temp.contains("还款至") || temp.contains("还款到") || temp.contains("未再履行还款") || temp.contains("逾期") || temp.contains("未按期") || temp.contains("未按照约定支付") || temp.contains("未依约履行还款义务") || temp.contains("未按约归还贷款") || temp.contains("未按期支付") || temp.contains("不能按期") || (temp.contains("尚欠") && temp.contains("借款")) || (temp.contains("未按") && temp.contains("偿还贷款")) || (temp.contains("自") && temp.contains("起") && temp.contains("不") && temp.contains("还")) || temp.contains("违约")) && temp.contains("年") && temp.contains("月") && !temp.contains("止") && !temp.contains("计算至") && !temp.contains("算至")  && !temp.contains("暂算至") && !temp.contains("计算到") && !temp.contains("暂计至") && !temp.contains("不再主张") && !temp.contains("不主张") && !temp.contains("连带责任保证") && !temp.contains("不按期归还借款本金的") && !temp.contains("保证人")) {
+
+            System.out.println("");
+        }
+        }
 
     @Test
     public void test3() {
@@ -220,7 +226,7 @@ public class Test1 {
 
     @Test
     public void test02() {
-        Result parse = ToAnalysis.parse("贷款利率为起息日同档基准利率上浮20%，即为5.22%/年");
+        Result parse = ToAnalysis.parse("分期手续费为借款金额的11.5%即8050元，还款方式为月均等额、取整入帐、免息还款的方式");
         for (Term term : parse.getTerms()) {
             System.out.println(term.getNatureStr() + "--" + term.getRealName());
         }
@@ -457,15 +463,15 @@ public class Test1 {
 
     @Test
     public void test12() {
-        File file = new File("F:\\金融合同纠纷解析意见反馈\\Sample.xlsx");
-          List<Object> ids = new ArrayList<>();
+        File file = new File("F:\\金融合同纠纷解析意见反馈(第四次反馈)\\sample 24.1.15.xlsx");
+        List<Object> ids = new ArrayList<>();
         ExcelReaderBuilder read = EasyExcelFactory.read(file, Temp.class, new ReadListener<Temp>() {
             @Override
             public void invoke(Temp data, AnalysisContext context) {
 
-                Object $oid = JSON.parseObject(data.getId()).get("$oid");
-               // System.out.println($oid);
-                ids.add($oid);
+                // Object $oid = JSON.parseObject(data.getId()).get("$oid");
+                // System.out.println($oid);
+                ids.add(data.get_id());
             }
 
             @Override
@@ -476,8 +482,8 @@ public class Test1 {
 
         read.doReadAll();
         try {
-            FileWriter fileWriter = new FileWriter("F:\\金融合同纠纷解析意见反馈\\Sample.txt");
-            IOUtils.write(JSON.toJSONString(ids),fileWriter);
+            FileWriter fileWriter = new FileWriter("F:\\金融合同纠纷解析意见反馈(第四次反馈)\\Sample.txt");
+            IOUtils.write(JSON.toJSONString(ids), fileWriter);
             fileWriter.close();
         } catch (Exception e) {
             throw new RuntimeException(e);

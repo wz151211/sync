@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_minjinajiedai_bak_data")
+@Document(value = "doc_minjinajiedai_data_1")
 public class DocumentFinanceEntity {
     @Id
     private String id;
@@ -101,4 +101,16 @@ public class DocumentFinanceEntity {
     private Integer term;
 
     private String termContent;
+
+
+    private String judgeContent;
+
+    private int words;
+
+    private String registerCaseDate;
+    private String registerCaseDateContent;
+
+    private String judgmentDescContent;
+
+    private String hearingFees;
 }

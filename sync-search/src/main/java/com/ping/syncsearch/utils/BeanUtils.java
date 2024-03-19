@@ -80,6 +80,9 @@ public class BeanUtils {
         String fact = from.getString("s25");
         JSONArray areas = from.getJSONArray("fyTree");
         String htmlContent = from.getString("qwContent");
+
+        String viewCount = from.getString("viewCount");
+        entity.setViewCount(viewCount);
         entity.setId(id);
         entity.setName(name);
         entity.setCaseNo(caseNo);

@@ -1,4 +1,4 @@
-package com.ping.syncparse.service.borrow;
+package com.ping.syncparse.service.work;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -9,8 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
 @Data
-@Document(value = "doc_minjinajiedai_copy1")
-public class BorrowVo {
+@Document(value = "document_laodong")
+public class WorkEntity {
     @Id
     private String id;
 
@@ -51,7 +51,4 @@ public class BorrowVo {
     private String city;
 
     private String county;
-
-    private String uid;
-
 }

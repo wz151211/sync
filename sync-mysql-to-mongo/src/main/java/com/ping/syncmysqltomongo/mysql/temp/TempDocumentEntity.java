@@ -16,7 +16,7 @@ import java.util.Date;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@TableName(value = "document")
+@TableName(value = "document1")
 public class TempDocumentEntity {
 
     @TableId(type = IdType.INPUT)
@@ -53,11 +53,11 @@ public class TempDocumentEntity {
     @TableField("doc_type")
     private String docType;
 
-    @TableField("html_content")
+  /*  @TableField("html_content")
     private String htmlContent;
 
     @TableField("json_content")
-    private String jsonContent;
+    private String jsonContent;*/
 
     @TableField("judgment_result")
     private String judgmentResult;
@@ -82,7 +82,6 @@ public class TempDocumentEntity {
 
     @TableField("county")
     private String county;
-
     @TableField("loan_amount1")
     private String loanAmount1;
     @TableField("loan_amount_content1")
@@ -144,4 +143,23 @@ public class TempDocumentEntity {
     private Integer term;
     @TableField("term_content")
     private String termContent;
+
+   /* @TableField("judge_content")
+    private String judgeContent;
+
+    @TableField("words")
+    private Integer words;
+
+    @TableField("register_case_date")
+    private String registerCaseDate;
+    @TableField("register_case_date_content")
+    private String registerCaseDateContent;
+
+    @TableField("judgment_desc")
+    private String judgmentDesc;
+    @TableField("judgment_desc_content")
+    private String judgmentDescContent;
+
+    @TableField("hearing_fees")
+    private String hearingFees;*/
 }

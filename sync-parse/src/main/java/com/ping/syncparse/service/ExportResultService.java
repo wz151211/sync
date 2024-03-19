@@ -43,12 +43,14 @@ public class ExportResultService {
     private DocumentXsMapper documentXsMapper;
 
     public void export() {
-        //Criteria criteria = Criteria.where("weapon").size(2);
+        Criteria criteria = Criteria.where("docType").is("判决书");
 
         pageNum.getAndIncrement();
-        List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, null);
+        List<CaseVo> vos = caseMapper.findList(pageNum.get(), pageSize, criteria);
         Workbook wb = new XSSFWorkbook();
-        String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序", "文书类型", "省份", "地市", "区县", "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容", "案发时间", "案发时间内容", "案发地点", "案发地点内容", "凶器", "凶器内容", "方法", "方法内容", "最终赔偿", "最终赔偿内容"};
+        String[] head = {"案件信息", "序号", "案件名称", "案号", "法院名称", "裁判日期", "案由", "案件类型", "审判程序",
+                "文书类型", "省份", "地市", "区县", "事实/审理查明", "判决结果", "理由", "法律依据", "诉讼记录", "HTML内容", "JSON内容",
+                "判决结果", "受理费", "原告受理费", "被告受理费", "立案日期", "经济损失", "合理费用"};
         Sheet sheet = wb.createSheet("案件信息");
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
@@ -133,7 +135,7 @@ public class ExportResultService {
                     partyList.add(partyMap);
                     int start = 0;
                     int count = 0;
-  /*                  List<PartyEntity> entities = listMap.get("原告");
+                    List<PartyEntity> entities = listMap.get("原告");
                     if (entities != null && entities.size() > 0) {
                         for (int i = 0; i < entities.size(); i++) {
                             PartyEntity entity = entities.get(i);
@@ -153,7 +155,7 @@ public class ExportResultService {
                             start += 14;
                             count++;
                         }
-                    }*/
+                    }
 
                     List<PartyEntity> bList = listMap.get("被告");
                     if (bList != null && bList.size() > 0) {
@@ -215,8 +217,8 @@ public class ExportResultService {
 
             Sheet partySheet2 = wb.createSheet("当事人信息");
             ExcelUtils.export(wb, partySheet2, partyList2, partyHead2.toArray());
-            Sheet crimeSheet = wb.createSheet("判决结果");
-            ExcelUtils.export(wb, crimeSheet, crimeList2, crimeHead2.toArray());
+            //  Sheet crimeSheet = wb.createSheet("判决结果");
+            //   ExcelUtils.export(wb, crimeSheet, crimeList2, crimeHead2.toArray());
 
             wb.write(out);
             System.out.println("导出完成");
@@ -352,7 +354,7 @@ public class ExportResultService {
         } else {
             map.put(18, "");
         }
-        map.put(19, vo.getIncidentTime());
+    /*    map.put(19, vo.getIncidentTime());
         map.put(20, vo.getIncidentTimeContent());
 
         map.put(21, vo.getHappeningPlace());
@@ -399,7 +401,16 @@ public class ExportResultService {
         }
 
         map.put(27, vo.getCompensate());
-        map.put(28, vo.getCompensateContent());
+        map.put(28, vo.getCompensateContent());*/
+
+      //  "判决结果", "受理费", "原告受理费", "被告受理费", "立案日期", "经济损失", "合理费用"
+        map.put(19, vo.getJudgmentDesc());
+        map.put(20, vo.getHearingFees());
+        map.put(21, vo.getPlaintiffHearingFees());
+        map.put(22, vo.getDefendantHearingFees());
+        map.put(23, vo.getRegisterCaseDate());
+        map.put(24, vo.getEconomicLosses());
+        map.put(25, vo.getReasonableExpenses());
         return map;
 
     }

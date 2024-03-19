@@ -34,18 +34,13 @@ public class CauseUtils {
                 }
             }
             map = causes.parallelStream().collect(groupingBy(Dict::getPId));
-            map.values()
-                    .stream()
-                    .flatMap(Collection::stream)
-                    .peek(c -> {
-                        List<Dict> dicts = map.get(c.getCode());
-                        if (dicts != null) {
-                            c.setChild(dicts);
-                        }
-                    })
-                    .collect(toList());
-        } catch (
-                IOException e) {
+            map.values().stream().flatMap(Collection::stream).peek(c -> {
+                List<Dict> dicts = map.get(c.getCode());
+                if (dicts != null) {
+                    c.setChild(dicts);
+                }
+            }).collect(toList());
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -93,6 +88,7 @@ public class CauseUtils {
             }
 
         }
+        set.add(dict.get(code));
         return set;
     }
 }

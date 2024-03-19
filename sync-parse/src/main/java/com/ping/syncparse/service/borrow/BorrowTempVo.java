@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_minjinajiedai_bak_result")
+@Document(value = "doc_minjinajiedai_result_copy1")
 public class BorrowTempVo {
     @Id
     @ExcelIgnore

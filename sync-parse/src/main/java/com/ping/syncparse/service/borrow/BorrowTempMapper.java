@@ -35,4 +35,10 @@ public class BorrowTempMapper {
         query.addCriteria(criteria);
         return mongoTemplate.find(query, BorrowTempVo.class);
     }
+
+    public void delete(BorrowTempVo entity) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(entity.getId()));
+        mongoTemplate.remove(query, BorrowTempVo.class);
+    }
 }

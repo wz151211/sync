@@ -1327,11 +1327,21 @@ public class ParsePartyEasyService {
                     }
                     String records = entity.getLitigationRecords();
                     if (StringUtils.hasLength(records)) {
-                        for (String s : records.split("，")) {
-                            if (s.contains("立案") || s.contains("受理")) {
-                                log.info("立案信息：{}", s);
+                        records = records.replace("。", "，");
+                        String[] split = records.split("，");
+                        for (int i = 0; i < split.length; i++) {
+                            String comma = split[i];
+                            String text = "";
+                            if (i > 0 && (comma.contains("同日受理") || comma.contains("同日立案"))) {
+                                text = split[i - 1] + "，" + comma;
+                            } else {
+                                text = comma;
+                            }
+
+                            if (text.contains("立案") || text.contains("受理")) {
+                                log.info("立案信息：{}", text);
                                 String registerCaseDate = "";
-                                for (Term term : ToAnalysis.parse(s)) {
+                                for (Term term : ToAnalysis.parse(text)) {
                                     if (term.getRealName().contains("同") || term.getRealName().contains("当")) {
                                         continue;
 
@@ -1356,7 +1366,7 @@ public class ParsePartyEasyService {
                                 }
                                 if (StringUtils.isEmpty(vo.getRegisterCaseDate()) && StringUtils.hasLength(registerCaseDate)) {
                                     vo.setRegisterCaseDate(registerCaseDate);
-                                    vo.setRegisterCaseDateContent(s);
+                                    vo.setRegisterCaseDateContent(text);
                                 }
 
                             }

@@ -17,6 +17,7 @@ import com.ping.syncparse.service.invoice.InvoiceService;
 import com.ping.syncparse.service.security.SecurityExportService;
 import com.ping.syncparse.service.security.SecurityService;
 import com.ping.syncparse.service.word.WordService;
+import com.ping.syncparse.service.work.WorkService;
 import lombok.extern.slf4j.Slf4j;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.DicAnalysis;
@@ -167,7 +168,7 @@ public class Task {
     @Autowired
     private ParseContractService contractService;
 
-    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void contract() {
         contractService.parse();
     }
@@ -183,15 +184,15 @@ public class Task {
     @Autowired
     private ContractService contractService1;
 
-     // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void ContractService() {
-        contractService1.parse();
+        contractService1.parse("");
     }
 
     @Autowired
     private ExportContractService exportContractService;
 
-    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void exportContractService() {
         exportContractService.export();
     }
@@ -236,7 +237,7 @@ public class Task {
     @Autowired
     private WordService wordService;
 
-    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    //@Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void toWord() {
         wordService.toWord();
     }
@@ -244,7 +245,7 @@ public class Task {
     @Autowired
     private ExportResultService2 exportResultService2;
 
-    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 30)
     public void export2() {
         exportResultService2.export();
     }
@@ -268,7 +269,7 @@ public class Task {
     @Autowired
     private ParseBorrowtService parseBorrowtService;
 
-    // @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     private void parseBorrowt() {
         parseBorrowtService.parse();
     }
@@ -276,9 +277,17 @@ public class Task {
     @Autowired
     private BorrowService borrowService;
 
-    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    //@Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
     public void borrowService() {
         borrowService.parse();
+    }
+
+    @Autowired
+    private WorkService workService;
+
+    //@Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 3)
+    public void workService() {
+        workService.parse();
     }
 
 }

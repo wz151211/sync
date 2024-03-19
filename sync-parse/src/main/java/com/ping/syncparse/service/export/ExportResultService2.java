@@ -38,7 +38,7 @@ public class ExportResultService2 {
 
     @Autowired
     private CaseXsMapper caseMapper;
-    private int pageSize = 30000;
+    private int pageSize = 40000;
     private AtomicInteger pageNum = new AtomicInteger(-1);
 
     @Autowired
@@ -54,7 +54,7 @@ public class ExportResultService2 {
         List<Map<Integer, Object>> list = vos.parallelStream().map(this::toMap).collect(Collectors.toList());
         FileOutputStream out = null;
         try {
-            File file = new File("/Users/monkey/Desktop/导出/纯粹经济损失-" + (pageNum.get() + 1) + ".xlsx");
+            File file = new File("E:\\导出\\案件-" + (pageNum.get() + 1) + ".xlsx");
             if (file.exists()) {
                 file.delete();
             } else {
@@ -370,7 +370,7 @@ public class ExportResultService2 {
             map.put(19, "");
         }
         //  map.put(19, vo.getArray().toJSONString());
-
+   //     map.put(20,vo.getViewCount());
         return map;
 
     }

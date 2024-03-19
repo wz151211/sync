@@ -131,7 +131,7 @@ public class BorrowService {
     }
 
     public void parse() {
-        List<BorrowTempVo> entities = borrowTempMapper.findList(pageNum.get(), pageSize, null);
+        List<BorrowTempVo> entities = borrowTempMapper.findList(0, pageSize, null);
         if (entities == null || entities.size() == 0) {
             return;
         }
@@ -768,7 +768,7 @@ public class BorrowService {
                 String[] split = judgmentResult.split("，");
                 for (String comma : split) {
                     if ((comma.contains("基准利率") || comma.contains("执行利率") || comma.contains("合同利率") || comma.contains("贷款利率") || comma.contains("借款利率") || comma.contains("年利率") || comma.contains("年利") || comma.contains("年息") || comma.contains("利率") || comma.contains("月利率") || comma.contains("月息") || comma.contains("月利") || comma.contains("日利率") || comma.contains("日利") || comma.contains("日息")) && (comma.contains("%") || comma.contains("‰") || comma.contains("分") || comma.contains("厘")) && !comma.contains("超过") && !comma.contains("逾利率") && !comma.contains("上限") && !comma.contains("逾期") && !comma.contains("罚息") && !comma.contains("复利")) {
-                        if (StringUtils.isEmpty(vo.getLoanRate1()) || (StringUtils.hasLength(vo.getLoanRate1()) && (comma.contains("即") || comma.contains("执行") || comma.contains("确定")) && (comma.contains("年利率") || comma.contains("月利率")))) {
+                        if (StringUtils.isEmpty(vo.getLoanRate2()) || (StringUtils.hasLength(vo.getLoanRate2()) && (comma.contains("即") || comma.contains("执行") || comma.contains("确定")) && (comma.contains("年利率") || comma.contains("月利率")))) {
                             comma = comma.replace(",", ".");
                             for (Term term : ToAnalysis.parse(comma)) {
                                 if (term.getNatureStr().equals("mq") && (term.getRealName().contains("%") || term.getRealName().contains("‰"))) {
@@ -860,6 +860,7 @@ public class BorrowService {
                 }
                 vo.setParty(party);
                 borrowResultMapper.insert(vo);
+                borrowTempMapper.delete(entity);
             } catch (Exception e) {
                 e.printStackTrace();
             }

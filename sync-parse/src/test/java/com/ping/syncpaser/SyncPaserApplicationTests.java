@@ -2,6 +2,7 @@ package com.ping.syncpaser;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
+import com.alibaba.fastjson.JSON;
 import com.ping.syncparse.SyncParseApplication;
 import com.ping.syncparse.service.*;
 import com.ping.syncparse.service.borrow.BorrowService;
@@ -10,8 +11,11 @@ import com.ping.syncparse.service.contract.ContractService;
 import com.ping.syncparse.service.contract.ContractTempMapper;
 import com.ping.syncparse.service.contract.ContractTempVo;
 import com.ping.syncparse.service.criminal.CriminalService;
+import com.ping.syncparse.service.word.WordService;
+import com.ping.syncparse.service.work.WorkService;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.DicAnalysis;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.AltChunkType;
@@ -25,6 +29,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -200,7 +207,33 @@ class SyncPaserApplicationTests {
 
     @Test
     public void ContractService() {
-        contractService1.parse();
+        String caseNo = "（2022）苏0922民初2258号";
+        contractService1.parse(caseNo);
+    }
+
+    @Autowired
+    private WorkService workService;
+
+    @Test
+    public void workService() {
+        workService.parse();
+    }
+
+
+    @Autowired
+    private ContractTempMapper contractTempMapper;
+
+    public void tests() {
+        String string = null;
+        try {
+            string = IOUtils.toString(new FileInputStream("D:\\金融合同纠纷解析意见反馈\\Sample.txt"), Charset.defaultCharset());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        List<String> ids = JSON.parseArray(string, String.class);
+        Criteria criteria = Criteria.where("_id").in(ids);
+        List<ContractTempVo> entities = contractTempMapper.findList(0, 100, criteria);
     }
 
 }

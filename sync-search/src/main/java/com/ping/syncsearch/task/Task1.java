@@ -3,6 +3,7 @@ package com.ping.syncsearch.task;
 import com.ping.syncsearch.service.QueryService;
 import com.ping.syncsearch.utils.CauseUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.scheduling.annotation.Async;
@@ -10,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,8 +20,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-@Component
-@Async
+//@Component
+//@Async
 @Slf4j
 public class Task1 {
     @Autowired
@@ -130,27 +132,36 @@ public class Task1 {
     // Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").is("离婚后财产纠纷").and("s6").is("01");
     // Criteria criteria = Criteria.where("s31").gte("2021-10-01");
 
-    //   Criteria criteria = Criteria.where("s8").is("民事案件").and("s11").in(CauseUtils.getCauseList("9299"));
+    // Criteria criteria = Criteria.where("s11").in(CauseUtils.getCauseList("9723"));
+    // Criteria criteria = Criteria.where("s8").is("刑事案件");
 
-    // Criteria criteria = Criteria.where("s8").is("民事案件").and("qwContent").regex("妇女").andOperator(Criteria.where("qwContent").regex("农村土地"));
 
-
-    //  Criteria criteria = Criteria.where("s11").is("猥亵儿童").and("s6").is("01");
+    //  Criteria criteria = Criteria.where("s11").is("职务侵占").and("s6").is("01");
     //  Criteria criteria = Criteria.where("s8").is("刑事案件").and("s9").in("刑事一审", "0201").and("s6").is("01").and("qwContent").regex("杀人");
-    Criteria criteria = Criteria.where("s11").is("民间借贷纠纷").and("s6").is("01").and("s8").is("民事案件");
+    // Criteria criteria = Criteria.where("s11").is("民间借贷纠纷").and("s6").is("01").and("s8").is("民事案件");
     //Criteria criteria = Criteria.where("s6").is("01").and("s8").is("民事案件");
+    // Criteria criteria = Criteria.where("s6").is("01").and("s11").is("民间借贷纠纷");
+    Criteria criteria = Criteria.where("s8").is("刑事案件").andOperator(Criteria.where("qwContent").regex("故意杀人"), Criteria.where("qwContent").regex("杀妻"));
+
+    //  Criteria criteria = null;
 
     {
-        Set<String> causeList = CauseUtils.getCauseList("9299");
-        List<Criteria> criteriaList = new ArrayList<>();
-        for (String cause : causeList) {
-            criteriaList.add(Criteria.where("qwContent").regex(cause));
-        }
-        //  criteria.orOperator(criteriaList);
+//        Set<String> causeList = CauseUtils.getCauseList("9299");
+//        List<Criteria> criteriaList = new ArrayList<>();
+//        for (String cause : causeList) {
+//            criteriaList.add(Criteria.where("qwContent").regex(cause));
+//        }
+//        try {
+//            File file = new File("E:\\caseNo.txt");
+//            List<String> list = IOUtils.readLines(new FileInputStream(file), "UTF-8");
+//            criteria = Criteria.where("s7").in(list);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
     }
 
-  //  @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
+    @Scheduled(initialDelay = 2 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2014() {
         try {
             queryService.sync2014(criteria);
@@ -160,7 +171,7 @@ public class Task1 {
     }
 
 
-  ///  @Scheduled(initialDelay = 4 * 1000L, fixedRate = 1000 * 60 * 3L)
+    @Scheduled(initialDelay = 4 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void sync2015() {
         try {
             queryService.sync2015(criteria);
@@ -169,7 +180,7 @@ public class Task1 {
         }
     }
 
-  //  @Scheduled(initialDelay = 6 * 1000L, fixedRate = 1000 * 60 * 3L)
+    @Scheduled(initialDelay = 6 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2016() {
         try {
             queryService.sync2016(criteria);
@@ -178,7 +189,7 @@ public class Task1 {
         }
     }
 
- //   @Scheduled(initialDelay = 8 * 1000L, fixedRate = 1000 * 60 * 3L)
+    @Scheduled(initialDelay = 8 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2017() {
         try {
             queryService.sync2017(criteria);
@@ -187,7 +198,7 @@ public class Task1 {
         }
     }
 
-  //  @Scheduled(initialDelay = 10 * 1000L, fixedRate = 1000 * 60 * 3L)
+    @Scheduled(initialDelay = 10 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2018() {
         try {
             queryService.sync2018(criteria);
@@ -196,7 +207,7 @@ public class Task1 {
         }
     }
 
-   // @Scheduled(initialDelay = 12 * 1000L, fixedRate = 1000 * 60 * 3L)
+    @Scheduled(initialDelay = 12 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2019() {
         try {
             queryService.sync2019(criteria);
@@ -223,7 +234,7 @@ public class Task1 {
         }
     }
 
-  //  @Scheduled(initialDelay = 18 * 1000L, fixedRate = 1000 * 60 * 3L)
+    @Scheduled(initialDelay = 18 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2022() {
         try {
             queryService.sync2022(criteria);
@@ -232,7 +243,7 @@ public class Task1 {
         }
     }
 
-  //  @Scheduled(initialDelay = 20 * 1000L, fixedRate = 1000 * 60 * 3L)
+    @Scheduled(initialDelay = 20 * 1000L, fixedRate = 1000 * 60 * 3L)
     public void save2023() {
         try {
             queryService.sync2023(criteria);

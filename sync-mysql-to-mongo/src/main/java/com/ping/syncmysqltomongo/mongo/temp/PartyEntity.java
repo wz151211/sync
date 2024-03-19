@@ -14,7 +14,7 @@ import java.util.List;
  * @Date: 2022/12/15 22:26
  */
 @Data
-@TableName("party")
+@TableName("party1")
 public class PartyEntity {
 
     @Id

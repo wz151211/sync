@@ -6,6 +6,6 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(value = "document_tudi_nongcuntudi")
+@Document(value = "doc_minjinajiedai_data_1")
 public class MongoTempEntity extends JSONObject {
 }

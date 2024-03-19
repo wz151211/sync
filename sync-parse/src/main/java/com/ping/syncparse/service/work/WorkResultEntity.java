@@ -1,10 +1,11 @@
-package com.ping.syncparse.service.contract;
+package com.ping.syncparse.service.work;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.alibaba.fastjson.JSONObject;
 import com.ping.syncparse.entity.PartyEntity;
+import com.ping.syncparse.service.CrimeVO;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,8 +15,8 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(value = "document_contract_data_result_4")
-public class ContractResultVo {
+@Document(value = "document_laodong_result")
+public class WorkResultEntity {
     @Id
     @ExcelIgnore
     private String id;
@@ -59,6 +60,9 @@ public class ContractResultVo {
     @ExcelIgnore
     private List<PartyEntity> party = new ArrayList<>();
 
+    @ExcelIgnore
+    private List<CrimeVO> crimes = new ArrayList<>();
+
     @ExcelProperty(value = "判决结果", index = 11)
     private String judgmentResult;
 
@@ -81,58 +85,16 @@ public class ContractResultVo {
     @ExcelIgnore
     private JSONObject jsonContent;
 
-    //合同名称
-    private String contractName;
-    private String contractNameContent;
-    //签定日期
-    private String contractSigningDate;
-    private String contractSigningDateContent;
-    //借款金额
-    private String loanAmount;
-    private String loanAmountContent;
-    //借款开始时间
-    private String contractStartDate;
-    private String contractStartDateContent;
-    //借款结束时间
-    private String contractEndDate;
-    private String contractEndDateContent;
+    private String judgeContent;
 
-    //借款利率
-    private String loanRate;
-    private String loanRateContent;
+    private int words;
 
-    //借款利率类型
-    private String rateType;
+    private String registerCaseDate;
+    private String registerCaseDateContent;
 
-    //逾期利率
-    private String overdueRate;
-    private String overdueRateContent;
-
-    //抵押条件
-    private String mortgage;
-    private String mortgageContent;
-
-    //违约日期
-    private String defaultDate;
-    private String defaultDateContent;
-
-    //违约金额
-    private String defaultAmount;
-    private String defaultAmountContent;
-
-    //判决情况
     private String judgmentDesc;
-    //诉讼费
+    private String judgmentDescContent;
+
     private String hearingFees;
-    //被告受理费
-    private String defendantHearingFees;
-    //原告受理费
-    private String plaintiffHearingFees;
-
-    //期限
-    private Integer term;
-
-    private String termContent;
-
 
 }

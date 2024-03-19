@@ -52,5 +52,7 @@ public class BaseEntity {
 
     private String uid;
 
+    private String viewCount;
+
 
 }

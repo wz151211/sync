@@ -1,5 +1,6 @@
 package com.ping.syncsearch.temp;
 
+import com.ping.syncsearch.utils.CauseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ public class TempService {
     @Autowired
     private TempMapper tempMapper;
 
-    Criteria criteria = Criteria.where("s8").is("民事案件").and("s6").is("01");
+       Criteria criteria = Criteria.where("s11").in(CauseUtils.getCauseList("9723"));
 
     public void findCount(String collectName) {
         tempMapper.findCount(collectName, criteria);

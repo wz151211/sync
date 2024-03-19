@@ -86,37 +86,30 @@ public class ToMysqlService {
 
     public void sync3() {
         log.info("pageNum={}", pageNum.get());
-        List<DocumentFinanceEntity> entities = financeMapper.findList(pageNum.get(), pageSize, null);
+        List<DocumentFinanceEntity> entities = financeMapper.findList(0, pageSize, null);
         pageNum.getAndIncrement();
         for (DocumentFinanceEntity entity : entities) {
             TempDocumentEntity tempDocument = new TempDocumentEntity();
             // convert(entity, tempDocument);
             // BaseEntity base = BeanUtils.toEntity(entity);
-            org.springframework.beans.BeanUtils.copyProperties(entity,tempDocument);
+            org.springframework.beans.BeanUtils.copyProperties(entity, tempDocument);
             convert1(entity, tempDocument);
             for (PartyEntity partyEntity : entity.getParty()) {
-
                 partyEntity.setId(UUID.randomUUID().toString().replace("-", ""));
                 partyEntity.setCaseId(entity.getId());
                 try {
                     partyMapper.insert(partyEntity);
                 } catch (Exception e) {
-                   e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
 
             try {
                 tempDocumentMapper.insert(tempDocument);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-/*            try {
                 mongoTempMapper.delete(entity.getId());
             } catch (Exception e) {
                 e.printStackTrace();
-            }*/
-
+            }
         }
     }
 
@@ -148,9 +141,9 @@ public class ToMysqlService {
         to.setName(from.getName());
         to.setCaseNo(from.getCaseNo());
         to.setCourtName(from.getCourtName());
-        if (from.getJsonContent() != null) {
+      /*  if (from.getJsonContent() != null) {
             to.setJsonContent(from.getJsonContent().toJSONString());
-        }
+        }*/
         if (from.getRefereeDate() != null) {
             to.setRefereeDate(DateUtil.offsetHour(from.getRefereeDate(), -8));
         }
@@ -174,7 +167,7 @@ public class ToMysqlService {
         }
         to.setTrialProceedings(from.getTrialProceedings());
         to.setDocType(from.getDocType());
-        to.setHtmlContent(from.getHtmlContent());
+        //to.setHtmlContent(from.getHtmlContent());
         to.setJudgmentResult(from.getJudgmentResult());
         to.setCourtConsidered(from.getCourtConsidered());
         to.setLitigationRecords(from.getLitigationRecords());
@@ -190,9 +183,9 @@ public class ToMysqlService {
         to.setName(from.getName());
         to.setCaseNo(from.getCaseNo());
         to.setCourtName(from.getCourtName());
-        if (from.getJsonContent() != null) {
+     /*   if (from.getJsonContent() != null) {
             to.setJsonContent(from.getJsonContent().toJSONString());
-        }
+        }*/
         if (from.getRefereeDate() != null) {
             to.setRefereeDate(DateUtil.offsetHour(from.getRefereeDate(), -8));
         }
@@ -216,8 +209,8 @@ public class ToMysqlService {
         to.setLegalBasis(from.getLegalBasis());
         to.setTrialProceedings(from.getTrialProceedings());
         to.setDocType(from.getDocType());
-        to.setHtmlContent(from.getHtmlContent());
-        to.setJudgmentResult(from.getJudgmentResult());
+        //    to.setHtmlContent(from.getHtmlContent());
+        //   to.setJudgmentResult(from.getJudgmentResult());
         to.setCourtConsidered(from.getCourtConsidered());
         to.setLitigationRecords(from.getLitigationRecords());
         to.setFact(from.getFact());

@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * @Date: 2022/8/21 22:27
  */
 @Data
-@Document(value = "document_zhiwufanzui")
+@Document(value = "ws_2022_copy1")
 public class DocumentTargetEntity extends JSONObject {
 
 }

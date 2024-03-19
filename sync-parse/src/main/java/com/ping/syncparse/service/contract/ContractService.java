@@ -140,19 +140,18 @@ public class ContractService {
 
     AtomicInteger count = new AtomicInteger();
 
-    public void parse() {
+    public void parse(String caseNo) {
         List<String> ids = new ArrayList<>();
 
         try {
-            String string = IOUtils.toString(new FileInputStream("F:\\金融合同纠纷解析意见反馈\\Sample.txt"), Charset.defaultCharset());
-
+            String string = IOUtils.toString(new FileInputStream("D:\\金融合同纠纷解析意见反馈(第四次反馈)\\Sample.txt"), Charset.defaultCharset());
             ids = JSON.parseArray(string, String.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        // Criteria criteria = Criteria.where("_id").in(ids);
-        Criteria criteria = Criteria.where("caseNo").is("（2020）黔2628民初258号");
+         Criteria criteria = Criteria.where("_id").in(ids);
+      //  Criteria criteria = Criteria.where("caseNo").is(caseNo);
         List<ContractTempVo> entities = contractTempMapper.findList(pageNum.get(), pageSize, criteria);
         if (entities == null || entities.size() == 0) {
             return;
@@ -261,18 +260,21 @@ public class ContractService {
                 if (index == -1) {
                     index = fact.indexOf("认定如下事实");
                 }
+                if (index == -1) {
+                    index = fact.indexOf("认定事实");
+                }
                 if (index > 0) {
                     startFact = fact.substring(0, index);
                     fact = fact.substring(index) + "，" + startFact;
                 }
                 fact = fact.replace("％", "%");
-                fact = fact.replace("\n", "");
+                fact = fact.replace("\r\n", "，");
+                fact = fact.replace("\n", "，");
                 String[] sentences = fact.split("。");
                 for (String sentence : sentences) {
                     sentence = sentence.replace(";", "，");
                     sentence = sentence.replace("；", "，");
-
-
+                    sentence = sentence.replace(",", "，");
                     String[] split = sentence.split("，");
                     for (int i = 0; i < split.length; i++) {
                         String comma = split[i];
@@ -287,7 +289,7 @@ public class ContractService {
                         } else {
                             temp = comma;
                         }
-                        if ((((temp.contains("签订") || temp.contains("签署") || temp.contains("签约") || temp.contains("达成") || temp.contains("签名") || temp.contains("签定") || temp.contains("填写") || temp.contains("补签") || temp.contains("订立") || temp.contains("递交")) && (temp.contains("合同") || temp.contains("合约") || temp.contains("协议") || temp.contains("请表") || temp.contains("借据"))) || temp.contains("合同名称") || temp.contains("合同签订时间")) && !temp.contains("暂算至") && !temp.contains("授信")) {
+                        if ((((temp.contains("签订") || temp.contains("签署") || temp.contains("签约") || temp.contains("达成") || temp.contains("签名") || temp.contains("签定") || temp.contains("填写") || temp.contains("补签") || temp.contains("订立") || temp.contains("递交")) && (temp.contains("合同") || temp.contains("合约") || temp.contains("协议") || temp.contains("请表") || temp.contains("借据"))) || temp.contains("合同名称") || temp.contains("快ｅ贷") || temp.contains("合同签订时间")) && !temp.contains("暂算至")) {
                             String contractSigningDate = "";
                             int ee = temp.indexOf("签订");
                             int ss = temp.indexOf("年");
@@ -318,7 +320,10 @@ public class ContractService {
                             if (ee == -1) {
                                 ee = temp.indexOf("签约");
                             }
-                            if (ee > ss) {
+                            if (ee == -1) {
+                                ee = temp.indexOf("ｅ贷");
+                            }
+                            if (ee > ss || comma.contains("签订日期")) {
                                 for (Term term : ToAnalysis.parse(temp)) {
                                     if (contractSigningDate.contains("年") && term.getRealName().contains("年")) {
                                         break;
@@ -361,7 +366,7 @@ public class ContractService {
                                     name = name.replace("了", "");
                                     name = name.replace("的", "");
                                     //  log.info("合同名称={}", name);
-                                    if ((StringUtils.isEmpty(vo.getContractName()) && !name.contains("保证") && !name.contains("委托")) || (StringUtils.hasLength(vo.getContractName()) && StringUtils.hasLength(name) && name.contains("《") && (name.contains("借款") || name.contains("贷款")) && !name.contains("申请")) || (StringUtils.hasLength(vo.getContractName()) && vo.getContractName().contains("联保"))) {
+                                    if ((StringUtils.isEmpty(vo.getContractName()) && !temp.contains("发放") && !name.contains("委托")) || (StringUtils.hasLength(vo.getContractName()) && StringUtils.hasLength(name) && name.contains("《") && (name.contains("借款") || name.contains("贷款")) && !name.contains("申请")) || (StringUtils.hasLength(vo.getContractName()) && name.contains("联保"))) {
                                         vo.setContractName(name);
                                         vo.setContractNameContent(comma);
                                     }
@@ -396,12 +401,12 @@ public class ContractService {
                                     if (end == -1) {
                                         end = comma.indexOf("请表");
                                     }
-                                    if (end > start) {
+                                    if (end > start && start != -1) {
                                         String name = comma.substring(start + 2, end + 2);
                                         name = name.replace("了", "");
                                         name = name.replace("的", "");
                                         // log.info("合同名称2={}", name);
-                                        if (StringUtils.isEmpty(vo.getContractName()) && !name.contains("保证") && !name.contains("委托") || (StringUtils.hasLength(vo.getContractName()) && vo.getContractName().contains("联保"))) {
+                                        if ((StringUtils.isEmpty(vo.getContractName()) && !temp.contains("发放") && !name.contains("委托")) || (StringUtils.hasLength(vo.getContractName()) && name.contains("联保"))) {
                                             vo.setContractName(name);
                                             vo.setContractNameContent(comma);
                                         }
@@ -412,7 +417,7 @@ public class ContractService {
 
                             }
                         }
-                        if ((comma.contains("授信额度") || comma.contains("贷款") || comma.contains("透支借款") || comma.contains("欠款") || comma.contains("化肥款") || comma.contains("借款") || comma.contains("累计欠款") || comma.contains("分期资金") || comma.contains("透支款本金") || comma.contains("透支本金") || comma.contains("透支消费") || comma.contains("透支资金") || comma.contains("欠款本金") || comma.contains("透支金额") || comma.contains("货款总额") || comma.contains("消费共计") || comma.contains("车款") || comma.contains("支用") || comma.contains("本金")) && !comma.contains("不超过") && !comma.contains("判令") && !comma.contains("冲抵") && !comma.contains("放款") && !comma.contains("自动扣划") && !comma.contains("累计") && !comma.contains("剩余") && !temp.contains("复利") && StringUtils.isEmpty(vo.getLoanAmount())) {
+                        if (((comma.contains("授信额度") || comma.contains("贷款") || comma.contains("透支借款") || comma.contains("款项合计") || comma.contains("欠款") || comma.contains("化肥款") || comma.contains("借款") || comma.contains("累计欠款") || comma.contains("分期资金") || comma.contains("透支款本金") || comma.contains("透支本金") || comma.contains("透支消费") || comma.contains("透支资金") || comma.contains("欠款本金") || comma.contains("透支金额") || comma.contains("货款总额") || comma.contains("消费共计") || comma.contains("车款") || comma.contains("支用") || comma.contains("本金") || comma.contains("如约支付") || comma.contains("分期款")) && !comma.contains("不超过") && !comma.contains("判令") && !comma.contains("冲抵") && !comma.contains("放款") && !comma.contains("自动扣划") && !comma.contains("累计") && !comma.contains("剩余") && !temp.contains("复利") && !temp.contains("尚欠") && !temp.contains("循环") && !temp.contains("余额") && !temp.contains("最高额") && StringUtils.isEmpty(vo.getLoanAmount())) || (StringUtils.hasLength(vo.getLoanAmount()) && temp.contains("款项合计"))) {
                             comma = comma.replace("？", "0");
                             comma = comma.replace(",", "");
                             comma = comma.replace(" ", "");
@@ -463,9 +468,10 @@ public class ContractService {
                             }
                         }
 
-                        if ((((temp.contains("期限") || temp.contains("借款时间") || temp.contains("借款期间") || temp.contains("借期") || temp.contains("借款额度有效期") || temp.contains("起止日期") || temp.contains("支付")) && (temp.contains("至") || temp.contains("到")) && temp.contains("年") && temp.contains("月")) || (temp.contains("起息日") && temp.contains("到期日"))) && !temp.contains("截止") && !temp.contains("截至") && !temp.contains("授信") && !temp.contains("不限于") && !temp.contains("暂计至") && !temp.contains("全部清偿") && !temp.contains("委托书") && !temp.contains("给付之日止")) {
+                        if ((((temp.contains("期限") || temp.contains("借款时间") || temp.contains("借款期间") || temp.contains("借期") || temp.contains("借款额度有效期") || temp.contains("起止日期") || temp.contains("支付")) && (temp.contains("至") || temp.contains("到")) && temp.contains("年") && temp.contains("月")) || (temp.contains("起息日") && temp.contains("到期日"))) && !temp.contains("截止") && !temp.contains("截至") && !temp.contains("授信") && !temp.contains("不限于") && !temp.contains("暂计至") && !temp.contains("全部清偿") && !temp.contains("委托书") && !temp.contains("罚息") && !temp.contains("复利") && !temp.contains("给付之日止") && !temp.contains("不超过")) {
                             String[] data = {};
                             temp = temp.replace("借到", "借");
+                            temp = temp.replace("到期", "");
                             if (temp.contains("到")) {
                                 data = temp.split("到");
                             } else if (temp.contains("至")) {
@@ -567,7 +573,14 @@ public class ContractService {
                             monthsContent = comma;
                         }
 
-                        if ((((temp.contains("贷款") || temp.contains("借款")) && temp.contains("发放")) || (temp.contains("在原告") && temp.contains("贷款")) || (temp.contains("从原告") && temp.contains("借款")) || (temp.contains("原告") && temp.contains("放贷款")) || temp.contains("起息日") || temp.contains("借款时间") || temp.contains("借款期限") || temp.contains("申请个人消费贷款") || temp.contains("申请并支用") || (temp.contains("借款") && !temp.contains("合同") && !temp.contains("连续")) || (temp.contains("贷款期限") && !temp.contains("至")) || (temp.contains("向原告") && temp.contains("借到"))) && temp.contains("年") && temp.contains("月") && !temp.contains("暂计至") && !temp.contains("截止到") && !temp.contains("计算至") && !temp.contains("登记") && !temp.contains("不限于") && !temp.contains("截至") && !temp.contains("委托书") && !temp.contains("以上") && !temp.contains("违约") && !temp.contains("以下") && !temp.contains("关系") && !temp.contains("担保") && !temp.contains("归还") && !temp.contains("止") && !temp.contains("到期") && !temp.contains("诉至") && !temp.contains("还款") && !temp.contains("最后") && !temp.contains("前的") && !temp.contains("全部清偿") && !temp.contains("暂计") && !temp.contains("同业拆借") && !temp.contains("给付之日止") && !temp.contains("罚息") && !temp.contains("判决")&&!temp.contains("期限到") && StringUtils.isEmpty(vo.getContractStartDate())) {
+                        if ((((temp.contains("贷款") || temp.contains("借款")) && temp.contains("发放")) || (temp.contains("在原告") && temp.contains("贷款")) || (temp.contains("从原告") && temp.contains("借款")) || (temp.contains("原告") && temp.contains("放贷款")) || temp.contains("起息日") || temp.contains("借款时间") || temp.contains("借款期限") || temp.contains("申请个人消费贷款") || temp.contains("申请并支用") || (temp.contains("借款") && !temp.contains("合同") && !temp.contains("连续") && !temp.contains("用途")) || (temp.contains("贷款期限") && !temp.contains("至")) || (temp.contains("向原告") && temp.contains("借到"))) && temp.contains("年") && temp.contains("月") && !temp.contains("暂计至") && !temp.contains("截止到") && !temp.contains("计算至") && !temp.contains("登记") && !temp.contains("不限于") && !temp.contains("截至") && !temp.contains("委托书") && !temp.contains("以上") && !temp.contains("违约") && !temp.contains("以下") && !temp.contains("关系") && !temp.contains("担保") && !temp.contains("归还") && !temp.contains("止") && !temp.contains("到期") && !temp.contains("诉至") && !temp.contains("还款") && !temp.contains("最后") && !temp.contains("前的") && !temp.contains("全部清偿") && !temp.contains("暂计") && !temp.contains("同业拆借") && !temp.contains("给付之日止") && !temp.contains("罚息") && !temp.contains("复利") && !temp.contains("判决") && !temp.contains("期限到") && !temp.contains("未按合同约定偿还") && !temp.contains("所还") && !temp.contains("不超过") && StringUtils.isEmpty(vo.getContractStartDate())) {
+                            if (temp.contains("起至")) {
+                                try {
+                                    temp = temp.split("起至")[0];
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
                             String contractStartDate = "";
                             for (Term term : ToAnalysis.parse(temp)) {
                                 if (contractStartDate.contains("年") && term.getRealName().contains("年")) {
@@ -604,7 +617,7 @@ public class ContractService {
                             }
                         }
 
-                        if (((temp.contains("还清") || temp.contains("到期") || temp.contains("还款期限") || temp.contains("还款时间") || temp.contains("到期日") || temp.contains("偿还")) || (temp.contains("贷款期限") && temp.contains("发放之日起") && temp.contains("止")) || (temp.contains("借款期限") && temp.contains("止"))) && temp.contains("年") && temp.contains("月") && !temp.contains("未能偿还") && !temp.contains("还本付息") && !temp.contains("发放") && !temp.contains("归还") && !temp.contains("拖欠") && !temp.contains("暂计至") && !temp.contains("截止") && !temp.contains("不限于") && !temp.contains("委托书") && !temp.contains("判令") && !temp.contains("起诉") && !temp.contains("全部清偿") && !temp.contains("给付之日止") && StringUtils.isEmpty(vo.getContractEndDate())) {
+                        if (((temp.contains("还清") || temp.contains("到期") || temp.contains("还款期限") || temp.contains("还款时间") || temp.contains("到期日") || temp.contains("偿还") || temp.contains("还款日期")) || (temp.contains("贷款期限") && temp.contains("发放之日起") && temp.contains("止")) || (temp.contains("借款期限") && temp.contains("止"))) && temp.contains("年") && temp.contains("月") && !temp.contains("未能偿还") && !temp.contains("还本付息") && !temp.contains("发放") && !temp.contains("归还") && !temp.contains("拖欠") && !temp.contains("暂计至") && !temp.contains("截止") && !temp.contains("不限于") && !temp.contains("委托书") && !temp.contains("判令") && !temp.contains("起诉") && !temp.contains("全部清偿") && !temp.contains("全部还清") && !temp.contains("给付之日止") && !temp.contains("解除") && !temp.contains("还清") && !temp.contains("罚息") && !temp.contains("未按合同约定偿还") && !temp.contains("复利") && !temp.contains("不超过") && !temp.contains("尚欠") && !temp.contains("偿还旧贷") && !temp.contains("计算至") && StringUtils.isEmpty(vo.getContractEndDate()) || (StringUtils.hasLength(vo.getContractEndDate()) && temp.contains("借款期限"))) {
                             String contractEndDate = "";
                             for (Term term : ToAnalysis.parse(temp)) {
                                 if (contractEndDate.contains("年") && term.getRealName().contains("年")) {
@@ -635,15 +648,24 @@ public class ContractService {
                                     contractEndDate += realName;
                                 }
                             }
-                            if (StringUtils.isEmpty(vo.getContractEndDate()) && StringUtils.hasLength(contractEndDate)) {
+                            if (StringUtils.isEmpty(vo.getContractEndDate()) && StringUtils.hasLength(contractEndDate) || (StringUtils.hasLength(vo.getContractEndDate()) && temp.contains("借款期限") && !temp.contains("届满"))) {
                                 vo.setContractEndDate(contractEndDate);
                                 vo.setContractEndDateContent(temp);
                             }
                         }
-                        if ((temp.contains("基准利率") || temp.contains("同期贷款利率") || temp.contains("分期手续费") || temp.contains("执行利率") || temp.contains("合同利率") || temp.contains("贷款利率") || temp.contains("借款利率") || temp.contains("年利率") || temp.contains("年利") || temp.contains("年息") || temp.contains("利率") || temp.contains("月利率") || temp.contains("月息") || temp.contains("月利") || temp.contains("日利率") || temp.contains("日利") || temp.contains("日息")) && (temp.contains("%") || temp.contains("‰") || temp.contains("分") || temp.contains("厘")) && !temp.contains("超过") && !temp.contains("逾利率") && !temp.contains("上限") && !temp.contains("逾期") && !temp.contains("罚息")) {
-                            if (StringUtils.isEmpty(vo.getLoanRate()) || (StringUtils.hasLength(vo.getLoanRate()) && (temp.contains("即") || temp.contains("执行") || temp.contains("确定")) && (temp.contains("年利率") || temp.contains("月利率") || temp.contains("%") || temp.contains("‰")))) {
+                        if ((temp.contains("基准利率") || temp.contains("同期贷款利率") || temp.contains("分期手续费") || temp.contains("执行利率") || temp.contains("合同利率") || temp.contains("贷款利率") || temp.contains("借款利率") || temp.contains("年利率") || temp.contains("年利") || temp.contains("年息") || temp.contains("利率") || temp.contains("月利率") || temp.contains("月息") || temp.contains("月利") || temp.contains("日利率") || temp.contains("日利") || temp.contains("日息")) && (temp.contains("%") || temp.contains("‰") || temp.contains("分") || temp.contains("厘")) && !temp.contains("超过") && !temp.contains("逾利率") && !temp.contains("上限") && !temp.contains("逾期") && !temp.contains("罚息") && !temp.contains("受偿权") && !temp.contains("判决")) {
+                            if (StringUtils.isEmpty(vo.getLoanRate()) || (StringUtils.hasLength(vo.getLoanRate()) && (temp.contains("即") || temp.contains("执行") || temp.contains("确定") || vo.getLoanRateContent().contains("上浮")) && (temp.contains("年利率") || temp.contains("月利率") || temp.contains("%") || temp.contains("‰")))) {
                                 comma = comma.replace(",", ".");
                                 for (Term term : ToAnalysis.parse(comma)) {
+                                    if (term.getRealName().contains("数") || term.getRealName().contains("条") || term.getRealName().contains("元") || term.getRealName().contains("整")) {
+                                        continue;
+                                    }
+                                    if (comma.contains("万分之五")) {
+                                        break;
+                                    }
+                                    if (StringUtils.hasLength(vo.getLoanRate()) && (term.getRealName().contains("上浮") || term.getRealName().contains("下浮") || term.getRealName().contains("加收"))) {
+                                        break;
+                                    }
                                     if (term.getNatureStr().equals("mq") && (term.getRealName().contains("%") || term.getRealName().contains("‰"))) {
                                         vo.setLoanRate(term.getRealName());
                                         vo.setLoanRateContent(temp);
@@ -656,7 +678,7 @@ public class ContractService {
                                         vo.setLoanRate(term.getRealName() + term.to().getRealName());
                                         vo.setLoanRateContent(temp);
                                     }
-                                    if (term.getNatureStr().equals("m") && !comma.contains("%") && !comma.contains("‰")) {
+                                    if (term.getNatureStr().equals("m") && !comma.contains("%") && !comma.contains("‰") && StringUtils.isEmpty(vo.getLoanRate())) {
                                         vo.setLoanRate(term.getRealName().replace("个", ""));
                                         vo.setLoanRateContent(temp);
                                     }
@@ -666,7 +688,7 @@ public class ContractService {
                                 vo.setLoanRate("0.05%");
                                 vo.setLoanRateContent(comma);
                             }
-                            if (StringUtils.hasLength(vo.getLoanRate())) {
+                            if (StringUtils.hasLength(vo.getLoanRate()) && StringUtils.isEmpty(vo.getRateType())) {
                                 if (comma.contains("基准利率") || comma.contains("基准贷款利率") || comma.contains("同期贷款利率") || comma.contains("同期同档次贷款利率")) {
                                     vo.setRateType("基准利率");
                                     if (StringUtils.isEmpty(vo.getLoanRateContent())) {
@@ -676,7 +698,7 @@ public class ContractService {
                                 if (comma.contains("日利率") || comma.contains("日息") || comma.contains("日利")) {
                                     vo.setRateType("日利率");
                                 }
-                                if (comma.contains("月利率") || comma.contains("月息") || comma.contains("月利") || comma.contains("贷款利率为每月") || comma.contains("月贷款利率")) {
+                                if (comma.contains("月利率") || comma.contains("月息") || comma.contains("月利") || comma.contains("贷款利率为每月") || comma.contains("月贷款利率") || comma.contains("分期手续费率") || comma.contains("分期手续费")) {
                                     vo.setRateType("月利率");
                                 }
                                 if (comma.contains("年利率") || comma.contains("年息") || comma.contains("年利") || comma.contains("贷款利率每年")) {
@@ -692,10 +714,10 @@ public class ContractService {
                             vo.setRateType("基准利率");
                             vo.setLoanRateContent(temp);
                         }
-                        if ((temp.contains("逾期") || temp.contains("罚息") || temp.contains("违约利率") || temp.contains("逾利率")) && (temp.contains("%") || temp.contains("‰") || temp.contains("分") || temp.contains("厘") || temp.contains("千分") || temp.contains("万分")) && !temp.contains("包括但不限于") && !temp.contains("上限")) {
+                        if ((temp.contains("逾期") || temp.contains("罚息") || temp.contains("违约利率") || temp.contains("至欠款全部还清之日止") || temp.contains("逾利率")) && (temp.contains("%") || temp.contains("‰") || temp.contains("分") || temp.contains("厘") || temp.contains("千分") || temp.contains("万分")) && !temp.contains("包括但不限于") && !temp.contains("不得超过") && !temp.contains("×") && !temp.contains("上限") && !temp.contains("已超过")) {
                             if (StringUtils.isEmpty(vo.getOverdueRate()) || (StringUtils.hasLength(vo.getOverdueRate()) && (comma.contains("即") || comma.contains("执行") || comma.contains("确定")) && (comma.contains("年利率") || comma.contains("月利率") || comma.contains("%") || comma.contains("‰")))) {
                                 for (Term term : ToAnalysis.parse(comma)) {
-                                    if (term.getRealName().contains("数") || term.getRealName().contains("条") || term.getRealName().contains("元")) {
+                                    if (term.getRealName().contains("数") || term.getRealName().contains("条") || term.getRealName().contains("元") || term.getRealName().contains("整") || term.getRealName().contains("多次") || term.getRealName().contains("第")) {
                                         continue;
                                     }
                                     if (term.getNatureStr().equals("mq") && (term.getRealName().contains("%") || term.getRealName().contains("‰"))) {
@@ -703,7 +725,7 @@ public class ContractService {
                                         vo.setOverdueRateContent(temp);
                                     }
                                     if (term.getNatureStr().equals("mq") && (term.getRealName().contains("分") || term.getRealName().contains("厘"))) {
-                                        vo.setOverdueRate((StringUtils.isEmpty(vo.getLoanRate()) ? "" : vo.getLoanRate()) + term.getRealName());
+                                        vo.setOverdueRate((StringUtils.isEmpty(vo.getOverdueRate()) ? "" : vo.getOverdueRate()) + term.getRealName());
                                         vo.setOverdueRateContent(temp);
                                     }
                                     if (term.getNatureStr().equals("m") && term.to() != null && (term.to().getRealName().equals("‰") || term.to().getRealName().equals("%"))) {
@@ -712,7 +734,12 @@ public class ContractService {
                                     }
                                     if (term.getNatureStr().contains("m") && !comma.contains("‰") && !comma.contains("%")) {
                                         vo.setOverdueRate(Optional.ofNullable(vo.getOverdueRate()).orElse("") + term.getRealName());
+                                        vo.setOverdueRateContent(temp);
                                     }
+                                }
+                                if (temp.contains("万分之五")) {
+                                    vo.setOverdueRate("0.05%");
+                                    vo.setOverdueRateContent(temp);
                                 }
 
                             }
@@ -730,7 +757,7 @@ public class ContractService {
                             vo.setMortgage(temp);
                         }
 
-                        if ((temp.contains("未还款") || temp.contains("罚息") || temp.contains("利息至今未付") || temp.contains("还款至") || temp.contains("还款到") || temp.contains("未再履行还款") || temp.contains("逾期") || temp.contains("未按期") || temp.contains("未按照约定支付") || temp.contains("未依约履行还款义务") || temp.contains("未按约归还贷款") || temp.contains("未按期支付") || temp.contains("不能按期") || (temp.contains("尚欠") && temp.contains("借款")) || (temp.contains("未按") && temp.contains("偿还贷款")) || (temp.contains("自") && temp.contains("起") && temp.contains("不") && temp.contains("还")) || temp.contains("违约")) && temp.contains("年") && temp.contains("月") && !temp.contains("止") && !temp.contains("计算至") && !temp.contains("算至") && !temp.contains("截至") && !temp.contains("暂算至") && !temp.contains("计算到") && !temp.contains("暂计至") && !temp.contains("不再主张") && !temp.contains("不主张") && !temp.contains("连带责任保证") && !temp.contains("不按期归还借款本金的") && !temp.contains("保证人") && StringUtils.isEmpty(vo.getDefaultDate())) {
+                        if ((temp.contains("未还款") || temp.contains("到期") || temp.contains("违反合同约定") || temp.contains("提前到期") || temp.contains("罚息") || temp.contains("利息至今未付") || temp.contains("还款至") || temp.contains("还款到") || temp.contains("未再履行还款") || temp.contains("逾期") || temp.contains("未按期") || temp.contains("未按照约定支付") || temp.contains("未按照合同约定") || temp.contains("未按合同约定还款") || temp.contains("未依约履行还款义务") || temp.contains("未按约归还贷款") || temp.contains("未按期支付") || temp.contains("未按约还款") || temp.contains("不能按期") || (temp.contains("未再") && temp.contains("归还")) || (temp.contains("尚欠") && temp.contains("借款")) || (temp.contains("未按") && temp.contains("偿还贷款")) || (temp.contains("自") && temp.contains("起") && temp.contains("不") && temp.contains("还")) || temp.contains("违约") || (temp.contains("支付") && temp.contains("利息至")) || (temp.contains("下欠") && temp.contains("借款"))) && temp.contains("年") && temp.contains("月") && !temp.contains("止") && !temp.contains("计算至") && !temp.contains("算至") && !temp.contains("暂算至") && !temp.contains("计算到") && !temp.contains("暂计至") && !temp.contains("不再主张") && !temp.contains("不主张") && !temp.contains("连带责任保证") && !temp.contains("不按期归还借款本金的") && !temp.contains("保证人") && !temp.contains("偿还本金") && !temp.contains("逾期利率") && !temp.contains("诉讼") && !temp.contains("审理终结")) {
                             String defaultDate = "";
                             for (Term term : ToAnalysis.parse(temp)) {
                                 if (defaultDate.contains("年") && term.getRealName().contains("年")) {
@@ -758,7 +785,7 @@ public class ContractService {
                                     defaultDate += realName;
                                 }
                             }
-                            if (StringUtils.isEmpty(vo.getDefaultDate())) {
+                            if (StringUtils.isEmpty(vo.getDefaultDate()) || ((temp.contains("尚欠") && temp.contains("借款") && StringUtils.hasLength(defaultDate)))) {
                                 vo.setDefaultDate(defaultDate);
                                 vo.setDefaultDateContent(temp);
                             }
@@ -846,7 +873,7 @@ public class ContractService {
                 String[] split = startFact.split("，");
                 for (int i = 0; i < split.length; i++) {
                     String comma = split[i];
-                    if ((comma.contains("授信额度") || comma.contains("贷款") || comma.contains("额度") || comma.contains("欠款") || comma.contains("化肥款") || comma.contains("借款") || comma.contains("累计欠款") || comma.contains("分期资金") || comma.contains("透支款本金") || comma.contains("支付透支款") || comma.contains("透支本金") || comma.contains("透支资金") || comma.contains("欠款本金") || comma.contains("透支金额") || comma.contains("货款总额") || comma.contains("消费共计") || comma.contains("车款") || comma.contains("支用") || comma.contains("本金")) && !comma.contains("不超过") && !comma.contains("判令") && !comma.contains("冲抵") && !comma.contains("自动扣划") && !comma.contains("剩余") && !comma.contains("复利") && StringUtils.isEmpty(vo.getLoanAmount())) {
+                    if ((comma.contains("授信额度") || comma.contains("贷款") || comma.contains("额度") || comma.contains("欠款") || comma.contains("化肥款") || comma.contains("借款") || comma.contains("累计欠款") || comma.contains("分期资金") || comma.contains("透支款本金") || comma.contains("支付透支款") || comma.contains("透支本金") || comma.contains("透支资金") || comma.contains("欠款本金") || comma.contains("透支金额") || comma.contains("货款总额") || comma.contains("消费共计") || comma.contains("车款") || comma.contains("支用") || comma.contains("本金")) && !comma.contains("不超过") && !comma.contains("判令") && !comma.contains("冲抵") && !comma.contains("自动扣划") && !comma.contains("剩余") && !comma.contains("复利") && !comma.contains("循环") && StringUtils.isEmpty(vo.getLoanAmount())) {
                         Result parse = ToAnalysis.parse(comma);
                         for (Term term : parse.getTerms()) {
                             if (term.getRealName().contains("全部") || term.getRealName().contains("单元")) {
@@ -875,7 +902,7 @@ public class ContractService {
                     if (i > 0) {
                         comma = split[i - 1] + comma;
                     }
-                    if ((comma.contains("期限") || comma.contains("授信期间") || comma.contains("借期")) && (comma.contains("至") || (comma.contains("起") || comma.contains("到"))) && comma.contains("年") && comma.contains("月") && comma.contains("日") && !comma.contains("截止") && !comma.contains("不限于")) {
+                    if ((comma.contains("期限") || comma.contains("授信期间") || comma.contains("借期")) && (comma.contains("至") || (comma.contains("起") || comma.contains("到"))) && comma.contains("年") && comma.contains("月") && comma.contains("日") && !comma.contains("截止") && !comma.contains("罚息") && !comma.contains("复利") && !comma.contains("不限于")) {
                         String[] data = {};
                         if (comma.contains("到")) {
                             data = comma.split("到");
@@ -967,7 +994,7 @@ public class ContractService {
 
                     }
 
-                    if (((comma.contains("还清") || comma.contains("到期") || comma.contains("还款期限") || comma.contains("还款时间") || comma.contains("偿还")) || (comma.contains("贷款期限") && comma.contains("发放之日起") && comma.contains("止")) || (comma.contains("借款期限") && comma.contains("止"))) && comma.contains("年") && comma.contains("月") && !comma.contains("未能偿还") && !comma.contains("还本付息") && !comma.contains("发放") && !comma.contains("归还") && !comma.contains("拖欠") && !comma.contains("暂计至") && !comma.contains("截止") && !comma.contains("判令") && !comma.contains("不限于") && !comma.contains("计算至") && !comma.contains("全部清偿") && !comma.contains("暂计") && StringUtils.isEmpty(vo.getContractEndDate())) {
+                    if (((comma.contains("还清") || comma.contains("到期") || comma.contains("还款期限") || comma.contains("还款时间") || comma.contains("偿还") || comma.contains("还款日期")) || (comma.contains("贷款期限") && comma.contains("发放之日起") && comma.contains("止")) || (comma.contains("借款期限") && comma.contains("止"))) && comma.contains("年") && comma.contains("月") && !comma.contains("未能偿还") && !comma.contains("还本付息") && !comma.contains("发放") && !comma.contains("归还") && !comma.contains("拖欠") && !comma.contains("暂计至") && !comma.contains("截止") && !comma.contains("判令") && !comma.contains("不限于") && !comma.contains("计算至") && !comma.contains("全部清偿") && !comma.contains("暂计") && !comma.contains("罚息") && !comma.contains("至欠款全部还清") && !comma.contains("复利") && !comma.contains("尚欠") && StringUtils.isEmpty(vo.getContractEndDate())) {
                         String contractEndDate = "";
                         for (Term term : ToAnalysis.parse(comma)) {
                             if (contractEndDate.contains("年") && term.getRealName().contains("年")) {
@@ -1004,7 +1031,7 @@ public class ContractService {
                         }
                     }
 
-                    if ((comma.contains("未还款") || comma.contains("罚息") || comma.contains("利息至今未付") || comma.contains("还款至") || comma.contains("还款日期") || comma.contains("还款到") || comma.contains("未再履行还款") || comma.contains("逾期") || comma.contains("未按期") || comma.contains("未按照约定支付") || comma.contains("未依约履行还款义务") || comma.contains("未按约归还贷款") || comma.contains("未按期支付") || comma.contains("不能按期") || (comma.contains("尚欠") && comma.contains("借款")) || (comma.contains("未按") && comma.contains("偿还贷款")) || comma.contains("违约")) && comma.contains("年") && comma.contains("月") && !comma.contains("止") && !comma.contains("计算至") && !comma.contains("算至") && !comma.contains("截至") && !comma.contains("暂算至") && !comma.contains("计算到") && !comma.contains("暂计至") && !comma.contains("不再主张") && !comma.contains("不主张") && !comma.contains("连带") && StringUtils.isEmpty(vo.getDefaultDate())) {
+                    if ((comma.contains("未还款") || comma.contains("罚息") || comma.contains("利息至今未付") || comma.contains("还款至") || comma.contains("还款日期") || comma.contains("还款到") || comma.contains("未再履行还款") || comma.contains("逾期") || comma.contains("未按期") || comma.contains("未按照约定支付") || comma.contains("未依约履行还款义务") || comma.contains("未按约归还贷款") || comma.contains("未按期支付") || comma.contains("不能按期") || (comma.contains("尚欠") && comma.contains("借款")) || (comma.contains("未按") && comma.contains("偿还贷款")) || comma.contains("违约")) && comma.contains("年") && comma.contains("月") && !comma.contains("止") && !comma.contains("计算至") && !comma.contains("算至") && !comma.contains("截至") && !comma.contains("暂算至") && !comma.contains("计算到") && !comma.contains("暂计至") && !comma.contains("不再主张") && !comma.contains("不主张") && !comma.contains("连带") && !comma.contains("罚息") && !comma.contains("计算至") && StringUtils.isEmpty(vo.getDefaultDate())) {
                         String defaultDate = "";
                         for (Term term : ToAnalysis.parse(comma)) {
                             if (defaultDate.contains("年") && term.getRealName().contains("年")) {
@@ -1200,7 +1227,7 @@ public class ContractService {
                             }
                         }
 
-                        if ((comma.contains("逾期") || comma.contains("罚息") || comma.contains("违约利率") || comma.contains("逾利率")) && (comma.contains("%") || comma.contains("‰") || comma.contains("分") || comma.contains("厘")) && !comma.contains("包括但不限于") && !comma.contains("上限")) {
+                        if ((comma.contains("逾期") || comma.contains("罚息") || comma.contains("违约利率") || comma.contains("逾利率")) && (comma.contains("%") || comma.contains("‰") || comma.contains("分") || comma.contains("厘")) && !comma.contains("包括但不限于") && !temp.contains("不得超过") && !comma.contains("上限")) {
                             if (StringUtils.isEmpty(vo.getOverdueRate()) || (StringUtils.hasLength(vo.getOverdueRate()) && (comma.contains("即") || comma.contains("执行")) && (comma.contains("年利率") || comma.contains("月利率") || comma.contains("%") || comma.contains("‰")))) {
                                 for (Term term : ToAnalysis.parse(comma)) {
                                     if (term.getRealName().contains("数") || term.getRealName().contains("条") || term.getRealName().contains("元")) {
@@ -1211,7 +1238,7 @@ public class ContractService {
                                         vo.setOverdueRateContent(temp);
                                     }
                                     if (term.getNatureStr().equals("mq") && (term.getRealName().contains("分") || term.getRealName().contains("厘"))) {
-                                        vo.setOverdueRate((StringUtils.isEmpty(vo.getLoanRate()) ? "" : vo.getLoanRate()) + term.getRealName());
+                                        vo.setOverdueRate((StringUtils.isEmpty(vo.getOverdueRate()) ? "" : vo.getOverdueRate()) + term.getRealName());
                                         vo.setOverdueRateContent(temp);
                                     }
                                     if (term.getNatureStr().equals("m") && term.to() != null && (term.to().getRealName().equals("‰") || term.to().getRealName().equals("%"))) {
@@ -1221,9 +1248,12 @@ public class ContractService {
                                 }
                             }
                         }
-                        if ((comma.contains("基准利率") || comma.contains("分期手续费") || comma.contains("执行利率") || comma.contains("合同利率") || comma.contains("贷款利率") || comma.contains("借款利率") || comma.contains("年利率") || comma.contains("年利") || comma.contains("年息") || comma.contains("利率") || comma.contains("月利率") || comma.contains("月息") || comma.contains("月利") || comma.contains("日利率") || comma.contains("日利") || comma.contains("日息")) && (comma.contains("%") || comma.contains("‰") || comma.contains("分") || comma.contains("厘") || comma.contains("同期")) && !comma.contains("不超过") && !temp.contains("逾利率") && !temp.contains("上限") && !temp.contains("债务清偿") && !temp.contains("逾期") && !temp.contains("罚息")) {
+                        if ((comma.contains("基准利率") || comma.contains("分期手续费") || comma.contains("执行利率") || comma.contains("合同利率") || comma.contains("贷款利率") || comma.contains("借款利率") || comma.contains("年利率") || comma.contains("年利") || comma.contains("年息") || comma.contains("利率") || comma.contains("月利率") || comma.contains("月息") || comma.contains("月利") || comma.contains("日利率") || comma.contains("日利") || comma.contains("日息")) && (comma.contains("%") || comma.contains("‰") || comma.contains("分") || comma.contains("厘") || comma.contains("同期")) && !comma.contains("不超过") && !temp.contains("逾利率") && !temp.contains("上限") && !temp.contains("债务清偿") && !temp.contains("逾期") && !temp.contains("罚息") && !temp.contains("判决")) {
                             if (StringUtils.isEmpty(vo.getLoanRate()) || (StringUtils.hasLength(vo.getLoanRate()) && (comma.contains("即") || comma.contains("执行")) && (comma.contains("年利率") || comma.contains("月利率") || comma.contains("%") || comma.contains("‰")))) {
                                 for (Term term : ToAnalysis.parse(comma)) {
+                                    if (term.getRealName().contains("数") || term.getRealName().contains("条") || term.getRealName().contains("元")) {
+                                        continue;
+                                    }
                                     if (term.getNatureStr().equals("mq") && (term.getRealName().contains("%") || term.getRealName().contains("‰"))) {
                                         vo.setLoanRate(term.getRealName());
                                         vo.setLoanRateContent(comma);
@@ -1569,9 +1599,14 @@ public class ContractService {
                     partyMapper.insert(entity1);
                 }
                 vo.setParty(party);
-                if (StringUtils.hasLength(vo.getContractEndDate()) && StringUtils.isEmpty(vo.getDefaultDate())) {
-                    vo.setDefaultDate(vo.getContractEndDate());
-                }
+//                if (StringUtils.hasLength(vo.getContractEndDate()) && StringUtils.isEmpty(vo.getDefaultDate())) {
+//                    try {
+//                        DateTime parse = DateUtil.parse(vo.getContractEndDate());
+//                        vo.setDefaultDate(DateUtil.offsetDay(parse, 1).toString(DatePattern.CHINESE_DATE_PATTERN));
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
 
                 try {
                     if (StringUtils.isEmpty(vo.getTerm())) {

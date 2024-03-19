@@ -59,9 +59,9 @@ public class TempService {
 
 
     private void convert(TempDocumentEntity entity, BaseEntity base) {
-        if (StringUtils.hasLength(entity.getJsonContent())) {
+     /*   if (StringUtils.hasLength(entity.getJsonContent())) {
             base.setJsonContent(JSON.parseObject(entity.getJsonContent()));
-        }
+        }*/
         if (StringUtils.hasText(entity.getCause())) {
             String[] split = entity.getCause().split(",");
             base.setCause(JSON.parseArray(JSON.toJSONString(split)));

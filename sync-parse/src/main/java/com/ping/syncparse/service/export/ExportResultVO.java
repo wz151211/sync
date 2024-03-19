@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
 @Data
-@Document(value = "document_zhiwufanzui")
+@Document(value = "doc_shouhui")
 public class ExportResultVO {
     @Id
 
@@ -79,4 +79,6 @@ public class ExportResultVO {
 
 
     private JSONObject jsonContent;
+
+    private String viewCount;
 }
